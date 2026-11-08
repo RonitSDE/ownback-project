@@ -1,0 +1,30 @@
+# Free keeper: runs one pass every 5 minutes (GitHub's minimum). Mirrors the live Coinbase
+# price and settles due rewards. Set repository secrets KEEPER_PRIVATE_KEY (and BUILDER_CODE).
+# For a faster demo, also run `npm run keeper` locally or on Railway/Fly during recording.
+name: Keeper
+concurrency:
+  group: ownback-base-sepolia-keeper
+  cancel-in-progress: false
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  keeper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run keeper:once
+        env:
+          RPC_URL: https://sepolia.base.org
+          KEEPER_PRIVATE_KEY: ${{ secrets.KEEPER_PRIVATE_KEY }}
+          BUILDER_CODE: ${{ secrets.BUILDER_CODE }}
+          DEPLOYMENT_FILE: contracts/deployments/84532.json
+          PRICE_SOURCE: coinbase
+          MAX_SOURCE_AGE_SECONDS: '172800'
+          STOCK_SYMBOL: AAPLc

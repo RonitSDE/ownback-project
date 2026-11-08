@@ -1,0 +1,77 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+      - run: ./contracts/install-deps.sh
+      - run: cd contracts && forge test -vv
+
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run release:preflight
+      - run: npm test
+      - run: npm run check
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium && npm run test:e2e
+
+  e2e-chain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci && ./contracts/install-deps.sh
+      - name: Deploy to local chain and run the full lifecycle with the real keeper
+        run: |
+          anvil --silent &
+          sleep 2
+          (cd contracts && forge script script/DeployTestnet.s.sol:DeployTestnet --rpc-url http://127.0.0.1:8545 --broadcast)
+          npm run e2e:local
+        env:
+          DEPLOYER_PRIVATE_KEY: '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+          KEEPER_ADDRESS: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
+
+  ui-journey:
+    # Real browser + injected EIP-6963 test wallet sending genuine transactions to a local chain.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci && ./contracts/install-deps.sh && npx playwright install --with-deps chromium
+      - name: Chain, keeper price, app, then the wallet journey
+        run: |
+          anvil --silent &
+          sleep 2
+          (cd contracts && forge script script/DeployTestnet.s.sol:DeployTestnet --rpc-url http://127.0.0.1:8545 --broadcast)
+          npm run write:local-env
+          npx tsx scripts/keeper.ts --once
+          npm run build
+          (npm run start -- -p 3000 &) && sleep 8
+          npm run test:ui
+        env:
+          DEPLOYER_PRIVATE_KEY: '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+          KEEPER_ADDRESS: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
+          KEEPER_PRIVATE_KEY: '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+          RPC_URL: http://127.0.0.1:8545
+          DEPLOYMENT_FILE: contracts/deployments/31337.json
+          PRICE_SOURCE: static
+          STATIC_PRICE_USDC: '200000000'
+          UI_URL: http://localhost:3000
+          ALLOW_ERRORS: 'fonts.googleapis.com|/api/prices|status of 502'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: ui-screenshots, path: test-results/ui }

@@ -1,0 +1,53 @@
+{
+  "name": "ownback",
+  "version": "3.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start --hostname 0.0.0.0",
+    "check": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "test:contracts": "cd contracts && forge test",
+    "test:e2e": "playwright test",
+    "abi": "node scripts/export-abi.mjs",
+    "keeper": "tsx scripts/keeper.ts",
+    "keeper:once": "tsx scripts/keeper.ts --once",
+    "e2e:local": "node scripts/e2e-local.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "prices:check": "tsx scripts/prices-check.ts",
+    "release:preflight": "node scripts/release-preflight.mjs",
+    "verify:local": "bash scripts/verify-local.sh",
+    "write:local-env": "node scripts/write-local-env.mjs",
+    "lint": "eslint .",
+    "test:ui": "node tests/ui/wallet-journey.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "lucide-react": "^0.468.0",
+    "next": "^15.5.0",
+    "ox": "^0.14.59",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "recharts": "^2.15.4",
+    "viem": "^2.37.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "typescript": "^5.9.0",
+    "tsx": "^4.20.0",
+    "@playwright/test": "^1.56.0",
+    "eslint": "^9.35.0",
+    "eslint-config-next": "^15.5.0",
+    "prettier": "^3.6.2"
+  }
+}

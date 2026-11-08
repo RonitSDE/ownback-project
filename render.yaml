@@ -1,0 +1,95 @@
+# OWNBACK on Render. Chain: Base Sepolia (84532). Not Base mainnet (8453).
+# NEXT_PUBLIC_* values are inlined at build time. Filling them in the dashboard rebuilds the site.
+# The worker is a paid Render service. Remove it if the GitHub Actions keeper is enough.
+
+services:
+  - type: web
+    name: ownback
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start -- --port $PORT
+    healthCheckPath: /api/live
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NEXT_PUBLIC_CHAIN_ID
+        value: "84532"
+      - key: NEXT_PUBLIC_RPC_URL
+        value: https://sepolia.base.org
+      - key: NEXT_PUBLIC_CAMPAIGN_ID
+        value: "1"
+      - key: NEXT_PUBLIC_STOCK_SYMBOL
+        value: AAPLc
+      - key: NEXT_PUBLIC_OWNBACK_ADDRESS
+        sync: false
+      - key: NEXT_PUBLIC_USDC_ADDRESS
+        sync: false
+      - key: NEXT_PUBLIC_STOCK_ADDRESS
+        sync: false
+      - key: NEXT_PUBLIC_ADAPTER_ADDRESS
+        sync: false
+      - key: NEXT_PUBLIC_DEPLOY_BLOCK
+        sync: false
+      - key: NEXT_PUBLIC_BUILDER_CODE
+        sync: false
+
+  - type: worker
+    name: ownback-keeper
+    runtime: node
+    plan: 0.5c-512mb
+    buildCommand: npm ci --include=dev
+    startCommand: npx tsx scripts/keeper.ts
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: CHAIN_ID
+        value: "84532"
+      - key: RPC_URL
+        value: https://sepolia.base.org
+      - key: PRICE_SOURCE
+        value: coinbase
+      - key: STOCK_SYMBOL
+        value: AAPLc
+      - key: MAX_SOURCE_AGE_SECONDS
+        value: "172800"
+      - key: KEEPER_INTERVAL_MS
+        value: "60000"
+      - key: KEEPER_MAX_PURCHASES
+        value: "10000"
+      - key: ALLOW_TESTNET_STATIC_PRICE
+        value: "false"
+      - key: KEEPER_PRIVATE_KEY
+        sync: false
+      - key: BUILDER_CODE
+        sync: false
+      - key: NEXT_PUBLIC_OWNBACK_ADDRESS
+        fromService:
+          name: ownback
+          type: web
+          envVarKey: NEXT_PUBLIC_OWNBACK_ADDRESS
+      - key: NEXT_PUBLIC_ADAPTER_ADDRESS
+        fromService:
+          name: ownback
+          type: web
+          envVarKey: NEXT_PUBLIC_ADAPTER_ADDRESS
+      - key: NEXT_PUBLIC_STOCK_ADDRESS
+        fromService:
+          name: ownback
+          type: web
+          envVarKey: NEXT_PUBLIC_STOCK_ADDRESS
+      - key: NEXT_PUBLIC_CAMPAIGN_ID
+        fromService:
+          name: ownback
+          type: web
+          envVarKey: NEXT_PUBLIC_CAMPAIGN_ID
+      - key: NEXT_PUBLIC_DEPLOY_BLOCK
+        fromService:
+          name: ownback
+          type: web
+          envVarKey: NEXT_PUBLIC_DEPLOY_BLOCK
+      - key: NEXT_PUBLIC_CHAIN_ID
+        fromService:
+          name: ownback
+          type: web
+          envVarKey: NEXT_PUBLIC_CHAIN_ID

@@ -1,0 +1,11 @@
+{
+  "adapter": "0xcB93b30c85f95B588f0bBa4bDC4a67255f1f92CA",
+  "campaignId": 1,
+  "chainId": 84532,
+  "deployBlock": 55893899,
+  "keeper": "0xc2a5d5C6cb6dF500BBa4214DD5CDA40f66970379",
+  "merchant": "0xc2a5d5C6cb6dF500BBa4214DD5CDA40f66970379",
+  "ownback": "0x6d864F61D9551DB557e468e31C83c87739014C5d",
+  "stock": "0xF23e241B2D6e56a839d23f26099A7015CCC859E0",
+  "usdc": "0x7Be92afb5bC033B46c1A68d334e996060e8C016c"
+}
