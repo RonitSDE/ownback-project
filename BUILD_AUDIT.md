@@ -1,4 +1,4 @@
-# OWNBACK v3.2 build and verification audit (2026-11-06)
+# OWNBACK v3.3 build and verification audit (2026-11-06)
 
 Every result below was executed in the build environment, not inferred.
 
@@ -23,6 +23,7 @@ outbound network).
 ## Not verified here
 
 - Live Coinbase Tokenized Stocks API response (`npm run prices:check`)
+- Live Bankr Agent API (`npm run bankr:check` with a real bk_ key)
 - Base Sepolia deployment and contract verification
 - Real wallet extensions (Coinbase Wallet, MetaMask, Rabby) by hand
 - Independent security audit

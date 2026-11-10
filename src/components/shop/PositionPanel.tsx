@@ -1,12 +1,12 @@
 'use client';
 
-import { ArrowUpRight } from 'lucide-react';
 import type { Balances, LiveReference, PriceInfo } from '@/hooks/useShopData';
 import { mirroredSymbol } from '@/lib/config';
 import { duration, stockUnits, usd, STOCK_DECIMALS } from '@/lib/format';
-import { AAVE_COLLATERAL, LENDING_LINKS, LENDING_NOTE, MORPHO_LLTV, SUGGESTED_MAX_LTV } from '@/lib/lending';
+import { MORPHO_LLTV, SUGGESTED_MAX_LTV } from '@/lib/lending';
 import { classifyPrice, PRICE_STATUS_COPY } from '@/lib/price-status';
 import { KV, Tag } from '@/components/ui';
+import { BorrowAction } from './BorrowAction';
 
 type Props = {
   balances?: Balances;
@@ -72,25 +72,21 @@ export function PositionPanel({ balances, price, liveRef, pendingReward, now }: 
       <div className="divider" />
       <div className="metric-label">Put it to work on mainnet</div>
       <p className="sub" style={{ marginTop: 6 }}>
-        On Base mainnet this reward is {mirroredSymbol}, a Coinbase tokenized stock accepted as collateral for
-        USDC loans. A loyalty balance that isn&apos;t dead points.
+        This Base Sepolia asset is synthetic and cannot be used as real lending collateral. Bankr can research eligible markets, but no loan is available through this reward.
       </p>
       {lltv && <KV label="Morpho liquidation LTV">{(lltv * 100).toFixed(1)}%</KV>}
-      <KV label="Aave V4 Equities Hub collateral">{AAVE_COLLATERAL.has(mirroredSymbol) ? 'Yes' : 'No'}</KV>
-      <KV label={`Borrow headroom at ${SUGGESTED_MAX_LTV * 100}% LTV`}>
+      <KV label="Testnet collateral eligibility">Not eligible</KV>
+      <KV label={`Illustrative borrowing at ${SUGGESTED_MAX_LTV * 100}% LTV`}>
         ${(positionUsd * SUGGESTED_MAX_LTV).toFixed(2)}
       </KV>
-      <div className="btn-row" style={{ marginTop: 12 }}>
-        <a className="btn lime" href={LENDING_LINKS.morpho} target="_blank" rel="noopener noreferrer">
-          Morpho <ArrowUpRight size={14} aria-hidden />
-        </a>
-        <a className="btn" href={LENDING_LINKS.aave} target="_blank" rel="noopener noreferrer">
-          Aave <ArrowUpRight size={14} aria-hidden />
-        </a>
-      </div>
+      <BorrowAction
+        stockSymbol={price?.symbol ?? mirroredSymbol}
+        collateralUnits={tokens.toFixed(6)}
+        borrowUsdc={Math.max(0, positionUsd * SUGGESTED_MAX_LTV)}
+        disabled={tokens <= 0}
+      />
       <p className="fine" style={{ marginTop: 12 }}>
-        {LENDING_NOTE} OWNBACK suggests staying at or under {SUGGESTED_MAX_LTV * 100}% LTV: the token trades
-        24/7, the underlying market doesn&apos;t.
+        Illustrative LTV figures are not an offer, quotation or loan limit. Actual lending would require verified collateral and an authorized user transaction.
       </p>
     </section>
   );

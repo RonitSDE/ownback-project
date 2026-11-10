@@ -23,7 +23,7 @@ const csp = [
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
-  "img-src 'self' data: blob:", // EIP-6963 wallet icons are data: URIs (validated before rendering)
+  "img-src 'self' data: blob: https:", // Shopify catalog images are served from HTTPS merchant/CDN domains
   `connect-src ${connectSources()}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",

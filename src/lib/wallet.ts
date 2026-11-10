@@ -13,6 +13,7 @@ import {
   type Address,
   type EIP1193Provider,
   type Hash,
+  type Hex,
 } from 'viem';
 import { builderDataSuffix, chain, rpcUrl } from './config';
 
@@ -79,6 +80,17 @@ export function discoverWallets(onChange: (wallets: WalletDetail[]) => void): ()
 
 // ------------------------------------------------------------------ network + account
 
+/** Active provider for the standalone commerce checkout. Wallet picker flows may pass a provider explicitly. */
+let commerceProvider: EIP1193Provider | undefined;
+export async function connectWallet(): Promise<Address> {
+  const provider=commerceProvider ?? window.ethereum;
+  if (!provider) throw new Error('Install or open a compatible Base wallet to continue.');
+  await ensureChain(provider);
+  const account=await requestAccount(provider);
+  commerceProvider=provider;
+  return account;
+}
+
 export class WrongNetworkError extends Error {
   constructor() {
     super(`Switch your wallet to ${chain.name} to continue.`);
@@ -127,6 +139,18 @@ export async function authorisedAccount(provider: EIP1193Provider): Promise<Addr
 
 // ------------------------------------------------------------------ transactions
 
+/** Sign a claim using the same provider and wallet account used by OWNBACK's checkout.
+ * Never silently switch to window.ethereum when the user selected another provider. */
+export async function signWithConnectedWallet(account:Address,message:string):Promise<Hex>{
+  const provider=commerceProvider ?? window.ethereum;
+  if(!provider)throw new Error('Connect a compatible Base wallet first.');
+  await ensureChain(provider);
+  const signer=await authorisedAccount(provider);
+  if(!signer||signer!==getAddress(account))throw new Error('Wallet account changed. Reconnect before signing.');
+  const wallet=createWalletClient({chain,transport:custom(provider),account});
+  return wallet.signMessage({account,message});
+}
+
 const RECEIPT_TIMEOUT_MS = 120_000;
 
 export class StillPendingError extends Error {
@@ -140,15 +164,18 @@ export class StillPendingError extends Error {
  * Simulation first means a transaction that would revert never reaches the wallet prompt.
  */
 export async function send(params: {
-  provider: EIP1193Provider;
-  account: Address;
+  provider?: EIP1193Provider;
+  account?: Address;
   address: Address;
   abi: Abi;
   functionName: string;
   args: readonly unknown[];
   onSubmitted?: (hash: Hash) => void;
 }): Promise<Hash> {
-  const { provider, account } = params;
+  const provider = params.provider ?? commerceProvider ?? window.ethereum;
+  if (!provider) throw new Error('Connect a Base wallet first.');
+  const account = params.account ?? await authorisedAccount(provider);
+  if (!account) throw new Error('Connect your wallet first.');
   await ensureChain(provider);
   const signer = await authorisedAccount(provider);
   if (!signer || signer !== getAddress(account)) {

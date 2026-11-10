@@ -35,8 +35,8 @@ export default function ShopPage() {
           <h1>Pay in USDC. Get paid back in stock.</h1>
           <p>
             {campaign
-              ? `${campaign.firstBps / 100}% back on your first order, ${campaign.comebackBps / 100}% when you come back within ${Math.round(campaign.returnWindow / 86400)} days. Rewards land in the wallet that paid, as tokenized stock.`
-              : 'Every order earns a reward in tokenized stock, delivered to the wallet that paid.'}
+              ? `${campaign.firstBps / 100}% back on your first order, ${campaign.comebackBps / 100}% when you come back within ${Math.round(campaign.returnWindow / 86400)} days. After the hold, eligible rewards settle in the paying wallet as mock tokenized stock on Base Sepolia.`
+              : 'Eligible rewards may settle as mock stock tokens on Base Sepolia after the refund hold.'}
           </p>
         </div>
         {account && (

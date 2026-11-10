@@ -1,6 +1,7 @@
 'use client';
 
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, ArrowUpRight } from 'lucide-react';
+import Link from 'next/link';
 import { AppNav } from '@/components/AppNav';
 import { NotConfigured } from '@/components/NotConfigured';
 import { BudgetControls } from '@/components/merchant/BudgetControls';
@@ -34,6 +35,7 @@ export default function MerchantPage() {
           </p>
         </div>
         <div className="btn-row">
+          <Link href="/growth" className="btn primary">Merchant Growth Studio <ArrowUpRight size={15} /></Link>
           {account && (
             <Tag tone={isMerchant ? 'green' : 'grey'}>{isMerchant ? 'Merchant wallet' : 'View only'}</Tag>
           )}

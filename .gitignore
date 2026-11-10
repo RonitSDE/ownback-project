@@ -2,11 +2,8 @@ node_modules
 .next
 out
 .env
-.env.*
-!.env.example
-*.pem
-*.key
-*keystore*
+.env.local
+.env.*.local
 *.tsbuildinfo
 next-env.d.ts
 test-results

@@ -5,8 +5,12 @@ import { usePathname } from 'next/navigation';
 import { WalletButton } from './wallet/WalletButton';
 
 const LINKS = [
-  { href: '/shop', label: 'Shop' },
-  { href: '/merchant', label: 'Merchant' },
+  { href: '/growth', label: 'Merchant growth' },
+  { href: '/ownership', label: 'My ownership' },
+  { href: '/agentic', label: 'Shopify shopping' },
+  { href: '/commerce', label: 'Storefront' },
+  { href: '/shop', label: 'Base wallet' },
+  { href: '/protocol', label: 'Proof protocol' },
   { href: '/demo', label: 'Simulator' },
 ];
 

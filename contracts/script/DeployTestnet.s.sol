@@ -6,6 +6,8 @@ import {Ownback} from "../src/Ownback.sol";
 import {MockUSDC} from "../src/mocks/MockUSDC.sol";
 import {MockB20Stock} from "../src/mocks/MockB20Stock.sol";
 import {PricedMockStockAdapter} from "../src/mocks/PricedMockStockAdapter.sol";
+import {ShopifyRewardVault} from "../src/ShopifyRewardVault.sol";
+import {ShopifyTestnetAdapter} from "../src/testnet/ShopifyTestnetAdapter.sol";
 
 /// @notice Deploys the full OWNBACK testnet stack and a funded demo campaign.
 ///
@@ -49,6 +51,22 @@ contract DeployTestnet is Script {
         usdc.approve(address(ob), type(uint256).max); // funding + merchant refunds
         ob.fund(cid, budget);
 
+        // Parallel Shopify lane: buyers pay in Shopify; merchant funds rewards in test USDC.
+        // Testnet only: mock token has no equity rights. Same merchant, separate vault.
+        uint32 shopifyHold = block.chainid == 31337 ? uint32(0) : uint32(24 hours);
+        ShopifyRewardVault shopifyVault = new ShopifyRewardVault(
+            address(usdc), address(stock), deployer, keeper, shopifyHold,
+            uint64(block.timestamp + 60 days)
+        );
+        ShopifyTestnetAdapter shopifyAdapter = new ShopifyTestnetAdapter(
+            address(usdc), address(shopifyVault), price
+        );
+        stock.setMinter(address(shopifyAdapter), true);
+        shopifyVault.setAdapter(address(shopifyAdapter));
+        usdc.faucet(deployer, 1_000e6);
+        usdc.approve(address(shopifyVault), 1_000e6);
+        shopifyVault.fund(1_000e6);
+
         vm.stopBroadcast();
 
         string memory key = "deployment";
@@ -60,6 +78,8 @@ contract DeployTestnet is Script {
         vm.serializeAddress(key, "merchant", deployer);
         vm.serializeAddress(key, "keeper", keeper);
         vm.serializeUint(key, "campaignId", cid);
+        vm.serializeAddress(key, "shopifyRewardVault", address(shopifyVault));
+        vm.serializeAddress(key, "shopifyRewardAdapter", address(shopifyAdapter));
         string memory json = vm.serializeUint(key, "deployBlock", block.number);
         vm.writeJson(json, string.concat("./deployments/", vm.toString(block.chainid), ".json"));
 
@@ -68,5 +88,6 @@ contract DeployTestnet is Script {
         console2.log("Stock   ", address(stock));
         console2.log("Adapter ", address(adapter));
         console2.log("Campaign", cid);
+        console2.log("Shopify reward vault", address(shopifyVault));
     }
 }

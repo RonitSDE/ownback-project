@@ -22,15 +22,10 @@ export const addresses = {
 
 export const isConfigured = Object.values(addresses).every(Boolean);
 
-function uintEnv(value: string | undefined, fallback: string): bigint {
-  const trimmed = value?.trim();
-  return BigInt(trimmed ? trimmed : fallback);
-}
-
-export const campaignId = uintEnv(process.env.NEXT_PUBLIC_CAMPAIGN_ID, '1');
+export const campaignId = BigInt(process.env.NEXT_PUBLIC_CAMPAIGN_ID ?? '1');
 
 /** Block the contracts were deployed at, so log scans don't start from genesis. */
-export const deployBlock = uintEnv(process.env.NEXT_PUBLIC_DEPLOY_BLOCK, '0');
+export const deployBlock = BigInt(process.env.NEXT_PUBLIC_DEPLOY_BLOCK ?? '0');
 
 /** Mainnet Coinbase tokenized stock the testnet mock mirrors (price + multiplier). */
 export const mirroredSymbol = process.env.NEXT_PUBLIC_STOCK_SYMBOL ?? 'AAPLc';

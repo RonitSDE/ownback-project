@@ -16,11 +16,23 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
+      - run: node scripts/verify-manifest.mjs
       - run: npm ci
       - run: npm run format:check
       - run: npm run lint
       - run: npm run release:preflight
       - run: npm test
+      - run: npm run test:commerce
+      - run: npm run test:hybrid
+      - run: npm run test:agentic
+      - run: npm run agentic:preflight
+      - run: npm run test:protocol
+      - run: npm run commerce:preflight
+      - name: Bankr live check (only if a key secret is present)
+        if: ${{ env.BANKR_API_KEY != '' }}
+        env:
+          BANKR_API_KEY: ${{ secrets.BANKR_API_KEY }}
+        run: npm run bankr:check
       - run: npm run check
       - run: npm run build
       - run: npx playwright install --with-deps chromium && npm run test:e2e
@@ -32,6 +44,7 @@ jobs:
       - uses: foundry-rs/foundry-toolchain@v1
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
+      - run: node scripts/verify-manifest.mjs
       - run: npm ci && ./contracts/install-deps.sh
       - name: Deploy to local chain and run the full lifecycle with the real keeper
         run: |
@@ -51,6 +64,7 @@ jobs:
       - uses: foundry-rs/foundry-toolchain@v1
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
+      - run: node scripts/verify-manifest.mjs
       - run: npm ci && ./contracts/install-deps.sh && npx playwright install --with-deps chromium
       - name: Chain, keeper price, app, then the wallet journey
         run: |

@@ -60,7 +60,7 @@ The Quest Period began Nov 5. Be exact and keep the git history.
 7. **(1:15) Trust.** A third order shows "no stock reward" and the Pay button stays locked until the customer
    ticks "pay without a reward": OWNBACK never quietly downgrades a reward. A refund releases the reservation.
    "The payment is the proof. Rewards always go to the payer."
-8. **(1:25) Close.** "OWNBACK. Spend. Earn stock. Borrow on it. Built on Base."
+8. **(1:25) Close.** "OWNBACK. Spend. Earn stock. Research its possibilities. Built on Base."
 
 Record with the always-on keeper running so settlement happens live.
 
@@ -89,9 +89,9 @@ Post progress on X from now to Dec 5, at least twice a week:
 
 ## Partners: what to do in the Nov 6–13 window
 
-- **Bankr** (the only partner on every track; already ships tokenized-stock tooling): pitch a Bankr agent
-  skill that settles a customer's reward or opens a Morpho borrow by message. Ask which integration they
-  would reward. **Not built yet**; only claim it if you ship it.
+- **Bankr** (the only partner on every track; already ships tokenized-stock tooling): **built.** The
+  "borrow against your reward" step can run through the customer's Bankr agent (see BANKR.md). Verify the
+  live API with `npm run bankr:check` before demoing, and ask Bankr which further integration they'd reward.
 - **BaseStonk** (Programmable track partner): ask what market-infrastructure integration they want to see.
 - Don't name-drop partners you haven't integrated.
 

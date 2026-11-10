@@ -65,31 +65,11 @@ npm run keeper:once
 
 The included GitHub Actions keeper runs every five minutes with a concurrency group. Add `KEEPER_PRIVATE_KEY` as a GitHub secret. For a recorded live demo, a dedicated worker process is more predictable. The keeper scans **all onchain purchases** to avoid losing work on restart, so stop and replace it with a durable indexed queue before exceeding `KEEPER_MAX_PURCHASES` or running commercial volumes. Use only ONE active keeper instance per key to avoid nonce races.
 
-## 5. Deploy the web app and keeper on Render
+## 5. Deploy frontend on Vercel or equivalent
 
-The chain is **Base Sepolia, chain ID 84532**. The wallet, `NEXT_PUBLIC_CHAIN_ID`, and `RPC_URL` use 84532. `render.yaml` already pins that. Base mainnet is 8453 and this release rejects it.
-
-`NEXT_PUBLIC_*` values are inlined at **build** time. Set them before the first build. Changing them in the Render dashboard rebuilds the service.
-
-1. Finish section 2 and copy the public fields out of `contracts/deployments/84532.json`.
-2. In Render: **New → Blueprint**, select this repo, and apply `render.yaml`.
-3. Fill the prompted values on the **ownback** web service: `NEXT_PUBLIC_OWNBACK_ADDRESS`, `NEXT_PUBLIC_USDC_ADDRESS`, `NEXT_PUBLIC_STOCK_ADDRESS`, `NEXT_PUBLIC_ADAPTER_ADDRESS`, `NEXT_PUBLIC_DEPLOY_BLOCK`. `NEXT_PUBLIC_BUILDER_CODE` is optional (ERC-8021, from base.dev).
-4. On **ownback-keeper**, set `KEEPER_PRIVATE_KEY` to the keeper wallet from section 2. Never put that key in a `NEXT_PUBLIC_` variable. The worker copies the contract addresses from the web service, so it does not need the deployment JSON on disk.
-5. Open `https://<service>.onrender.com/api/live` and confirm `"chainId": 84532`. Then:
-
-```bash
-SMOKE_URL=https://<service>.onrender.com npm run smoke
-```
-
-`/api/live` is the Render health check and stays 200 while the process is up. `/api/health` is the deeper check: it returns 503 when the campaign is missing or the mirrored price is older than the adapter allows, including over a market closure. Keep the platform health check on `/api/live` so a closed market does not restart the site.
-
-The web service is on the free instance. It binds `0.0.0.0` and Render's `PORT`, and Node is pinned to 22. The keeper worker uses the smallest paid worker (`0.5c-512mb`) because Render does not offer free background workers. One keeper only. If you skip the worker, the GitHub Action in `.github/workflows/keeper.yml` can run the same pass every five minutes, but that path still needs `contracts/deployments/84532.json` committed and `KEEPER_PRIVATE_KEY` stored as a repository secret.
-
-Same public variables if you deploy the Next.js app somewhere else:
+Set `NEXT_PUBLIC_CHAIN_ID=84532`, dedicated `NEXT_PUBLIC_RPC_URL`, and fill the following from your deployment JSON:
 
 ```dotenv
-NEXT_PUBLIC_CHAIN_ID=84532
-NEXT_PUBLIC_RPC_URL=https://sepolia.base.org
 NEXT_PUBLIC_OWNBACK_ADDRESS=...
 NEXT_PUBLIC_USDC_ADDRESS=...
 NEXT_PUBLIC_STOCK_ADDRESS=...
@@ -97,6 +77,12 @@ NEXT_PUBLIC_ADAPTER_ADDRESS=...
 NEXT_PUBLIC_CAMPAIGN_ID=1
 NEXT_PUBLIC_DEPLOY_BLOCK=...
 NEXT_PUBLIC_STOCK_SYMBOL=AAPLc
+```
+
+Optional `NEXT_PUBLIC_BUILDER_CODE` is your ERC-8021 Base Builder Code. Build with `npm run build` and deploy with a provider supporting the Next.js App Router; set the above variables **at build time**.
+
+```bash
+SMOKE_URL=https://your-preview-domain.example npm run smoke
 ```
 
 Check `/api/health` returns 200 with `priceFresh: true` before asking judges to test live self-settlement. A stale source response is intentionally degraded, not silently replaced with sample data.

@@ -6,7 +6,7 @@
  * No Shopify or offchain purchase oracle is involved in v3.1.
  */
 import 'dotenv/config';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { createPublicClient, createWalletClient, http, type Address, type Hex } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { baseSepolia, foundry } from 'viem/chains';
@@ -24,42 +24,9 @@ type Deployment = {
 };
 
 const once = process.argv.includes('--once');
-
-function addressFrom(value: string | undefined): Address | undefined {
-  return value && /^0x[0-9a-fA-F]{40}$/.test(value) ? (value as Address) : undefined;
-}
-
-/** File when present (local, CI). Env addresses when the server image has no deployment JSON. */
-function loadDeployment(): Deployment {
-  const explicit = process.env.DEPLOYMENT_FILE;
-  if (explicit) {
-    if (!existsSync(explicit)) throw new Error(`DEPLOYMENT_FILE not found: ${explicit}`);
-    return JSON.parse(readFileSync(explicit, 'utf8'));
-  }
-  const fallback = 'contracts/deployments/84532.json';
-  if (existsSync(fallback)) return JSON.parse(readFileSync(fallback, 'utf8'));
-
-  const ownback =
-    addressFrom(process.env.OWNBACK_ADDRESS) ?? addressFrom(process.env.NEXT_PUBLIC_OWNBACK_ADDRESS);
-  const adapter =
-    addressFrom(process.env.ADAPTER_ADDRESS) ?? addressFrom(process.env.NEXT_PUBLIC_ADAPTER_ADDRESS);
-  const stock = addressFrom(process.env.STOCK_ADDRESS) ?? addressFrom(process.env.NEXT_PUBLIC_STOCK_ADDRESS);
-  if (!ownback || !adapter || !stock) {
-    throw new Error(
-      'Keeper has no deployment file and no contract addresses. Set DEPLOYMENT_FILE, or OWNBACK_ADDRESS, ADAPTER_ADDRESS and STOCK_ADDRESS.',
-    );
-  }
-  return {
-    chainId: Number(process.env.CHAIN_ID ?? process.env.NEXT_PUBLIC_CHAIN_ID ?? '84532'),
-    ownback,
-    adapter,
-    stock,
-    campaignId: Number(process.env.CAMPAIGN_ID ?? process.env.NEXT_PUBLIC_CAMPAIGN_ID ?? '1'),
-    deployBlock: Number(process.env.DEPLOY_BLOCK ?? process.env.NEXT_PUBLIC_DEPLOY_BLOCK ?? '0'),
-  };
-}
-
-const deployment: Deployment = loadDeployment();
+const deployment: Deployment = JSON.parse(
+  readFileSync(process.env.DEPLOYMENT_FILE ?? 'contracts/deployments/84532.json', 'utf8'),
+);
 if (![31337, 84532].includes(deployment.chainId)) throw new Error('Unsupported chain for testnet keeper');
 const chain = deployment.chainId === foundry.id ? foundry : baseSepolia;
 const rpc = process.env.RPC_URL ?? chain.rpcUrls.default.http[0];

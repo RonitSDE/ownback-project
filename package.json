@@ -1,15 +1,12 @@
 {
   "name": "ownback",
-  "version": "3.2.0",
+  "version": "3.7.0",
   "private": true,
   "type": "module",
-  "engines": {
-    "node": ">=22"
-  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start --hostname 0.0.0.0",
+    "start": "next start",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -26,7 +23,25 @@
     "verify:local": "bash scripts/verify-local.sh",
     "write:local-env": "node scripts/write-local-env.mjs",
     "lint": "eslint .",
-    "test:ui": "node tests/ui/wallet-journey.mjs"
+    "test:ui": "node tests/ui/wallet-journey.mjs",
+    "bankr:check": "tsx scripts/bankr-check.ts",
+    "commerce:migrate": "node scripts/commerce-migrate.mjs",
+    "commerce:reconcile": "node scripts/commerce-reconcile.mjs",
+    "commerce:preflight": "node scripts/commerce-preflight.mjs",
+    "test:commerce": "node --test tests/commerce-core.test.mjs",
+    "test:protocol": "node --experimental-strip-types --test tests/protocol*.test.mjs",
+    "shopify:migrate": "node scripts/commerce-migrate.mjs",
+    "shopify:settle": "tsx scripts/shopify-settle.ts",
+    "test:hybrid": "node --experimental-strip-types --test tests/hybrid*.test.mjs",
+    "bootstrap:lock": "npm install --package-lock-only --no-audit --no-fund",
+    "shopify:claims": "tsx scripts/shopify-claims.ts",
+    "verify:manifest": "node scripts/verify-manifest.mjs",
+    "test:agentic": "node --experimental-strip-types --test tests/agentic-ucp.test.mjs",
+    "agentic:preflight": "node scripts/agentic-preflight.mjs",
+    "test:recovery": "node --experimental-strip-types --test tests/recovery-hardening.test.mjs",
+    "simulate:recovery": "node --experimental-strip-types scripts/simulate-recovery.mjs",
+    "test:retention": "node --experimental-strip-types --test tests/retention-*.test.mjs",
+    "test:release": "npm run verify:manifest && npm run test:retention && npm run release:preflight && npm run agentic:preflight"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
@@ -37,7 +52,8 @@
     "react-dom": "^19.1.0",
     "recharts": "^2.15.4",
     "viem": "^2.37.0",
-    "zod": "^4.1.0"
+    "zod": "^4.1.0",
+    "pg": "^8.13.1"
   },
   "devDependencies": {
     "@types/node": "^22.18.0",
@@ -48,6 +64,11 @@
     "@playwright/test": "^1.56.0",
     "eslint": "^9.35.0",
     "eslint-config-next": "^15.5.0",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "@types/pg": "^8.11.10"
+  },
+  "packageManager": "npm@10.9.2",
+  "engines": {
+    "node": ">=22.16.0 <23"
   }
 }
