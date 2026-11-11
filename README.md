@@ -2,7 +2,7 @@
 
 **New:** `/agentic` combines conversational **merchant-grounded product discovery**, Shopify UCP catalog/variant lookup and cart creation, and a safe *buyer-controlled merchant checkout handoff*. Shopify app OAuth, signed order/refund webhooks, customer claim and a separate Base Sepolia reward vault remain in place. OWNBACK's native USDC commerce and Bankr read-only research are unchanged.
 
-Start with [`AGENTIC_COMMERCE_V3_6_DEPLOY.md`](AGENTIC_COMMERCE_V3_6_DEPLOY.md), then follow the existing hybrid and commerce docs. Preview mode works without merchant credentials but uses sample products and **does not process payments or issue rewards**.
+Start with [`DEPLOY.md`](DEPLOY.md), then follow the existing hybrid and commerce docs. Preview mode works without merchant credentials but uses sample products and **does not process payments or issue rewards**.
 
 **Current release blocker:** the inherited v3.5 `package-lock.json` is missing the `pg` / `@types/pg` lock entries; regenerate it with `npm install --package-lock-only` on a network-connected machine, commit it and run `npm ci`, TypeScript, Next build and real Shopify staging tests. This ZIP is **source-complete for UCP discovery/cart pilot integration, not a certified live deployment**.
 
@@ -10,7 +10,7 @@ Start with [`AGENTIC_COMMERCE_V3_6_DEPLOY.md`](AGENTIC_COMMERCE_V3_6_DEPLOY.md),
 
 # OWNBACK 3.5 — Hybrid commerce pilot (Shopify + Base)
 
-**New:** [Full hybrid developer setup](HYBRID_V3_5_DEPLOY.md) · [Release notes / verification](RELEASE_V3_5_HYBRID.md) · [Interactive static design preview](docs/preview/OWNBACK_Hybrid_Interactive_Preview.html)
+**New:** [Full hybrid developer setup](DEPLOY.md) · [Release notes / verification](HISTORY.md) · [Interactive static design preview](docs/preview/OWNBACK_Hybrid_Interactive_Preview.html)
 
 The pilot supports two buyer experiences: existing **native Base USDC checkout** and an optional, authenticated **Shopify paid-order integration**. Shopify's normal checkout continues to process Web2 payments; OWNBACK funds **synthetic stock rewards** separately from the merchant's Base Sepolia USDC vault. No second charge to Shopify buyers, no real equities, no live Bankr loans. The v3.4 features remain available.
 
@@ -18,7 +18,7 @@ The pilot supports two buyer experiences: existing **native Base USDC checkout**
 
 ---
 
-> **v3.4 integrated pilot:** Start with [RELEASE_V3_4.md](RELEASE_V3_4.md) and [WINNING_PROTOCOL.md](WINNING_PROTOCOL.md). The original README below describes the inherited v3.3 app, including older Bankr borrowing flows. Those are disabled and superseded by the v3.4 docs.
+> **v3.4 integrated pilot:** Start with [RELEASE_V3_4.md](HISTORY.md) and [WINNING_PROTOCOL.md](HISTORY.md). The original README below describes the inherited v3.3 app, including older Bankr borrowing flows. Those are disabled and superseded by the v3.4 docs.
 
 # OWNBACK
 
@@ -34,7 +34,7 @@ Built for Base **Stocks Maxxing Season**. Programmable Stock Markets, with an Ag
 Screenshots are from the automated browser test on a local chain: [quote](docs/screenshots/shop-quote.png) ·
 [mobile](docs/screenshots/shop-mobile.png) · [merchant console](docs/screenshots/merchant.png).
 
-**Agent-native.** Settle a reward or borrow against it in your own wallet, or ask a Bankr agent to do it — see [BANKR.md](BANKR.md).
+**Agent-native.** Settle a reward or borrow against it in your own wallet, or ask a Bankr agent to do it — see [BANKR.md](DEPLOY.md).
 
 ## Why the stock is the product
 
@@ -110,7 +110,7 @@ These are anvil's public dev keys; never use them anywhere else. Base Sepolia: s
 | `npm run release:preflight`                         | Checkout, ABI and price-source coherence                                                                              |
 | `npm run prices:check`                              | Parser against the live Coinbase API (needs network)                                                                  |
 
-CI runs all of them except `prices:check` on every push. Results for this release: [BUILD_AUDIT.md](BUILD_AUDIT.md).
+CI runs all of them except `prices:check` on every push. Results for this release: [BUILD_AUDIT.md](HISTORY.md).
 
 ## Structure
 
