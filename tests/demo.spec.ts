@@ -21,14 +21,14 @@ test('customer wallet uses internally consistent mock token amounts', async ({ p
   await page.goto('/demo');
   await page.getByRole('button', { name: /Run judge journey/ }).click();
   await page.getByRole('button', { name: /Customer Wallet/ }).click();
-  await expect(page.getByText('0.033600 mB20')).toBeVisible();
+  await expect(page.getByText('0.016800 mB20')).toBeVisible();
   await expect(page.getByText('$3.36').first()).toBeVisible();
 });
 
 test('landing page leads with the product, not a promise of ownership', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByText('Spend. Earn stock.')).toBeVisible();
-  await expect(page.getByText(/not shareholder rights/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Shop as usual/ })).toBeVisible();
+  await expect(page.getByText(/Mock stock has no securities value/)).toBeVisible();
 });
 
 test('shop and merchant pages render and read the configured chain', async ({ page }) => {

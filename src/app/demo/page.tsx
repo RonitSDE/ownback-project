@@ -739,7 +739,10 @@ export default function DemoPage() {
                   DEMO STOCK REWARD VALUE
                 </div>
                 <div className="value">{dollars(customerValue)}</div>
-                <p>Based on a fixed mock $100 per mB20 token; not an investment quote</p>
+                <p>
+                  Based on a fixed mock {dollars(MOCK_STOCK_PRICE_CENTS)} per mB20 token; not an investment
+                  quote
+                </p>
                 <div className="portfolio-card">
                   <div style={{ color: '#b2c5d2', fontSize: 10 }}>SIMULATED HOLDINGS</div>
                   <strong style={{ fontSize: 19 }}>{stockTokens(customerStock)} mB20</strong>
