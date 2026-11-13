@@ -1,0 +1,51 @@
+name: Base Stocks Maxxing submission gate
+on:
+  push:
+    tags:
+      - 'v3.10.*'
+  workflow_dispatch:
+jobs:
+  judge-ready:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Enforce exact tagged SHA
+        run: npm run release:tag-assert
+      - name: Tagged revision
+        run: |
+          git rev-parse HEAD
+          echo "Tag: $GITHUB_REF"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - run: npm run check:lock
+      - run: npm ci
+      - run: npm run check
+      - run: npm run test:allocation
+      - run: npm run test:retention
+      - run: npm run test:judge
+      - run: npm run test:proofs
+      - run: npm run test:release-proof
+      - run: npm run build
+      - run: npm run verify:manifest
+      - name: Verify real onchain receipts and signed preference replay
+        env:
+          BASE_SEPOLIA_RPC_URL: ${{ secrets.BASE_SEPOLIA_RPC_URL }}
+          BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
+        run: npm run verify:proofs:strict
+      - name: Final judge gate on this tag
+        env:
+          BASE_SEPOLIA_RPC_URL: ${{ secrets.BASE_SEPOLIA_RPC_URL }}
+          BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
+        run: npm run judge:gate
+      - name: Upload exact SHA and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ownback-submission-evidence
+          path: |
+            evidence/
+            SOURCE_MANIFEST.sha256

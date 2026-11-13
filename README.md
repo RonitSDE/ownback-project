@@ -1,10 +1,47 @@
-# OWNBACK v3.9 — Base Stocks Maxxing Agentic Stock Finance candidate
+# OWNBACK v3.10.2 — Base Stocks Maxxing judge candidate
 
-**Current entry point:** v3.9 release notes and submission in [`HISTORY.md`](HISTORY.md) · Base mainnet launch runbook in [`DEPLOY.md`](DEPLOY.md#base-mainnet-launch).
+**Track:** Agentic Stock Finance · **Demonstration environment:** Base Sepolia / offline mock · **Base mainnet:** **NOT DEPLOYED**.
 
-**What's new:** a real `/allocation` Next.js screen, strict one-stock reward policy, constrained user-preference signatures, optional Bankr research, authenticated merchant cohorts (`/api/retention/cohorts`), bounded read-only retention agent, Base mainnet contracts (`contracts/src/mainnet`, `DeployMainnet.s.sol`) with preflight gates, and tests (`npm run test:allocation`, `npm run test:mainnet`). **Not deployed, not audited, no live B20 payout or multi-stock execution verified.** The rest of this README describes earlier builds; current release docs override them.
+OWNBACK is a merchant-funded stock-linked rewards protocol. One immutable stock token can be settled by a configured vault. A policy engine only proposes feasible constraints and refuses impossible stock requests. A preference signature **cannot trade, invest, transfer, or claim**. All retention is **observed, not causal lift**.
+
+## Begin here
+
+- [`HISTORY.md`](HISTORY.md#v310-release) — v3.10 changes, installation, testing and limitations, plus the v3.10.1 evidence gate and v3.10.2 proof execution notes.
+- [`HISTORY.md`](HISTORY.md#hackathon-submission) — the canonical 90-second judge script and Base submission claims.
+- [`evidence/proofs.json`](evidence/proofs.json) — mandatory proof register; all four are currently `MISSING`.
+
+## Primary navigation
+
+`/` → `/judge` → native Base campaign / purchases on `/growth` → one-click allowed/refused `/allocation` → `/growth` observed outcomes.
+
+- **Merchant proof:** `/growth` reads native campaign USDC balances and purchased/delivered receipts only when a configured contract is accessible. Authenticated Shopify cohorts are _secondary_.
+- **Agent policy:** `/allocation` has two 20-second, clearly labeled offline fixtures and a separate backend policy route. Backend policy refuses if the settlement token is unconfigured.
+- **Proof register:** `/judge#proofs` never manufactures URLs, balance claims or signatures. A tagged release fails strict CI until evidence is attached.
+
+## Fresh install on a machine with npm network access
+
+```bash
+node --version # Node 22.16.0 recommended
+npm ci
+npm run check
+npm run test:allocation
+npm run test:retention
+npm run test:judge
+npm run build
+npm run verify:manifest
+npm run verify:proofs
+```
+
+## Execution state and submission blockers
+
+- P0 proof remains missing: merchant funding, verified customer payment orderRef, onchain settlement/refusal event, wallet preference signature + replay HTTP 409.
+- No funded mainnet inventory, real customer B20 balance, legal/issuer approval, production deployment or independently audited mainnet settlement is evidenced.
+- CI `.github/workflows/submission-gate.yml` runs `npm ci`, type checking, agent/retention tests, Next build and **strict proof validation** on tags `v3.10.*`. It should fail until those requirements are satisfied.
+- For local Anvil evidence, label it **ANVIL ONLY** and attach real transaction/log files. No public explorer URL exists for a local-only Anvil chain.
 
 ---
+
+_Everything below describes earlier builds and is kept for reference._
 
 # OWNBACK v3.6 — Hybrid commerce with Shopify UCP Shopping Concierge
 

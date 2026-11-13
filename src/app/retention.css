@@ -1265,3 +1265,41 @@
     scroll-behavior: auto !important;
   }
 }
+
+.ob40-planner > summary {
+  background: #eef3f8;
+  border: 1px solid #d9e2ee;
+  border-radius: 11px;
+  padding: 17px 20px;
+  color: #294f73;
+  font-size: 14px;
+  font-weight: 850;
+  cursor: pointer;
+  margin-bottom: 18px;
+}
+.ob40-planner[open] > summary {
+  background: #dceaff;
+}
+
+.ob40-order-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.ob40-order-table th,
+.ob40-order-table td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e4e8ef;
+}
+.ob40-order-table th {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #687b8d;
+}
+.ob40-order-table a {
+  color: #1b56ac;
+  text-decoration: underline;
+}

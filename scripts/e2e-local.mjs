@@ -254,3 +254,11 @@ ok(
 );
 
 console.log('\nAll end-to-end checks passed.\n');
+
+if (process.env.OWNBACK_CAPTURE_EVIDENCE === 'true') {
+  // Only the actual running local chain receipts are captured; never manufacture hashes.
+  execFileSync(process.execPath, ['scripts/capture-anvil-path.mjs'], {
+    stdio: 'inherit',
+    env: { ...process.env, ANVIL_RPC_URL: RPC },
+  });
+}

@@ -32,6 +32,7 @@ export type PurchaseRow = {
   kind: number;
   status: number;
   payTx: Hash;
+  orderRef: Hash;
   settleTx?: Hash;
   delivered?: bigint;
 };
@@ -181,6 +182,7 @@ export async function readPurchases(customer?: Address): Promise<PurchaseRow[]> 
         kind: Number(p.kind),
         status: Number(p.status),
         payTx: log.transactionHash,
+        orderRef: log.args.orderRef!,
         settleTx: settle?.tx,
         delivered: settle?.delivered,
       } satisfies PurchaseRow;

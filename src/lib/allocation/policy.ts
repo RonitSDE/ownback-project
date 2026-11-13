@@ -1,4 +1,4 @@
-/** OWNBACK v3.9: deterministic, read-only reward allocation policy.
+/** OWNBACK v3.10: deterministic, read-only reward allocation policy.
  * IMPORTANT: Existing production vaults are immutable SINGLE-STOCK settlement lanes.
  * A proposal never constitutes a firm stock quote, customer eligibility decision or trade.
  */
@@ -74,7 +74,7 @@ export function buildAllocationProposal(input: AllocationInput, capabilities: Al
     reservePercent: input.cashReservePercent, rewardUsd: input.rewardUsd,
     chainId: capabilities.chainId, settlementStock: capabilities.settlementStock,
     facts: [
-      'The v3.9 pilot supports only one token per configured reward vault.',
+      'The v3.10 pilot supports only one token per configured reward vault.',
       'Stock rewards remain subject to merchant funding, refunded-order checks, recipient eligibility, real inventory, and an independent fresh-price check.',
       'A signed allocation preference does not transfer funds or execute a purchase.'
     ],
@@ -96,5 +96,5 @@ export function allocationApprovalMessage(params: {
   origin: string; wallet: string; nonce: string; expiresAt: number; proposal: AllocationProposal; input: AllocationInput;
 }) {
   const { origin, wallet, nonce, expiresAt, proposal, input } = params;
-  return `OWNBACK v3.9 — RECORD PREFERENCE ONLY\nOrigin: ${origin}\nWallet: ${wallet.toLowerCase()}\nChain ID: ${proposal.chainId}\nStock: ${proposal.stock ?? 'NONE'}\nRequested theme: ${input.theme}\nPreferred token: ${input.preferredStock}\nExcluded tokens: ${[...input.excludedSymbols].sort().join(',') || 'none'}\nMaximum single-company weight: ${input.maxSingleWeightPercent}%\nMaximum illustrative reward: $${proposal.rewardUsd.toFixed(2)}\nStock weight: ${proposal.stockWeightPercent}%\nCash reserve: ${proposal.reservePercent}%\nNonce: ${nonce}\nExpires: ${expiresAt}\nThis does NOT authorize transfers, trading, borrowing, investing, or claiming any stock. No transaction will be executed.`;
+  return `OWNBACK v3.10 — RECORD PREFERENCE ONLY\nOrigin: ${origin}\nWallet: ${wallet.toLowerCase()}\nChain ID: ${proposal.chainId}\nStock: ${proposal.stock ?? 'NONE'}\nRequested theme: ${input.theme}\nPreferred token: ${input.preferredStock}\nExcluded tokens: ${[...input.excludedSymbols].sort().join(',') || 'none'}\nMaximum single-company weight: ${input.maxSingleWeightPercent}%\nMaximum illustrative reward: $${proposal.rewardUsd.toFixed(2)}\nStock weight: ${proposal.stockWeightPercent}%\nCash reserve: ${proposal.reservePercent}%\nNonce: ${nonce}\nExpires: ${expiresAt}\nThis does NOT authorize transfers, trading, borrowing, investing, or claiming any stock. No transaction will be executed.`;
 }

@@ -76,3 +76,16 @@ src/lib/shopify/claim-outbox.ts
 src/lib/shopify/rules.ts
 src/lib/shopify/security.ts
 src/lib/wallet.ts
+evidence/proofs.json
+scripts/assert-tagged-sha.mjs
+scripts/capture-anvil-path.mjs
+scripts/capture-chain-proof.mjs
+scripts/chain-proof.mjs
+scripts/verify-proofs.mjs
+src/app/allocation/page.tsx
+src/app/growth/page.tsx
+src/app/judge/page.tsx
+src/app/layout.tsx
+src/components/RealityStrip.tsx
+src/lib/allocation/capabilities.ts
+src/lib/retention/observed-native.ts

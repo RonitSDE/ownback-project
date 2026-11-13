@@ -34,7 +34,7 @@ Get test ETH for deployer and keeper. Use separate keys; neither must be hardcod
 
 ```bash
 cp .env.example .env.local
-## Set DEPLOYER_PRIVATE_KEY and KEEPER_ADDRESS securely in your shell/secret store.
+# Set DEPLOYER_PRIVATE_KEY and KEEPER_ADDRESS securely in your shell/secret store.
 cd contracts
 forge script script/DeployTestnet.s.sol:DeployTestnet \
   --rpc-url https://sepolia.base.org --broadcast
@@ -70,7 +70,7 @@ KEEPER_INTERVAL_MS=60000
 
 ```bash
 npm run keeper:once
-## Or use npm run keeper for a continuous worker
+# Or use npm run keeper for a continuous worker
 ```
 
 The included GitHub Actions keeper runs every five minutes with a concurrency group. Add `KEEPER_PRIVATE_KEY` as a GitHub secret. For a recorded live demo, a dedicated worker process is more predictable. The keeper scans **all onchain purchases** to avoid losing work on restart, so stop and replace it with a durable indexed queue before exceeding `KEEPER_MAX_PURCHASES` or running commercial volumes. Use only ONE active keeper instance per key to avoid nonce races.
@@ -172,7 +172,7 @@ npm run build
 ```
 ./contracts/install-deps.sh
 npm run test:contracts
-## Set DEPLOYER_PRIVATE_KEY / KEEPER_ADDRESS in the shell (not in source).
+# Set DEPLOYER_PRIVATE_KEY / KEEPER_ADDRESS in the shell (not in source).
 cd contracts
 forge script script/DeployTestnet.s.sol:DeployTestnet \
   --rpc-url https://sepolia.base.org --broadcast
@@ -241,14 +241,14 @@ _Formerly `AGENTIC_COMMERCE_V3_6_DEPLOY.md`._
 
 ```bash
 cd ownback
-## IMPORTANT: v3.5 inherited a lockfile missing the PostgreSQL packages.
-## On a network-connected machine, regenerate and COMMIT the corrected lockfile:
+# IMPORTANT: v3.5 inherited a lockfile missing the PostgreSQL packages.
+# On a network-connected machine, regenerate and COMMIT the corrected lockfile:
 npm install --package-lock-only
 npm ci
 
 cp .env.example .env.local
-## Configure existing commerce PostgreSQL, Shopify app, Base contracts and Bankr keys as needed
-## Existing migrations and contracts are unchanged in v3.6
+# Configure existing commerce PostgreSQL, Shopify app, Base contracts and Bankr keys as needed
+# Existing migrations and contracts are unchanged in v3.6
 npm run commerce:migrate
 npm run test:agentic
 npm run agentic:preflight
@@ -318,8 +318,8 @@ First release allows merchant pickup or digital fulfillment only. No shipping, t
 
 ```bash
 cp .env.example .env.local
-## Set UNIQUE secrets, real deployed contract addresses, and RPC values.
-## Store DATABASE_URL also in .env for the standalone migration script.
+# Set UNIQUE secrets, real deployed contract addresses, and RPC values.
+# Store DATABASE_URL also in .env for the standalone migration script.
 docker compose -f docker-compose.commerce.yml up -d
 npm install
 npm run commerce:migrate
@@ -538,7 +538,7 @@ Current Coinbase B20 tokens use 8 base decimals; **underlying share-equivalents 
 Required: Node 22.16+, npm 10, full npm registry access, Foundry `forge` and `anvil`, a networked Base mainnet RPC, PostgreSQL, Shopify app credentials with live paid/refund webhooks, Resend, HTTPS public domain, a verified merchant and executor, an independent security review, a recipient identity/jurisdiction review process, production logging and alerting.
 
 ```sh
-## From repo root. Never upload secrets or enable production until sign-offs are complete.
+# From repo root. Never upload secrets or enable production until sign-offs are complete.
 cp .env.base-mainnet.example .env
 npm install --package-lock-only --no-audit --no-fund   # REGENERATE inherited incomplete lockfile
 npm ci

@@ -1897,3 +1897,44 @@ ul.rows {
 .pill .led {
   background: #6caa9a;
 }
+
+/* v3.10 truth label shown on every route that can display assets or retention. */
+.ob-reality {
+  position: relative;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 9px 18px;
+  background: #152639;
+  color: #f2f6fb;
+  font:
+    600 11px/1.5 system-ui,
+    sans-serif;
+  letter-spacing: 0.015em;
+  text-align: center;
+}
+.ob-reality strong {
+  color: #ffcf81;
+}
+.ob-reality span {
+  padding-left: 11px;
+  border-left: 1px solid #526074;
+}
+.ob-reality a {
+  color: #a8dcff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 700px) {
+  .ob-reality {
+    gap: 5px 9px;
+    font-size: 10px;
+  }
+  .ob-reality span {
+    padding-left: 0;
+    border: 0;
+  }
+}

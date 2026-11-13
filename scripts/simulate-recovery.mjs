@@ -321,7 +321,7 @@ assert.equal(writeCount, 1);
 assertions++;
 const report = {
   mode: 'OFFLINE WORKER FAULT-INJECTION (SIMULATED EMAIL, POSTGRES AND CHAIN)',
-  version: '3.9.0-stocksmaxxing-candidate',
+  version: '3.10.0-judge-candidate',
   passed: assertions,
   scenarios: [
     'Email accepted, DB mark-SENT fails; link is already valid',

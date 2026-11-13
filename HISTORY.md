@@ -489,7 +489,7 @@ This release deliberately **adds depth to the merchant-retention wedge instead o
 #### Deployment gates
 
 ```bash
-## Network-enabled Node/npm machine with full dependencies available
+# Network-enabled Node/npm machine with full dependencies available
 npm install --package-lock-only --no-audit --no-fund
 npm ci
 npm run verify:manifest  # must regenerate manifest after intentional changes to package-lock.json
@@ -583,69 +583,51 @@ This is a **testnet pilot**. Does not claim live tokenized equity, approved mark
 
 ## Hackathon submission
 
-_Formerly `SUBMISSION.md` (v3.9 version)._
+_Formerly `SUBMISSION.md` (v3.10.2 version)._
 
-## OWNBACK — canonical Stocks Maxxing submission (v3.9)
+## OWNBACK — canonical Base Stocks Maxxing submission (v3.10)
 
-**Competition:** Base Stocks Maxxing · **Primary track:** Agentic Stock Finance · **Submit before:** December 5, 2026. Check the official application page for the precise timezone and required submission format.
+**Competition:** Base Stocks Maxxing · **Track:** Agentic Stock Finance · **Deadline:** December 5, 2026 (verify official application timezone).
 
-**Current verification:** mainnet pilot source candidate, **not deployed to Base mainnet**. No verified live merchant orders, stock purchases, B20 balances, actual retention uplift or production Bankr research receipts are included in this ZIP.
+**Current disclosure (first 10 seconds):** **BASE SEPOLIA / MOCK STOCK; MAINNET CANDIDATE — NOT DEPLOYED.** The one-click agent preview is offline/deterministic; real campaign/payment transaction evidence is **not attached to this release**. We do not claim stock ownership, issued equity, trading or live merchant traction.
 
-## One sentence
+## Pitch
 
-> OWNBACK turns verified merchant purchases into USDC-funded stock rewards on Base and uses a policy-bounded agent to help customers research those rewards without ignoring risk limits or touching their funds.
+> OWNBACK gives merchants a measurable way to reward a second purchase with stock-linked incentives on Base. Its bounded agent proposes only what the configured reward vault can pay and refuses unsupported allocations. Customers never confuse preference with a trade; merchants see observed repeat purchases and reward costs, not invented retention lift.
 
-## What is already implemented in source
+## One hero path, 90 seconds
 
-- Merchant-funded first/comeback USDC reward accounting, refund-aware settlement architecture, Shopify integration and local-chain/recovery tests carried forward from previous releases.
-- The v3.8 mainnet _candidate_ adds an inventory-backed B20 adapter and eligibility-gated Base-USDC vaults; none of it is a verified live deployment.
-- New v3.9 `/allocation` product: user brief, narrow stock universe, explainable one-token proposal, hard refusal when requests exceed immutable vault capabilities, primary docs and optional Bankr research.
-- Server-verified wallet preference signature with replay protection and no delegated spending rights (production Postgres required; feature off by default).
-- Merchant Growth Studio: observed first/repeat purchases and revenue by Shopify store plus a bounded, hypothetical cashback-rate planner. No causal lift claim.
+| Time   | One-screen action                                                                                | Honest statement                                                                                                        | Required proof                                      |
+| ------ | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| 0–10s  | OWNBACK homepage and status strip                                                                | A single-token vault lane, Sepolia mock; not a live stock platform                                                      | Chain label in frame                                |
+| 10–30s | One native Base USDC campaign: 2% first, 5% comeback, strict cap and orderRef; Paid → Hold       | Campaign terms and checkout receipts are only real if their contract and tx are shown                                   | Campaign fund tx, paid orderRef tx                  |
+| 30–50s | `/allocation`: supported brief → proposal; then robotics / 50% cap / exclude stock → hard refuse | Deterministic policy, source references; NOT_EXECUTED                                                                   | Local policy demo or real backend response, labeled |
+| 50–65s | Optional signed preference, then identical nonce replay returning 409                            | Preference only — cannot trade or claim; no wallet spending approval                                                    | Two distinct API logs/screenshots, actual 409       |
+| 65–85s | `/growth`: onchain USDC spent/available, paid customers and 7/30-day observed returners          | Observed wallet repeats, not causal lift; empty if no data                                                              | Explorer receipts matching wallet and campaign      |
+| 85–90s | Close                                                                                            | “A bounded agent proposes only what the vault can pay. Merchants see who came back.” Real B20 settlement is gated next. | No unverified claims                                |
 
-## Why the stock matters
+**Video must be postponed or shortened if proof is unavailable; never record synthetic balances as real metrics.** If a demo is local Anvil only, state **ANVIL ONLY** in the first ten seconds and on all evidence frames.
 
-A merchant's loyalty expenditure can purchase a verified eligible tokenized asset rather than an untracked points liability **only when** an audited, funded, compliant settlement route actually delivers it. Stock exposure brings market risk, concentration and issuer eligibility restrictions. A pending reward is not an owned security.
+## Reviewer links (working application only after install/deployment)
 
-## Track-specific demonstration
+`/` → `/judge` → `/growth` → `/allocation` → `/judge#proofs`.
 
-1. A customer writes a brief: 'technology exposure, no excluded stocks, maximum $2 reward, 100% single-asset allowed.' The agent checks the configured one-stock vault and shows the proposed token with clearly labeled source references and no investment claim.
-2. Change the concentration cap to 50%, request robotics, or exclude the configured vault token. The system **refuses** and explains why it cannot silently break restrictions.
-3. If configured, request source-cited Bankr research and verify that its text is labeled untrusted analysis, never a transaction.
-4. If the DB and pilot flag are configured, wallet-sign a five-minute single-use _preference_ (EIP-191); show signed policy receipt and demonstrate replay refusal. **No stock bought from this action.**
-5. From existing reward source/real testnet demos, demonstrate paid-order verification, hold and eligible settlement states. Say explicitly whether these are mock-chain transactions or actual confirmed mainnet B20.
-6. Show merchant-authenticated shop-specific repeat-order revenue/cohorts or 'no verified orders yet' with no synthetic customers or fake uplift.
+Optional Shopify and Bankr research are under “Also in source.” Borrow/Morpho, multi-stock portfolio trades, x402 earnings and unverified Bankr results are excluded from this submission.
 
-## Submission and evidence checklist
+## Evidence completeness — release currently 0/4
 
-- [ ] Real public URL, video and X post describing only verified capabilities (tag @buildonbase; follow current official requirements).
-- [ ] Code repo plus a dated release note separating previous code from additions after November 5.
-- [ ] Clean `npm ci`, TypeScript, lint, Next production build, Foundry tests and local-chain/browser E2E **passing on CI**.
-- [ ] Source digest and deployment receipt evidence for testnet or mainnet, if claimed.
-- [ ] Real customer/merchant activity proof, if claiming traction; otherwise label demo fixtures and simulated recovery.
-- [ ] Actual Bankr account research link(s), if claiming integration in the filmed flow.
-- [ ] Eligibility, contract safety and token acquisition independently reviewed before enabling any real-money pilot.
-- [ ] Avoid describing the v3.9 consent receipt as multi-asset portfolio execution.
+- [ ] Fund campaign: transaction hash, exact chain, event, explorer link or Anvil log.
+- [ ] Customer pay: transaction hash with unique `orderRef` and exact campaign/recipient.
+- [ ] Settle: delivered event & recipient balance; refusal on overspend or duplication recorded with exact revert reason.
+- [ ] Preference: signed message with exact nonce and first 2xx record, replay same nonce returning HTTP 409.
 
-## Suggested 90-second demo (record from a functioning installation)
+Evidence must be written into `evidence/proofs.json`, with real receipt or logs under `evidence/receipts` or `evidence/logs`. `npm run verify:proofs:strict` checks the local record's _structure_, not actual public chain history; the reviewers must verify explorer receipts independently.
 
-0–10s: 'Discounts disappear. OWNBACK lets merchants reward return purchases with ownership potential on Base.'
+## Actual deployment state
 
-10–25s: Show merchant reward rules, budget reservation, and claim states. **Disclose if demo/testnet.**
+Not deployed to Base mainnet. Pilot source has single-token vaults and unreviewed eligibility conditions. A signed preference does not alter settlement assets. Mainnet B20 delivery, audited contracts, legal permissions, approved wallet recipients and issuer-compliant settlement remain separately gated.
 
-25–45s: Open `/allocation`, enter a stock exposure brief. Agent proposes only what a configured settlement lane can deliver.
-
-45–60s: Set 50% max concentration or exclude the only available stock. Agent refuses instead of overriding you.
-
-60–75s: Show source references, optional Bankr read-only research, and if configured a non-custodial signed preference receipt. State 'not a trade'.
-
-75–90s: Show the merchant Proof of Retention view and real order evidence if present. End: 'A customer earns. An agent stays within limits. A merchant can see whether people return.'
-
-**Do not publish mainnet claims from a local simulation.**
-
-## Required next development (not done in v3.9)
-
-Real customer-choice multi-stock settlement, approvals bound to specific real rewards, portfolio trading under explicit mandates, funded production B20 deliveries, external eligibility screening, x402 agent earnings, a properly randomized retention experiment and any regulated service legal setup.
+**Build status:** local policy tests run; `npm install --package-lock-only --offline` rebuilt lock structure, but `npm ci` and the Next production build have not passed due to npm registry DNS failures here. CI gate is defined, **not green**. A tagged git SHA is required before submitting.
 
 ---
 
@@ -653,13 +635,9 @@ Real customer-choice multi-stock settlement, approvals bound to specific real re
 
 _Formerly `STOCKS_MAXXING_SUBMISSION.md`._
 
-## Stocks Maxxing — v3.9 submission pointer
+## Stocks Maxxing — canonical v3.10 submission pointer
 
-**SINGLE CANONICAL TRACK: Agentic Stock Finance.**
-
-Read [`SUBMISSION.md`](SUBMISSION.md) for the live submission narrative, evidence criteria, truthful 90-second demo outline and remaining implementation gaps. Read [`OWNBACK_V3_9_RELEASE.md`](OWNBACK_V3_9_RELEASE.md) for build instructions and exact features delivered.
-
-The earlier Programmable Stock Markets strategy and claims about live collateral/loans are **archived, superseded and not the v3.9 submission**. Do not reuse them for the competition.
+**Single track: Agentic Stock Finance.** Use [`SUBMISSION.md`](SUBMISSION.md) exclusively for the narrative, demo steps, launch status, proof register and missing blockers. Previous loan, multi-stock and agent revenue language is historical and excluded from the v3.10 submission. No mainnet deployment, proven retention lift or live security ownership is claimed.
 
 ---
 
@@ -688,21 +666,21 @@ _Formerly `OWNBACK_V3_9_RELEASE.md`._
 ## Start the web app on an internet-connected development machine
 
 ```sh
-## From the ZIP root. Node 22.16+, npm 10, full registry access required.
+# From the ZIP root. Node 22.16+, npm 10, full registry access required.
 npm install --package-lock-only --no-audit --no-fund
 npm ci
 cp .env.example .env
-## Configure APP_ORIGIN exactly (e.g. http://localhost:3000)
-## Configure OWNBACK_PILOT_SETTLEMENT_STOCK=AAPLc ONLY when your configured
-## reward vault actually settles AAPLc. This controls proposal matching,
-## NOT whether there is inventory, KYC or executable market liquidity.
+# Configure APP_ORIGIN exactly (e.g. http://localhost:3000)
+# Configure OWNBACK_PILOT_SETTLEMENT_STOCK=AAPLc ONLY when your configured
+# reward vault actually settles AAPLc. This controls proposal matching,
+# NOT whether there is inventory, KYC or executable market liquidity.
 npm run test:allocation
 npm run test:retention
 npm run test:mainnet
 npm run check
 npm run build
 npm run dev
-## Open /allocation and /growth.
+# Open /allocation and /growth.
 ```
 
 **Important:** the inherited npm lockfile is still incomplete (`pg`, `@types/pg`) in this handoff because the npm registry could not be resolved in the execution environment. Regenerate it, commit it, and repeat `npm ci`/build/tests on CI. Do not bypass this gate.
@@ -710,14 +688,14 @@ npm run dev
 ## To test persistent wallet-signed _preference_ receipts
 
 ```sh
-## Only in staging; requires real Postgres and an exact application origin.
+# Only in staging; requires real Postgres and an exact application origin.
 npm run commerce:migrate
-## Configure in .env:
-## APP_ORIGIN=http://localhost:3000
-## DATABASE_URL=postgresql://...
-## NEXT_PUBLIC_CHAIN_ID=84532
-## OWNBACK_PILOT_SETTLEMENT_STOCK=AAPLc
-## OWNBACK_PREFERENCE_RECEIPTS_ENABLED=true
+# Configure in .env:
+# APP_ORIGIN=http://localhost:3000
+# DATABASE_URL=postgresql://...
+# NEXT_PUBLIC_CHAIN_ID=84532
+# OWNBACK_PILOT_SETTLEMENT_STOCK=AAPLc
+# OWNBACK_PREFERENCE_RECEIPTS_ENABLED=true
 npm run dev
 ```
 
@@ -840,36 +818,314 @@ _Formerly `BASE_MAINNET_RUN_REPORT.md`._
 
 _Formerly `BASE_TEAM_SUBMISSION_BRIEF.md`._
 
-## OWNBACK v3.9 — Brief for Base Stocks Maxxing
+## OWNBACK — Base Stocks Maxxing, Agentic Stock Finance
 
-**Track:** Agentic Stock Finance  
-**Stage:** full-source pilot candidate, **not live on Base mainnet**.  
-**Submission deadline:** December 5, 2026 (confirm exact cutoff in the official form).
+**Product:** Merchant-funded stock-linked rewards for first and comeback purchases, with a bounded agent that refuses allocations a single-token vault cannot support.
 
-## Short pitch
+**The demonstration:** One onchain campaign → unique paid orderRef → refund hold/eligible settlement state → allowed & refused policy briefs → observed returner and USDC budget dashboard. We have intentionally cut agentic shopping, Bankr research, borrowing and multi-stock trading from the primary flow.
 
-OWNBACK is a merchant-funded loyalty system where an eligible purchase reserves a USDC-denominated stock reward on Base. A constrained allocation agent lets customers declare token preferences and risk ceilings, sees whether a reviewed settlement lane can meet them, and refuses to override unmet limits. Merchants can measure observed return purchases and revenue instead of vanity engagement. The loop is _verified order → funded reward → policy check → eligible settlement → observed customer comeback_.
+**Key claim:** One vault token, one clearly constrained agent, transparent settlement and descriptive return purchases. Preference signatures are consent receipts only and cannot trade, transfer or claim.
 
-## New since November 5 (check actual commit history for exact attribution)
+**Status as of 2026-11-13:** Source release v3.10, **not deployed to Base mainnet**; Base Sepolia mock tokens are not actual equities. Repaired lock structure, JS policy tests passed, but npm CI/Next build is not verified due to registry DNS restrictions. Four required transaction/API evidence slots are still missing. We will not present test fixtures as live customer activity.
 
-- `/allocation` interactive brief → policy check → sourced references → optional read-only Bankr research.
-- Explicit refusal for unavailable sectors, excluded assets, concentration caps below 100%, unsupported cash reserves or stock incompatible with the current immutable reward vault.
-- Replay-protected wallet signature recording an **informational preference**, not delegated trading authority. Storage is gated off by default.
-- Merchant-authenticated Shopify first-versus-repeat order cohorts, revenue and 7/30-day descriptive return counts; read-only campaign-budget agent.
-- Unit/security tests and consolidated competition documentation.
+**Target:** Base Stocks Maxxing Agentic Stock Finance submission before December 5, 2026, with verified proof receipts, code SHA, source, and a 90-second demo only when all claims are evidenced.
 
-## Technical architecture
+---
 
-Base native USDC merchant budgets; refund-aware order lifecycle; separate Base mainnet **candidate** USDC and single-stock B20 inventory contracts (not deployed); Shopify authenticated webhooks and Postgres worker recovery; optional Bankr read-only API. The v3.9 agent does not execute token purchases or route a customer's choice across B20 assets.
+## v3.10 release
 
-## What we want to demonstrate next
+_Formerly `OWNBACK_V3_10_RELEASE.md`._
 
-A real merchant pilot with verified Shopify order, refund hold, eligible recipient, and actual approved B20 transfer on Base, followed by independently verifiable repeat purchases and chain receipts. This requires security/audit, issuance eligibility, dealer capital and settlement checks. No such production proof is claimed today.
+## OWNBACK v3.10 — release notes and developer handoff
 
-## Constructive asks for Base
+**Release intent:** Narrow v3.9 for Base Stocks Maxxing judges; no new lending, multi-stock execution, x402, or mandatory Bankr features. This is a **competition candidate** with visible evidence gaps, **not a mainnet deployment**.
 
-1. Guidance on compliant B20 recipient eligibility, issuer transfer constraints and reliable total-return reference pricing versus real execution liquidity.
-2. An introduction to Bankr technical support for source-cited financial research and consent/mandate best practices.
-3. A merchant pilot partner and feedback on judging proof requirements for Agentic Stock Finance.
+## Applied changes
 
-**Relevant documents:** `OWNBACK_V3_9_RELEASE.md`, `SUBMISSION.md`, `BASE_MAINNET_LAUNCH.md`, `BASE_MAINNET_RUN_REPORT.md`. Repo contains no deployer keys or funded live deployment.
+| Priority           | Delivered in source                                                                                                                                  | Boundary                                                                  |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| P0: one hero path  | `/` and `/judge` guide campaign → paid order → finality → policy refusal → observed retention                                                        | Existing secondary modules remain in source, not judge story              |
+| P0: lock           | Complete `pg` and `@types/pg` dependency trees with published tarball integrity SHA-512; offline npm lock-only regeneration passed                   | Real `npm ci`, TS type-check and Next build still need a networked runner |
+| P0: reality labels | Global truth banner on all routes, `NOT_EXECUTED` on allocation, no alleged owned stock                                                              | Base Sepolia mock ≠ mainnet B20                                           |
+| P0: evidence       | `evidence/proofs.json`, `/judge#proofs`, structural proof verifier + strict tag gate                                                                 | No chain or API receipts invented; **0/4 attached**                       |
+| P1: consistency    | One immutable vault token; explicit hard refusals; source architecture unchanged                                                                     | Signed preference cannot change token or settle a reward                  |
+| P1: merchant hero  | `/growth` leads with actual contract `available`, `spent`, `reserved` and observed campaign receipts from RPC; 7/30-day repeat stats; explorer links | Absent deployment yields no sample numbers; data is observed, not causal  |
+| P1: demo           | One-click allowed and impossible allocation _offline_ fixtures, plus separate real backend proposal button                                           | Preview fixtures cannot sign, trade or claim                              |
+| P1: finality       | State machine on homepage, judge page, and merchant scorecard                                                                                        | Refund after delivery remains a merchant liability                        |
+| P2: deferred       | Audited funded B20 mainnet transfer and shop-scoped IAM                                                                                              | Not asserted or secretly implemented                                      |
+
+## Reproducible installation gate (required on exact release SHA)
+
+```bash
+npm ci
+npm run check
+npm run test:allocation
+npm run test:retention
+npm run test:judge
+npm run build
+npm run verify:manifest
+npm run verify:proofs:strict
+```
+
+A `v3.10.*` git tag triggers `.github/workflows/submission-gate.yml`; only a green run on the exact submitted SHA should be presented as a reproducible build. Strict proof validation **intentionally fails** until the real evidence slots are filled. `npm run check:lock` and `npm install --package-lock-only --offline` work locally, but do not substitute for `npm ci`.
+
+## Evidence collection instructions
+
+1. Deploy a controlled **Base Sepolia** mock vault/campaign (or explicitly label Anvil); save chain ID, contract addresses, deployment block, code SHA, and deployment transaction receipts.
+2. Fund merchant campaign with testnet USDC, save `CampaignFunded` transaction hash, block and amount. Do not use a mock transaction hash.
+3. Pay an actual user checkout with unique `orderRef`, save `Purchased` event and payment transaction; validate same orderRef retry rejects and no second charge occurs.
+4. Try settle during hold, then after eligibility; record `RewardDelivered` and recipient testnet mock token balance. Trigger a real overspend or duplicate refusal with exact reason; `callStatic` refusal is local simulation unless the chain receipt proves otherwise.
+5. Configure real preference receipt database and `APP_ORIGIN`, `OWNBACK_PREFERENCE_RECEIPTS_ENABLED=true`. Sign a wallet EIP-191 message; save first success and repeat POST with same wallet/nonce returning HTTP 409. Do not expose private keys, full cookies, access tokens, or customer PII.
+6. Put sanitized receipts or logs under `evidence/receipts` or `evidence/logs`, update `evidence/proofs.json` only after checking the receipt matches exact network, and run `npm run verify:proofs:strict`. Run the CI tag gate, then record the green run URL and tagged commit SHA separately.
+
+**Critical:** the proof-register validator verifies expected formats, file presence and network labels, **not transaction existence or finality**. Human/explorer or RPC verification is required.
+
+## Local validation as delivered
+
+- All new `test:judge`, `test:allocation`, `test:retention` tests passed.
+- Local static TSX parsing passed for updated pages. Source manifest can be regenerated and verified.
+- `npm test` contains one inherited failure caused by inaccessible `viem` module, not a failing policy assertion.
+- `npm ci` failed due to npm registry DNS (`EAI_AGAIN`) despite repaired lock metadata; no Next build, browser E2E or Foundry mainnet test was executed here.
+
+## Developer caution
+
+- Global UI label is intentionally hard-coded to the current **not-deployed** release. It MUST be replaced with verified runtime/deployment attestation before any actual production deployment.
+- The demo badge “offline fixture” on allocation is mandatory if the vault policy is not configured; a successful fixture proposal is not an actionable allocation.
+- Onchain receipt metrics reflect RPC-derived purchased events in one configured campaign. Recent cohorts are immature; excluding refunded purchases does not fix survivorship or selection bias. Do not assert incremental lift or investor ownership.
+- Shopify data is a separate authenticated checkout channel and stays behind a secondary expandable section. Do not mix native explorer-payment transactions with Shopify paid webhooks in the demo.
+
+---
+
+## v3.10.1 evidence gate
+
+_Formerly `OWNBACK_v3.10.1_EVIDENCE_GATE.md`._
+
+## OWNBACK v3.10.1 — Proof-first release gate
+
+**Status: NOT submission-complete; NOT mainnet deployed.** This is a small P0 patch to v3.10, with no new product features. It closes the gap in the old `verify:proofs:strict`, which had validated hash/URL formatting but not transactions on a blockchain. **All four proof slots remain MISSING** in this source handoff.
+
+## 1. Honest release position
+
+- Target competition: Base Stocks Maxxing / Agentic Stock Finance.
+- Hero: merchant-funded campaign → real paid orderRef → reward finality → one-stock allocation proposal/refusal → observed returners.
+- Demo environment must be declared in first ten seconds. `BASE SEPOLIA / MOCK STOCK — NOT MAINNET` is the preferred proving ground. `ANVIL ONLY` is an acceptable local technical demonstration, not publicly verifiable traction.
+- Allocation approvals are **NOT_EXECUTED** preferences; signing does not change the vault stock, trade, transfer, or claim.
+- Shopify/retention totals describe **observed returners, not causally attributed lift**.
+- Base mainnet B20 settlement requires issuer/recipient eligibility, inventory, independent security review, real contract deployment and funds. It is not asserted as complete.
+
+## 2. Clean CI build (not yet verified here)
+
+Run on a fresh Node.js 22.16.0, npm 10.9.2 runner with network access:
+
+```sh
+npm ci
+npm run check
+npm run test:allocation
+npm run test:retention
+npm run test:judge
+npm run test:proofs
+npm run build
+npm run verify:manifest
+```
+
+A complete reproducible build **must be proven on the exact tagged Git SHA**. The ZIP has no `.git` history and is not a deployable public repository. CI will fail intentionally until evidence is attached and matching RPC secrets are present. The offline lock graph audit is not a substitute for `npm ci`.
+
+## 3. Capture _real_ Base Sepolia receipts, never dummy hashes
+
+Deploy the existing testnet path using `DEPLOY.md` and `contracts/script/DeployTestnet.s.sol`, follow a genuine funded campaign and customer paid order, then settle a real eligible reward. Confirm `CampaignFunded`, `Purchased`, and `RewardDelivered` events are emitted by **the same deployed OWNBACK contract**. All three receipts must match chain ID 84532 and refer to the same controlled demonstration. For any Anvil run, replace `BASE_SEPOLIA` with `ANVIL` and set `ANVIL_RPC_URL`.
+
+Set a **trusted** Base Sepolia RPC URL in your local shell (do not commit credentials):
+
+```sh
+export BASE_SEPOLIA_RPC_URL='https://YOUR-TRUSTED-BASE-SEPOLIA-RPC'
+export OWNBACK_CONTRACT='0xYOUR_ACTUAL_DEPLOYED_CONTRACT'
+```
+
+Capture the receipt of each real transaction (replace every placeholder only when available):
+
+```sh
+node scripts/capture-chain-proof.mjs --id=campaign_funding --environment=BASE_SEPOLIA --hash=0xREAL_FUND_TX_HASH --contract="$OWNBACK_CONTRACT"
+node scripts/capture-chain-proof.mjs --id=order_payment --environment=BASE_SEPOLIA --hash=0xREAL_PAY_TX_HASH --contract="$OWNBACK_CONTRACT" --orderRef=0xREAL_32_BYTE_ORDER_REF
+node scripts/capture-chain-proof.mjs --id=settlement_refusal --environment=BASE_SEPOLIA --hash=0xREAL_SETTLE_TX_HASH --contract="$OWNBACK_CONTRACT"
+```
+
+The third slot uses a **successful `RewardDelivered` settlement event**, not an unverifiable revert claim. An overspend refusal may additionally be demonstrated on screen with reason and test log, but must not be relabelled as a successful delivery.
+
+The script checks RPC chain ID, receipt success, confirmed block, contract address and expected event; for payment, the event data must contain the claimed `orderRef`. It stores a receipt and updates only its corresponding proof slot. It cannot fabricate a transaction. The full strict gate independently re-fetches and rechecks the receipts.
+
+## 4. Preference receipt + replay 409 (no spend authority)
+
+Run a real OWNBACK app against configured Postgres, the existing allocation preference schema, an origin policy, a wallet-signature verifier and `OWNBACK_PREFERENCE_RECEIPTS_ENABLED=true`. The `POST /api/allocation/approve` endpoint should return HTTP **200** for a valid new signed preference and HTTP **409** for an identical replay of the same nonce. Capture the genuine POST body into a **local file outside the repository**, e.g. `/tmp/ownback-signed-preference.json`; never commit raw signatures or customer data.
+
+```sh
+node scripts/capture-preference-replay.mjs --url=https://YOUR_DEPLOYED_APP --bodyFile=/tmp/ownback-signed-preference.json --environment=BASE_SEPOLIA
+```
+
+This sends the **identical signed request twice**, records the two HTTP statuses and only a redacted digest, and populates `evidence/logs/preference-replay.json` if the responses are exactly HTTP 200 → HTTP 409. The source logs can corroborate the demo, but an HTTP log is not a chain receipt and does not confer permission to trade. Validate the capture against server logs before publishing. Remove local signed request files after the capture if no longer needed.
+
+## 5. Strict acceptance gate on tagged SHA
+
+```sh
+npm run verify:proofs:strict
+npm run generate:manifest  # after legitimate evidence updates
+npm run verify:manifest
+# Commit the evidence + complete source + SHA256 manifest, then tag the exact SHA.
+```
+
+Required GitHub Action secret: `BASE_SEPOLIA_RPC_URL` (or matching environment, as used in the proof register). The separate `submission-gate.yml` job enforces clean installation, typecheck, policy/retention/judge/proof tests, build, manifest and chain evidence. The workflow must show **green on the tagged commit**. Do not tag until the four proofs have been captured, each RPC is reachable, and all gates pass.
+
+### What v3.10.1 proves and does not prove
+
+| Gate                                          | State at handoff                                                   |
+| --------------------------------------------- | ------------------------------------------------------------------ |
+| Receipt verifier negative/positive tests      | 8/8 passing locally (simulated RPC response fixtures)              |
+| Policy/retention/judge tests                  | 16/16, 15/15, 8/8 passing locally                                  |
+| Existing source manifest                      | Will be regenerated and checked for this patch                     |
+| Actual Base Sepolia/Anvil receipts            | **MISSING — 0/3**                                                  |
+| Preference HTTP 200 → 409 production capture  | **MISSING — 0/1**                                                  |
+| `npm ci` / TypeScript / Next production build | **UNVERIFIED** — package registry inaccessible in this environment |
+| Verified Base mainnet stock delivery          | **NOT DEPLOYED / NOT VERIFIED**                                    |
+
+No time-based or conditional operation is scheduled. Release is **NO-GO** until genuine evidence and a green build exist.
+
+---
+
+## v3.10.2 release status
+
+_Formerly `OWNBACK_v3_10_2_RELEASE_STATUS.md`._
+
+## OWNBACK v3.10.2 — Proof execution handoff
+
+**Release decision: NO-GO for judge submission.** This is a proof-execution source patch, not a deployed product. No live Base Sepolia or Base mainnet transactions were submitted here. Evidence still **0/4**. No production tag or green hosted build exists from this session.
+
+## Source changes
+
+- Added `scripts/capture-anvil-path.mjs`: inspects **real** Anvil `eth_getLogs` and captures a coherent `CampaignFunded` → `Purchased(orderRef)` → `RewardDelivered` sequence from one live contract/campaign/purchase, through the existing receipt RPC verifier. Activated only by `OWNBACK_CAPTURE_EVIDENCE=true npm run e2e:local` after the chain is running.
+- Added `scripts/create-signed-preference.mjs`: creates a genuine, short-lived wallet preference signature using a throwaway developer wallet; writes body to a local `/tmp` location; cannot authorize a trade. Existing API capture tool verifies HTTP 200, then HTTP 409 with the same body.
+- Strengthened `verify:proofs:strict` to require captured receipt snapshots, canonical chain RPC receipts, indexed event identity and fund/pay/deliver linkage, and a consistent environment and contract.
+- Added `scripts/assert-tagged-sha.mjs` and tag-enforced `judge:gate` so source must be a clean Git commit with a `v3.10.x` tag pointing at HEAD. GitHub's submission workflow also checks SHA and reruns full tests.
+- Added proof-path tests and `RELEASE_PROOF_EXECUTION_v3.10.2.md` with local Anvil and recommended public Base Sepolia steps.
+
+## Checks actually run on this source
+
+| Check                           | Actual result                                                                            |
+| ------------------------------- | ---------------------------------------------------------------------------------------- |
+| `npm run check:lock`            | Passed: offline structural lock metadata check                                           |
+| `npm run test:proofs`           | **9/9 passed** (RPC fixture tests; NOT live-chain proofs)                                |
+| `npm run test:release-proof`    | **4/4 passed** (source/negative guard tests)                                             |
+| `npm run test:allocation`       | **16/16 passed**                                                                         |
+| `npm run test:retention`        | **15/15 passed**                                                                         |
+| `npm run test:judge`            | **8/8 passed**                                                                           |
+| `npm test`                      | **140/141 passed**. One test could not import `viem` because packages are not installed. |
+| `npm run verify:manifest`       | Passed on packaged source tree                                                           |
+| `npm run verify:proofs:strict`  | **Intentionally failed: 0/4 genuine receipts**                                           |
+| `npm run release:tag-assert`    | **Intentionally failed: ZIP is not a Git checkout/tag**                                  |
+| `npm ci --offline`              | **Failed:** npm tarball absent from cache (`zod`)                                        |
+| `npm run check`                 | **Failed:** unresolved packages/type declarations in incomplete environment              |
+| `npm run build`                 | **Failed:** `next` not installed                                                         |
+| Foundry/Anvil actual deployment | **Not run:** no Foundry binaries in environment                                          |
+
+## What the developer needs to bring
+
+A networked Node 22 / npm 10 machine with Foundry, access to a test-only wallet and Base Sepolia RPC (or running Anvil), plus PostgreSQL and the optional running Next app for preference replay. On a fresh checkout, complete the steps in `RELEASE_PROOF_EXECUTION_v3.10.2.md`. Generate evidence, regenerate the manifest, commit, tag the exact SHA, and require the tagged GitHub workflow to be green. Do not populate proofs with fabricated hashes or synthetic API results.
+
+### Truth and scope
+
+- Anvil = **local technical evidence**, not public onchain traction. Resetting Anvil loses its block/receipt evidence.
+- Base Sepolia = **mock USDC/mock stock**, not eligible B20 ownership or mainnet launch.
+- Signed preference = `NOT_EXECUTED`, cannot trade or claim.
+- Retention = observed counts, not causal lift.
+
+Do not record or submit the 90-second launch video as a verified, public-chain build until real evidence and a green release tag exist.
+
+---
+
+## v3.10.2 release proof execution
+
+_Formerly `RELEASE_PROOF_EXECUTION_v3.10.2.md`._
+
+## OWNBACK v3.10.2 — Evidence execution, exact-SHA release gate
+
+**RELEASE STATUS: NO-GO. No onchain deployment performed in this ZIP. 0/4 evidence slots populated.**
+
+Purpose: make the _existing_ purchase/reward story reproducible and externally assessable, without adding product features or simulating real B20 ownership. The new `capture:anvil` utility reads real RPC event logs and will refuse to invent transaction hashes. The signed-preference utility produces a genuine temporary message signature only; it does not trade. Strict verification now requires both captured receipt snapshots and live canonical-RPC confirmation. `judge:gate` additionally asserts a clean Git tag at the exact tested SHA.
+
+## Recommended for judge-ready submission: Base Sepolia
+
+1. On an internet-connected machine: `npm ci && ./contracts/install-deps.sh && (cd contracts && forge test)` and run tests + `npm run build`.
+2. Deploy only the **testnet** Ownback stack to Base Sepolia with a test-only wallet and safe mock tokens (`contracts/script/DeployTestnet.s.sol`). Fund the wallet with Sepolia ETH; the mock USDC/stock tokens have no real asset backing. Do not put deployment private keys into source control.
+3. In the SAME deployment, record actual `CampaignFunded`, `Purchased(orderRef)` and `RewardDelivered` transactions. Use `scripts/capture-chain-proof.mjs` exactly as documented in `OWNBACK_v3.10.1_EVIDENCE_GATE.md`. Do not use a reverted overspend transaction as proof of successful settlement.
+4. Run the preference API with PostgreSQL migrated using `commerce/allocations.sql`, with `APP_ORIGIN`, `OWNBACK_PILOT_SETTLEMENT_STOCK` and `OWNBACK_PREFERENCE_RECEIPTS_ENABLED=true`. Use `scripts/create-signed-preference.mjs` with an **unfunded, temporary, controlled** signer to create `/tmp/ownback-signed-preference.json` and immediately run `scripts/capture-preference-replay.mjs` to prove HTTP 200 then 409. No trade is made.
+5. Capture proof files on the **same release tree**: 3 chain receipts + 1 replay record. Run `npm run verify:proofs:strict`; verify first on a public Sepolia RPC and check actual explorer records independently. Update source manifest **after all files and docs are final**.
+6. Commit source + evidence + manifest, tag that exact commit `v3.10.2`, push tag to GitHub and require the `Base Stocks Maxxing submission gate` job **green on the tag SHA**. Run `npm run judge:gate` in that clean tagged checkout. Only THEN record the 90-second demo with `BASE SEPOLIA / MOCK STOCK — NOT MAINNET` upfront.
+
+`verify:proofs:strict` validates chain data as it exists _at runtime_; public Sepolia evidence is recommended to make the tagged GitHub gate independently repeatable. A local Anvil reset invalidates its old hashes and blocks; therefore an Anvil capture cannot substitute for durable public explorer proof.
+
+## Local Anvil-only technical rehearsal (does not satisfy public evidence)
+
+Prerequisites: Foundry (`anvil`, `forge`), Node 22, npm packages and Solidity deps. Open separate terminal A:
+
+```bash
+anvil --silent
+```
+
+Terminal B (from repo root; public Anvil demo keys ONLY):
+
+```bash
+npm ci
+./contracts/install-deps.sh
+mkdir -p contracts/deployments
+export DEPLOYER_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+export KEEPER_ADDRESS=0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+(cd contracts && forge script script/DeployTestnet.s.sol:DeployTestnet --rpc-url http://127.0.0.1:8545 --broadcast)
+export ANVIL_RPC_URL=http://127.0.0.1:8545
+OWNBACK_CAPTURE_EVIDENCE=true npm run e2e:local
+```
+
+After the last command, **three of four slots** should point to genuine local receipts and say `ANVIL ONLY`. Strict verification remains red until a real wallet-signed preference is captured from a running app + PostgreSQL:
+
+```bash
+# Configure app separately: chain=31337; APP_ORIGIN=http://localhost:3000;
+# OWNBACK_PILOT_SETTLEMENT_STOCK=AAPLc; OWNBACK_PREFERENCE_RECEIPTS_ENABLED=true;
+# DATABASE_URL points to migrated PostgreSQL. Start the app with npm run dev.
+export OWNBACK_DEMO_SIGNER_KEY=0x_YOUR_THROWAWAY_ANVIL_TEST_KEY_  # example placeholder, never funded
+export APP_ORIGIN=http://localhost:3000
+export NEXT_PUBLIC_CHAIN_ID=31337
+export OWNBACK_PILOT_SETTLEMENT_STOCK=AAPLc
+node --experimental-strip-types scripts/create-signed-preference.mjs
+node scripts/capture-preference-replay.mjs --url=http://localhost:3000 --bodyFile=/tmp/ownback-signed-preference.json --environment=ANVIL
+npm run verify:proofs:strict
+rm -f /tmp/ownback-signed-preference.json
+```
+
+This verifies a temporary **local** chain and HTTP API. It does not create a public, repeatable transaction record once the node stops, and is not an eligibility-approved tokenized equity delivery.
+
+## Exact released SHA gate
+
+```bash
+npm run check:lock
+npm ci
+npm run check
+npm run test:allocation
+npm run test:retention
+npm run test:judge
+npm run test:proofs
+npm run test:release-proof
+npm run build
+npm run generate:manifest
+npm run verify:manifest
+npm run verify:proofs:strict
+# Commit here, then tag that exact clean SHA and push:
+git tag v3.10.2
+git push origin v3.10.2
+npm run judge:gate
+```
+
+The GitHub workflow runs the gate on the tagged SHA, with `BASE_SEPOLIA_RPC_URL` set as a repository secret; a green build is a fact only after seeing a completed job. For local Anvil, the ephemeral RPC must remain alive throughout verification. The requirement `release:tag-assert` fails outside Git, on an untagged checkout, with uncommitted edits, on branch CI refs, or when the GitHub SHA mismatches HEAD.
+
+### Non-negotiable truth labels
+
+- `BASE SEPOLIA / MOCK STOCK — NOT MAINNET` OR `ANVIL ONLY / MOCK STOCK — NOT MAINNET` in the first 10 seconds.
+- `NOT_EXECUTED` next to preference signing. Preference cannot trade or claim.
+- Retention is **observed, not causal uplift**. Counts of returners are not established without real deployment and user data.
+- Do not claim B20 ownership from minting mock stock, and do not imply live use from a local test.

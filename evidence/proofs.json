@@ -1,0 +1,47 @@
+{
+  "release": "v3.10.2",
+  "basis": "NO RECEIPTS ATTACHED; capture actual chain and HTTP evidence only",
+  "recordingDisclosure": "TESTNET / MOCK STOCK; mainnet candidate is NOT DEPLOYED",
+  "proofs": [
+    {
+      "id": "campaign_funding",
+      "name": "Merchant campaign funding",
+      "environment": "UNVERIFIED",
+      "transactionHash": null,
+      "url": null,
+      "evidenceFile": null,
+      "status": "MISSING",
+      "contractAddress": null
+    },
+    {
+      "id": "order_payment",
+      "name": "Customer paid orderRef",
+      "environment": "UNVERIFIED",
+      "transactionHash": null,
+      "url": null,
+      "evidenceFile": null,
+      "status": "MISSING",
+      "contractAddress": null,
+      "orderRef": null
+    },
+    {
+      "id": "settlement_refusal",
+      "name": "Settle or overspend refusal event",
+      "environment": "UNVERIFIED",
+      "transactionHash": null,
+      "url": null,
+      "evidenceFile": null,
+      "status": "MISSING",
+      "contractAddress": null
+    },
+    {
+      "id": "preference_replay",
+      "name": "Signed preference and replay HTTP 409",
+      "environment": "UNVERIFIED",
+      "transactionHash": null,
+      "url": null,
+      "evidenceFile": null,
+      "status": "MISSING"
+    }
+  ]
+}

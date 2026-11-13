@@ -17,7 +17,11 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: node scripts/verify-manifest.mjs
+      - run: npm run check:lock
       - run: npm ci
+      - run: npm run test:allocation
+      - run: npm run test:retention
+      - run: npm run test:judge
       - run: npm run format:check
       - run: npm run lint
       - run: npm run release:preflight

@@ -1,6 +1,6 @@
 {
   "name": "ownback",
-  "version": "3.9.0-stocksmaxxing-candidate",
+  "version": "3.10.2-proof-execution",
   "private": true,
   "type": "module",
   "scripts": {
@@ -46,7 +46,16 @@
     "mainnet:preflight": "node scripts/base-mainnet-preflight.mjs",
     "test:mainnet": "node --test tests/mainnet-gates.test.mjs",
     "test:allocation": "node --experimental-strip-types --test tests/allocation-policy.test.mjs tests/allocation-security.test.mjs tests/retention-agent.test.mjs",
-    "generate:manifest": "node scripts/generate-manifest.mjs"
+    "generate:manifest": "node scripts/generate-manifest.mjs",
+    "verify:proofs": "node scripts/verify-proofs.mjs",
+    "verify:proofs:strict": "node scripts/verify-proofs.mjs --strict",
+    "check:lock": "node scripts/check-lock.mjs",
+    "judge:gate": "npm run release:tag-assert && npm run check:lock && npm run check && npm run test:allocation && npm run test:retention && npm run test:judge && npm run test:proofs && npm run test:release-proof && npm run build && npm run verify:manifest && npm run verify:proofs:strict",
+    "test:judge": "node --experimental-strip-types --test tests/judge-readiness.test.mjs tests/observed-native.test.mjs",
+    "test:proofs": "node --test tests/proof-rpc.test.mjs",
+    "capture:anvil": "node scripts/capture-anvil-path.mjs",
+    "release:tag-assert": "node scripts/assert-tagged-sha.mjs",
+    "test:release-proof": "node --test tests/proof-path.test.mjs"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
