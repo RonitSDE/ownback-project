@@ -6,7 +6,7 @@ import {join,relative} from 'node:path';
  * Ignore local dependencies, build outputs and secrets that are not release source. */
 const excludedDirs=new Set(['.git','node_modules','.next','out','test-results','playwright-report',
   'contracts/lib','contracts/out','contracts/cache','contracts/broadcast','contracts/deployments']);
-const excludedFiles=new Set(['SOURCE_MANIFEST.sha256','.env','.env.local','next-env.generated.d.ts']);
+const excludedFiles=new Set(['SOURCE_MANIFEST.sha256','.env','.env.local','next-env.generated.d.ts','next-env.d.ts']);
 function sourceFiles(dir='.'){
   const found=[];
   for(const entry of readdirSync(dir,{withFileTypes:true})){
@@ -15,7 +15,7 @@ function sourceFiles(dir='.'){
     if(entry.isDirectory()){
       if(!excludedDirs.has(rel))found.push(...sourceFiles(path));
     }else if(entry.isFile()){
-      if(excludedFiles.has(rel)||rel.endsWith('.tsbuildinfo'))continue;
+      if(excludedFiles.has(rel)||rel.endsWith('.tsbuildinfo')||entry.name==='.DS_Store')continue;
       if(rel.startsWith('.env.')&&rel!=='.env.example')continue;
       found.push(rel);
     }
