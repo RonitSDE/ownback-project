@@ -20,7 +20,7 @@ export default function Home(){return <main className="v37-shell" id="main">
   <div className="v37-topline"><span><span className="v37-signal"/> THE OWNERSHIP RETENTION PROTOCOL</span><span>Built on Base · Sepolia pilot</span></div>
   <header className="v37-nav v37-width">
    <Link href="/" className="v37-logo"><span>↗</span> OWNBACK<b>.</b></Link>
-   <nav aria-label="Primary navigation"><Link href="/agentic">Discover</Link><Link href="/ownership">My ownership</Link><Link href="/growth">Merchant growth</Link><Link href="/protocol">How it works</Link></nav>
+   <nav aria-label="Primary navigation"><Link href="/agentic">Discover</Link><Link href="/ownership">My ownership</Link><Link href="/growth">Merchant growth</Link><Link href="/allocation">Allocation agent</Link><Link href="/protocol">How it works</Link></nav>
    <Link href="/growth" className="v37-nav-cta">Explore the Loop <ArrowUpRight size={15}/></Link>
   </header>
   <section className="v37-width v37-hero">
@@ -28,7 +28,7 @@ export default function Home(){return <main className="v37-shell" id="main">
     <div className="v37-kicker"><span className="v37-kicker-line"/> COMMERCE THAT COMPOUNDS</div>
     <h1>Shop as usual.<br/>Come back for <em>more.</em></h1>
     <p>Every purchase can mean something more. Merchants grow repeat business with measurable, protected stock-linked rewards. Customers build toward ownership, one everyday purchase at a time.</p>
-    <div className="v37-hero-actions"><Link className="v37-button v37-button-dark" href="/agentic">Explore shopping <ArrowRight size={17}/></Link><Link className="v37-button v37-button-plain" href="/growth">See merchant economics <ArrowUpRight size={15}/></Link></div>
+    <div className="v37-hero-actions"><Link className="v37-button v37-button-dark" href="/agentic">Explore shopping <ArrowRight size={17}/></Link><Link className="v37-button v37-button-plain" href="/allocation">Meet the allocation agent <Sparkles size={15}/></Link></div>
     <Link href="/preview/v3.7.html" className="v37-text-link" style={{marginBottom:22}}>Explore the full interactive concept (simulated) <ArrowUpRight size={15}/></Link>
     <div className="v37-trust"><span><ShieldCheck size={15}/> Verified purchases</span><span><LockKeyhole size={15}/> Refund-aware rewards</span><span><BadgeCheck size={15}/> Onchain evidence</span></div>
    </div>

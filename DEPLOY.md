@@ -476,3 +476,116 @@ _Formerly `RELEASE_CHECKLIST.md`._
 **Release definition:** "Deployable Base Sepolia testnet candidate pending developer E2E execution". Do not describe as production audited, enterprise scale, live stock buyback, or verified mainnet.
 
 **Shortcut:** `npm run verify:local` orchestrates dependency installation, Foundry tests, local deployment, deterministic E2E, typecheck and frontend production build; _not yet executed here_.
+
+---
+
+## Base mainnet launch
+
+_Formerly `BASE_MAINNET_LAUNCH.md`._
+
+## OWNBACK v3.8 — BASE MAINNET CANDIDATE (NOT LIVE)
+
+**Status at handoff: NOT DEPLOYED / NOT AUDITED / DO NOT ENABLE PAYMENTS.** The package contains source changes for a gated **single-merchant, verified-recipient** mainnet pilot; no actual Base mainnet transactions, live B20 stock inventory, Shopify merchant credentials, production Postgres, RPC execution, Foundry deployment or real money checkout have been verified in the supplied environment. Existing v3.7 demo still targets Base Sepolia and local Anvil separately.
+
+## Why the v3.7 source could not simply be deployed
+
+- `DeployTestnet.s.sol` explicitly refuses chain 8453; `ShopifyRewardVault.sol`, `src/lib/shopify/chain.ts`, `src/lib/commerce/chain.ts` and both settlement workers were Sepolia-only.
+- MockUSDC is faucet-minted; MockB20Stock is synthetic and has **no** equity rights. The mock adapter mints a token from a reference NAV; this is not stock trading.
+- Existing v3.7 `package-lock.json` is missing `pg` and `@types/pg`. Clean install/build is an unsatisfied gate. **Do not deploy without regenerating and verifying the lockfile.**
+- Demo `/shop` presents illustrative fake goods; it is blocked when `NEXT_PUBLIC_CHAIN_ID=8453` so real USDC cannot pay for fake catalog items.
+- v3.7's stateless native keeper scans all historical purchases. Mainnet candidate limits scans to 500 purchases and is **not** a commercial-scale queue. Replace with indexed durable worker before scaling.
+
+## Verified reference inputs (recheck with issuer before wiring funds)
+
+| Field | Base mainnet input | Source |
+|---|---|---|
+| Chain ID | 8453 | https://docs.base.org |
+| Native USDC (Circle) | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | https://help.circle.com/support/en/usdc-supported-blockchains-minting-redemption-faqs |
+| Coinbase AAPLc B20 | `0xb200000000000000000000C2e324d24d7eEcd1fb` | https://www.base.org/stocks |
+| AAPLc Chainlink total-return feed | `0x787f13dEa48Db0897CbCDD985de77809D837F988` | https://docs.base.org/build-on-base/integrate-defi/list-tokenized-stocks |
+| Coinbase NVDAc B20 (alternative, NOT separate live deployment) | `0xb20000000000000000000078ee7ce2fE4908108C` | https://www.base.org/stocks |
+| NVDAc Chainlink total-return feed | `0x04689a41629776563E6822F76f2e57D148d28513` | https://docs.base.org/build-on-base/integrate-defi/list-tokenized-stocks |
+
+Current Coinbase B20 tokens use 8 base decimals; **underlying share-equivalents change with the onchain multiplier**. Oracle prices are *total-return reference prices*, not firm execution prices. B20 token transfers are subject to issuer policies. The B20 precompile may have no EVM bytecode; verify the official token address, token metadata, registry and transfer restrictions rather than assuming `eth_getCode` is nonempty.
+
+## What was added
+
+- `contracts/src/mainnet/OwnbackMainnet.sol`: isolated real-USDC checkout, hard-bound to canonical AAPLc or NVDAc, **approved-wallet allowlist** for preview / pay / settle; adapter binding check, minimum 24-hour refund hold and reward reservation.
+- `contracts/src/mainnet/ShopifyRewardVaultMainnet.sol`: separate mainnet-only Shopify reward vault, native USDC, canonical stock, minimum 24-hour order hold, independently allowlisted recipient wallets, original duplicate/refund rules.
+- `contracts/src/mainnet/InventoryB20Adapter.sol`: **prefunded real B20 inventory dealer**, not a synthetic mint and not an AMM swap. One immutable vault/stock/feed per adapter; only the vault may request delivery. It exchanges vault USDC for pre-acquired B20 inventory at a Chainlink total-return reference quote, reverting on oracle staleness, insufficient stock, slippage or B20 policy denial. Owner controls inventory/proceeds; economic risk and price-basis risk require explicit sign-off.
+- `contracts/script/DeployMainnet.s.sol`: deploys native and Shopify vaults and **separate** inventory adapters; only after `MAINNET_DEPLOY_APPROVED=true`, and only on chain 8453. It **does not** mint stocks, fund USDC, deposit inventory, create campaigns, approve recipients, or start workers.
+- Real-chain selection and **off by default** operational gates in frontend / commerce / Shopify / keeper; settlement worker uses onchain adapter quote on 8453 instead of mock price.
+- `scripts/base-mainnet-preflight.mjs` (offline structural checks or **read-only** RPC checks); `.env.base-mainnet.example`; mainnet gate tests; user-facing mainnet-specific copy.
+
+## Prepare a production machine
+
+Required: Node 22.16+, npm 10, full npm registry access, Foundry `forge` and `anvil`, a networked Base mainnet RPC, PostgreSQL, Shopify app credentials with live paid/refund webhooks, Resend, HTTPS public domain, a verified merchant and executor, an independent security review, a recipient identity/jurisdiction review process, production logging and alerting.
+
+```sh
+## From repo root. Never upload secrets or enable production until sign-offs are complete.
+cp .env.base-mainnet.example .env
+npm install --package-lock-only --no-audit --no-fund   # REGENERATE inherited incomplete lockfile
+npm ci
+./contracts/install-deps.sh
+npm run test:mainnet
+npm run test:recovery
+npm run simulate:recovery
+npm run test:hybrid
+npm run test:retention
+npm test
+npm run check
+npm run lint
+npm run build
+npm run test:contracts
+npm run commerce:migrate
+npm run agentic:preflight
+npm run mainnet:static
+npm run generate:manifest
+npm run verify:manifest     # After lockfile updates and final code edits
+```
+
+Run local Anvil and Sepolia E2E (existing `npm run verify:local`) and independently test new 8453-contract invariants against a **local Base mainnet fork or chain-ID 8453 devnet**; add real B20/Chainlink mocks that cannot appear in production. The old local E2E tests cover only the mock testnet deploy. A passing testnet E2E is not evidence of mainnet execution.
+
+## Mainnet deploy — gated operator steps, NOT executed by this handoff
+
+1. Security/review gate: commissioned Solidity review, threat model, reentrancy/permissions/oracle/policy review, gas simulation and incident runbook. Check corporate-action multiplier pricing, whale purchase caps, inventory capital and merchant default risk, force-approve/token transfer behavior, refunds after stock delivery, administrative upgrades and any legal/tax obligations.
+2. Legal/issuer gate: determine eligible jurisdictions and persons for Coinbase B20; design robust onboarding/geo/identity checks, sanctions checks, customer terms/rights, tax reporting, merchant consent and authority for distributing securities as purchase rewards. **Only after screening** should the multisig allowlist wallet(s) in **both** contracts. This pilot does not integrate an external KYC provider by itself.
+3. Deployment safety: review `.env.base-mainnet.example`, verify token/feed addresses against official Base sources, use distinct limited ETH-funded deployer and isolated executor/keeper keys, make Base owner a multisig. The Node app and workers load `.env` via dotenv; **Foundry does not automatically load that file** — supply required variables through a vetted production secrets manager or exported shell environment before invoking `forge script`. Never use Foundry/Anvil dev keys. Set `MAINNET_DEPLOY_APPROVED=true` only for the reviewed deployment transaction.
+4. Compile and simulation on an internet-connected machine:
+
+   ```sh
+   cd contracts
+   forge build
+   forge test -vvv
+   # Read-only simulation before a live broadcast; uses operator-supplied MAINNET_* env vars
+   forge script script/DeployMainnet.s.sol:DeployMainnet \
+     --rpc-url "$BASE_MAINNET_RPC_URL"
+   # ONLY with explicit final manual approval after verification, add --broadcast
+   # and then verify every contract source on Basescan.
+   ```
+
+5. Record **actual deployed** ownback, two adapters, Shopify vault, deployBlock, token/USDC/keeper/merchant/campaign into `contracts/deployments/8453.json`. The release contains **no real addresses for deployed OWNBACK contracts**.
+6. From merchant wallet, create the campaign on `OwnbackMainnet` (e.g., 2% first / 5% comeback, $10 max, minimum order and 7-day return window), then fund it with real Circle Base USDC. Fund Shopify vault separately using real USDC. **Purchase/acquire real AAPLc or NVDAc separately and transfer sufficient inventory into BOTH adapters.** The contract will not obtain inventory automatically; rebalancing and USDC proceeds are dealer responsibilities. Monitor solvency relative to pending rewards.
+7. Transfer contract ownership to multisig (including the 2-step acceptance for `OwnbackMainnet`, `ShopifyRewardVaultMainnet` and adapters) and set executor/keeper with least privilege. Independently screen and allowlist pilot recipient wallets on **both** contracts; verify stock transfer eligibility and all funded balances.
+8. Post-deploy `npm run mainnet:preflight` probes the actual RPC chain, Circle USDC, B20/feed decimals, price freshness, and runtime bytecode of OWNBACK/vault/adapters. Fails closed if feed is stale: Chainlink equity feeds stop updating outside market hours/corporate actions.
+9. Complete a **small live-money canary** with approved wallets only: real Shopify paid order -> signed webhook -> refund hold -> claim -> signed wallet -> Shopify settle -> confirmed RewardDelivered + actual recipient B20 balance delta; separately native verified merchant order -> real USDC payment receipt -> hold -> keeper settlement -> actual recipient B20 balance. Exercise first and comeback purchase, refunds before/after delivery, feed unavailable/paused, inventory shortage, merchant cancellations and worker restart/ambiguous writes; verify no duplicate deliveries. Log verifiable transaction hashes and publish results **after** they exist.
+10. Only then set `MAINNET_OPERATIONS_APPROVED=true` and the relevant lane flags; start persistent monitored workers and a production app with HTTPS `APP_ORIGIN` and secret manager. Start invite-only with manual approvals, low caps and emergency procedures. Do not announce general availability until legal, performance and security gates pass.
+
+## Important operational boundaries
+
+- **No onchain DEX purchase is implemented.** The adapter is a prefunded inventory counterparty using an oracle reference; this is a distinct business model with potentially material execution/valuation spread and inventory exposure.
+- **No KYC provider or independent security audit is included.** Wallet allowlisting is a control primitive, not evidence that someone was actually screened.
+- Base 8453 stock rewards are **NOT** available to U.S. persons and may be restricted further. Verify legal eligibility and issuer terms separately.
+- Existing prototype checkout `/shop` remains testnet-only; native real-money goods checkout is `/commerce` with a real merchant catalog, real fulfillment, and the verified wallet requirement.
+- Shopify claims do not prove stock ownership. Only successful stock-transfer settlement receipts + current B20 balances do.
+- Failed/ambiguous Shopify worker tx submissions remain in reconciliation; do not retry them blindly.
+- `APP_ORIGIN` must match public HTTPS origin, and merchant cookies/sessions, DB backup, webhooks and refunds must be production configured.
+- **One merchant / one Shopify store / capped pilot only**. No multi-tenant isolation, high-volume indexer/worker, independent KYC or broker API in this version.
+
+## Sources
+
+- Base official B20 listings: https://www.base.org/stocks
+- Base B20 token mechanics (multiplier, policy registry, Chainlink total-return feed): https://docs.base.org/build-on-base/integrate-defi/list-tokenized-stocks
+- Coinbase tokenized stock API: https://api.coinbase.com/v1/tokenized-stocks
+- Circle canonical Base USDC: https://help.circle.com/support/en/usdc-supported-blockchains-minting-redemption-faqs
+

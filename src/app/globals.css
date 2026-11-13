@@ -81,7 +81,6 @@ input:focus-visible {
   border-radius: 11px;
   padding: 12px 17px;
   background: white;
-  color: var(--ink);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -137,7 +136,6 @@ input:focus-visible {
 }
 .card {
   background: #fff;
-  color: var(--ink);
   border: 1px solid var(--line);
   border-radius: 17px;
   padding: 22px;
@@ -182,7 +180,6 @@ input:focus-visible {
 }
 .sidebar {
   background: #fff;
-  color: var(--ink);
   border-right: 1px solid var(--line);
   padding: 27px 16px;
   display: flex;
@@ -249,7 +246,6 @@ input:focus-visible {
   height: 81px;
   padding: 0 36px;
   background: white;
-  color: var(--ink);
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
@@ -545,7 +541,6 @@ input:focus-visible {
 }
 .modal {
   background: #fff;
-  color: var(--ink);
   width: min(510px, 100%);
   border-radius: 23px;
   padding: 28px;
@@ -987,7 +982,6 @@ input:focus-visible {
 }
 .panel {
   background: var(--surface);
-  color: var(--ink);
   border: 1px solid var(--line);
   border-radius: 18px;
   padding: 20px;
@@ -1055,20 +1049,13 @@ input:focus-visible {
 .btn.block {
   width: 100%;
 }
-.input,
-select,
-textarea {
+.input {
   width: 100%;
   border: 1px solid #dfe5eb;
   border-radius: 11px;
   padding: 12px 13px;
   background: #fff;
-  color: var(--ink);
   font-weight: 600;
-}
-.input::placeholder,
-textarea::placeholder {
-  color: #6d7b8a;
 }
 .field-label {
   display: block;
@@ -1088,7 +1075,6 @@ textarea::placeholder {
   border-radius: 14px;
   padding: 14px;
   background: #fff;
-  color: var(--ink);
   text-align: left;
   transition:
     border-color 0.15s,
@@ -1320,7 +1306,6 @@ textarea::placeholder {
   top: 8px;
   z-index: 100;
   background: #fff;
-  color: var(--ink);
   padding: 10px 14px;
   border-radius: 10px;
   font-weight: 700;
@@ -1393,7 +1378,6 @@ textarea::placeholder {
   align-items: center;
   gap: 8px;
   background: #fff;
-  color: var(--ink);
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 5px 6px 5px 12px;
@@ -1535,8 +1519,6 @@ textarea::placeholder {
   border: 0;
   border-radius: 20px;
   padding: 0;
-  background: #fff;
-  color: var(--ink);
   width: min(420px, calc(100% - 32px));
   box-shadow: 0 24px 60px rgba(15, 25, 40, 0.25);
 }
@@ -1573,7 +1555,6 @@ textarea::placeholder {
   border: 1px solid var(--line);
   border-radius: 14px;
   background: #fff;
-  color: var(--ink);
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
@@ -1630,6 +1611,10 @@ textarea::placeholder {
     order: 3;
     width: 100%;
   }
+}
+
+.panel.dark .btn:not(.lime):not(.primary) {
+  color: var(--ink);
 }
 
 ul.rows {

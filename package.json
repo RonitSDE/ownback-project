@@ -1,6 +1,6 @@
 {
   "name": "ownback",
-  "version": "3.7.0",
+  "version": "3.9.0-stocksmaxxing-candidate",
   "private": true,
   "type": "module",
   "scripts": {
@@ -41,7 +41,12 @@
     "test:recovery": "node --experimental-strip-types --test tests/recovery-hardening.test.mjs",
     "simulate:recovery": "node --experimental-strip-types scripts/simulate-recovery.mjs",
     "test:retention": "node --experimental-strip-types --test tests/retention-*.test.mjs",
-    "test:release": "npm run verify:manifest && npm run test:retention && npm run release:preflight && npm run agentic:preflight"
+    "test:release": "npm run verify:manifest && npm run test:retention && npm run release:preflight && npm run agentic:preflight",
+    "mainnet:static": "node scripts/base-mainnet-preflight.mjs --offline",
+    "mainnet:preflight": "node scripts/base-mainnet-preflight.mjs",
+    "test:mainnet": "node --test tests/mainnet-gates.test.mjs",
+    "test:allocation": "node --experimental-strip-types --test tests/allocation-policy.test.mjs tests/allocation-security.test.mjs tests/retention-agent.test.mjs",
+    "generate:manifest": "node scripts/generate-manifest.mjs"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

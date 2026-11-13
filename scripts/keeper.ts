@@ -9,7 +9,7 @@ import 'dotenv/config';
 import { readFileSync } from 'node:fs';
 import { createPublicClient, createWalletClient, http, type Address, type Hex } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { baseSepolia, foundry } from 'viem/chains';
+import { base, baseSepolia, foundry } from 'viem/chains';
 import { Attribution } from 'ox/erc8021';
 import { adapterAbi, ownbackAbi } from '../src/lib/abi';
 import { fetchTokenizedStocks, requireFreshObservation, toUsdc6 } from '../src/lib/prices';
@@ -27,8 +27,12 @@ const once = process.argv.includes('--once');
 const deployment: Deployment = JSON.parse(
   readFileSync(process.env.DEPLOYMENT_FILE ?? 'contracts/deployments/84532.json', 'utf8'),
 );
-if (![31337, 84532].includes(deployment.chainId)) throw new Error('Unsupported chain for testnet keeper');
-const chain = deployment.chainId === foundry.id ? foundry : baseSepolia;
+if (![31337, 84532, 8453].includes(deployment.chainId)) throw new Error('Unsupported keeper chain');
+const mainnet = deployment.chainId === 8453;
+if (mainnet && (process.env.MAINNET_OPERATIONS_APPROVED !== 'true' || process.env.KEEPER_MAINNET_PILOT_ENABLED !== 'true')) {
+  throw new Error('Mainnet keeper requires independent operational approval; do not run demo keeper on mainnet');
+}
+const chain = deployment.chainId === foundry.id ? foundry : mainnet ? base : baseSepolia;
 const rpc = process.env.RPC_URL ?? chain.rpcUrls.default.http[0];
 const pk = process.env.KEEPER_PRIVATE_KEY as Hex | undefined;
 if (!pk) throw new Error('KEEPER_PRIVATE_KEY is required');
@@ -41,7 +45,10 @@ const dataSuffix = process.env.BUILDER_CODE
 const PRICE_SOURCE = process.env.PRICE_SOURCE ?? 'coinbase';
 const SYMBOL = process.env.STOCK_SYMBOL ?? 'AAPLc';
 const DRIFT_BPS = 25n;
-const MAX_SCAN = Number(process.env.KEEPER_MAX_PURCHASES ?? '10000');
+const MAX_SCAN = Number(process.env.KEEPER_MAX_PURCHASES ?? (mainnet ? '500' : '10000'));
+if (!Number.isInteger(MAX_SCAN) || MAX_SCAN < 1 || (mainnet && MAX_SCAN > 500)) {
+  throw new Error('Unsafe keeper historical scan bound; mainnet pilot maximum is 500 purchases');
+}
 const CONFIRMATIONS = chain.id === 31337 ? 1 : 2;
 const log = (...args: unknown[]) => console.log(new Date().toISOString(), ...args);
 
@@ -50,6 +57,7 @@ async function targetPrice(
   maxAgeSeconds: number,
 ): Promise<{ price: bigint; observedAt: bigint }> {
   if (PRICE_SOURCE === 'static') {
+    if (mainnet) throw new Error('Static prices can never be used on Base mainnet');
     // Local/recorded demo only. Never use a static price on Base Sepolia without explicit override.
     if (deployment.chainId !== 31337 && process.env.ALLOW_TESTNET_STATIC_PRICE !== 'true') {
       throw new Error('Static price on public testnet disabled by default');
@@ -184,11 +192,13 @@ async function settleDue() {
 }
 
 async function pass() {
-  await syncPrice();
+  // Base mainnet InventoryB20Adapter reads the real Chainlink feed itself. No offchain
+  // NAV mirror and no keeper price writes are performed on the production adapter.
+  if (!mainnet) await syncPrice();
   await settleDue();
 }
 async function main() {
-  log(`Testnet keeper ${account.address}, chain=${chain.id}, source=${PRICE_SOURCE}`);
+  log(`OWNBACK ${mainnet ? "LIMITED MAINNET PILOT" : "testnet"} keeper ${account.address}, chain=${chain.id}, source=${mainnet ? "onchain-chainlink" : PRICE_SOURCE}`);
   if (once) return pass();
   const interval = Number(process.env.KEEPER_INTERVAL_MS ?? 60_000);
   for (;;) {

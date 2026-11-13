@@ -4,20 +4,26 @@
  * It never considers a Bankr job or an HTTP success proof of stock delivery.
  */
 import 'dotenv/config';
-import {parseEventLogs,type Hex} from 'viem';
+import {parseAbi,parseEventLogs,type Hex,type Address} from 'viem';
 import {pool} from '../src/lib/commerce/db';
 import {getLiveOrder,isLiveOrderPaid} from '../src/lib/shopify/admin';
 import {classify,qualifiesForShopifyPayout,rewardAmount} from '../src/lib/shopify/rules';
 import {orderHash,usdToBaseUnits} from '../src/lib/shopify/security';
 import {shopifyClient,shopifyVaultAddress,shopifyVaultAbi,executorWallet} from '../src/lib/shopify/chain';
 
-if(!['31337','84532'].includes(process.env.SHOPIFY_REWARD_CHAIN_ID||'84532'))throw Error('Mainnet settlement disabled');
-if(process.env.SHOPIFY_LIVE_STOCK_ENABLED==='true')throw Error('Live stocks are not enabled by this worker');
+const mainnet=process.env.SHOPIFY_REWARD_CHAIN_ID==='8453';
+if(!['31337','84532','8453'].includes(process.env.SHOPIFY_REWARD_CHAIN_ID||'84532'))throw Error('Unsupported network');
+if(mainnet&&(process.env.SHOPIFY_LIVE_STOCK_ENABLED!=='true'||process.env.MAINNET_OPERATIONS_APPROVED!=='true'))throw Error('Real B20 delivery requires explicit operational authorization');
+if(!mainnet&&process.env.SHOPIFY_LIVE_STOCK_ENABLED==='true')throw Error('Cannot label mock testnet stock as live B20');
+const mainnetStock = process.env.BASE_STOCK_ADDRESS as Address | undefined;
+const mainnetAdapter = process.env.SHOPIFY_REWARD_ADAPTER_ADDRESS as Address | undefined;
+if(mainnet&&(!/^0x[a-fA-F0-9]{40}$/.test(mainnetStock||'')||!/^0x[a-fA-F0-9]{40}$/.test(mainnetAdapter||'')))throw Error('Mainnet stock and inventory adapter not configured');
+const priceAbi=parseAbi(['function quote(address stock,uint256 usdcIn) view returns(uint256)']);
 const vault=shopifyVaultAddress();
 const wallet=executorWallet();
 const deployedBlock=BigInt(process.env.SHOPIFY_REWARD_DEPLOY_BLOCK||'0');
 const mockPrice=BigInt(process.env.SHOPIFY_MOCK_PRICE_USDC||'100000000');
-if(mockPrice<=0n)throw Error('Invalid mock price');
+if(!mainnet&&mockPrice<=0n)throw Error('Invalid mock price');
 
 type Order={shop_domain:string;order_id:string;customer_hash:string;paid_at:string|Date;reward_eligible_at:string|Date;
  status:string;price_usdc:string;wallet:string;tx_hash:string|null;processing_started_at:string|Date|null;};
@@ -99,8 +105,13 @@ async function settle(order:Order){
  const amount=rewardAmount(BigInt(order.price_usdc),kind);
  const onchainAvailable=await shopifyClient.readContract({address:vault,abi:shopifyVaultAbi,functionName:'available'});
  if(amount<=0n||onchainAvailable<amount)return;
- // Eight mock token decimals. Same static rate as the Shopify testnet adapter.
- const minOut=amount*100_000_000n/mockPrice;
+ // Mainnet quotes are read from the fresh Chainlink total-return feed through the
+ // real-stock inventory adapter. A stale/paused feed or insufficient quote halts delivery.
+ // Testnet retains the original fixed-price synthetic adapter.
+ const quoted = mainnet
+   ? await shopifyClient.readContract({address:mainnetAdapter!,abi:priceAbi,functionName:'quote',args:[mainnetStock!,amount]})
+   : amount*100_000_000n/mockPrice;
+ const minOut=mainnet ? quoted*995n/1000n : quoted;
  if(minOut===0n)return;
  const lock=await pool.query(`UPDATE shopify_reward_orders SET status='SETTLING',reward_kind=$3,processing_started_at=now(),processing_attempts=processing_attempts+1,updated_at=now()
  WHERE shop_domain=$1 AND order_id=$2 AND status='CLAIMED' RETURNING order_id`,[order.shop_domain,order.order_id,kind]);

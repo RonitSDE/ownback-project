@@ -1,10 +1,11 @@
 import { createPublicClient,http,parseEventLogs,type Hex,type Address } from 'viem';
-import { baseSepolia,foundry } from 'viem/chains';
+import { base,baseSepolia,foundry } from 'viem/chains';
 import { ownbackAbi } from '@/lib/abi';
 import { orderReference } from './core';
 const chainId=Number(process.env.COMMERCE_CHAIN_ID ?? '84532');
-if (![31337,84532].includes(chainId)) throw new Error('Commerce v4 is testnet-only: supported chains 31337 and 84532');
-export const commerceChain=chainId===31337?foundry:baseSepolia;
+if (![31337,84532,8453].includes(chainId)) throw new Error('Unsupported commerce chain');
+if (chainId === 8453 && (process.env.COMMERCE_LIVE_STOCK_ENABLED !== 'true' || process.env.MAINNET_OPERATIONS_APPROVED !== 'true')) throw new Error('Mainnet commerce is gated until explicit operational approval');
+export const commerceChain=chainId===31337?foundry:chainId===8453?base:baseSepolia;
 export const commercePublicClient=createPublicClient({chain:commerceChain,transport:http(process.env.COMMERCE_RPC_URL)});
 export function settings(){
   const vault=process.env.COMMERCE_VAULT_ADDRESS as Address;
@@ -12,7 +13,9 @@ export function settings(){
   const campaign=process.env.COMMERCE_CAMPAIGN_ID;
   if (!/^0x[0-9a-fA-F]{40}$/.test(vault ?? '') || !/^0x[0-9a-fA-F]{40}$/.test(merchant ?? '') || !/^\d+$/.test(campaign??'') || !process.env.COMMERCE_RPC_URL) throw new Error('Commerce chain not configured');
   if (process.env.NEXT_PUBLIC_OWNBACK_ADDRESS?.toLowerCase() !== vault.toLowerCase() || process.env.NEXT_PUBLIC_CAMPAIGN_ID !== campaign || Number(process.env.NEXT_PUBLIC_CHAIN_ID) !== chainId) throw new Error('Commerce and storefront contract configuration mismatch');
-  return { vault,merchant,campaign:campaign!,chainId,usdc:process.env.COMMERCE_USDC_ADDRESS as Address};
+  const usdc = process.env.COMMERCE_USDC_ADDRESS;
+  if (chainId === 8453 && usdc?.toLowerCase() !== '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913') throw new Error('Mainnet commerce requires Circle native USDC');
+  return { vault,merchant,campaign:campaign!,chainId,usdc:usdc as Address};
 }
 export function expectedRef(orderId:string){const s=settings();return orderReference(orderId,s.chainId,s.vault,s.campaign);}
 export async function verifyPayment(hash: Hex, order:{id:string;wallet:string;total_usdc:string|number;order_ref:string}) {

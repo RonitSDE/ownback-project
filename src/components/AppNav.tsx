@@ -6,6 +6,7 @@ import { WalletButton } from './wallet/WalletButton';
 
 const LINKS = [
   { href: '/growth', label: 'Merchant growth' },
+  { href: '/allocation', label: 'Allocation agent' },
   { href: '/ownership', label: 'My ownership' },
   { href: '/agentic', label: 'Shopify shopping' },
   { href: '/commerce', label: 'Storefront' },

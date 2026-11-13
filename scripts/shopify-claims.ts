@@ -16,7 +16,8 @@ import {queueShopifyClaim} from '../src/lib/shopify/claim-outbox';
 if(process.env.SHOPIFY_AUTO_EMAIL_CLAIMS!=='true')throw Error('Set SHOPIFY_AUTO_EMAIL_CLAIMS=true');
 if(!process.env.RESEND_API_KEY||!process.env.SHOPIFY_CLAIM_FROM_EMAIL||!process.env.APP_ORIGIN)throw Error('Missing email or origin configuration');
 if(process.env.SHOPIFY_LIVE_STOCK_ENABLED==='true')throw Error('Live equities disabled');
-if(!['31337','84532'].includes(process.env.SHOPIFY_REWARD_CHAIN_ID||'84532'))throw Error('Testnet only');
+if(!['31337','84532','8453'].includes(process.env.SHOPIFY_REWARD_CHAIN_ID||'84532'))throw Error('Unsupported reward chain');
+if(process.env.SHOPIFY_REWARD_CHAIN_ID==='8453'&&(process.env.SHOPIFY_LIVE_STOCK_ENABLED!=='true'||process.env.MAINNET_OPERATIONS_APPROVED!=='true'))throw Error('Mainnet claims not approved');
 const origin=new URL(process.env.APP_ORIGIN);
 if(!['https:','http:'].includes(origin.protocol)||
  (origin.protocol==='http:'&&!['localhost','127.0.0.1'].includes(origin.hostname)))throw Error('Secure APP_ORIGIN required');
@@ -45,7 +46,7 @@ async function stage(shop:string,orderId:string){
   if(kind==='NONE'){
    await c.query("UPDATE shopify_reward_orders SET status='BLOCKED',failure_reason='Not first or first comeback purchase' WHERE shop_domain=$1 AND order_id=$2",[shop,orderId]);return;
   }
-  await queueShopifyClaim(c,{shop,orderId,email:live.email??"",orderLabel:live.name,kind});
+  await queueShopifyClaim(c,{shop,orderId,email:live.email??'',orderLabel:live.name,kind});
  });
 }
 

@@ -23,7 +23,7 @@ export async function POST(req:NextRequest){
   const {rows}=await pool.query(`SELECT shop_domain,order_id,order_label,paid_at,status,reward_kind,reward_usdc,tx_hash,stock_amount
    FROM shopify_reward_orders WHERE wallet=$1 AND status IN ('CLAIMED','SETTLING','DELIVERED','REFUNDED_AFTER_DELIVERY','FAILED')
    ORDER BY paid_at DESC LIMIT 100`,[wallet.toLowerCase()]);
-  return NextResponse.json({source:'shopify_claimed_wallet',wallet:wallet.toLowerCase(),asset:'Base Sepolia synthetic mock stock',
+  return NextResponse.json({source:'shopify_claimed_wallet',wallet:wallet.toLowerCase(),asset:process.env.SHOPIFY_REWARD_CHAIN_ID==='8453'?'Base mainnet B20, only after confirmed transfer':'Base Sepolia synthetic mock stock',
    orders:rows.map(r=>({...r,reward_usdc:r.reward_usdc===null?null:String(r.reward_usdc),
     tx_hash:['DELIVERED','REFUNDED_AFTER_DELIVERY'].includes(r.status)?r.tx_hash:null,
     stock_amount:['DELIVERED','REFUNDED_AFTER_DELIVERY'].includes(r.status)?r.stock_amount:null})),

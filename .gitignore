@@ -13,3 +13,4 @@ contracts/cache
 contracts/lib
 contracts/broadcast
 contracts/deployments/31337.json
+.DS_Store

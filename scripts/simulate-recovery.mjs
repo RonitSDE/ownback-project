@@ -1,5 +1,5 @@
 /**
- * Fault-injection replay using the actual v3.6.2 email/settlement worker code.
+ * Fault-injection replay using the actual email/settlement worker code.
  * Tests deterministic in-memory database, Resend and contract substitutes.
  * NEVER represents a live Shopify or Base Sepolia transaction.
  * Run after npm ci: node scripts/simulate-recovery.mjs
@@ -104,7 +104,7 @@ const modules={
  './security':sec,
  '../src/lib/shopify/claim-outbox':null,
  '../src/lib/shopify/chain':{shopifyClient:mockChain,shopifyVaultAddress:()=>vault,shopifyVaultAbi:[],executorWallet:()=>mockWallet},
- 'viem':{parseEventLogs:({logs})=>logs},
+ 'viem':{parseEventLogs:({logs})=>logs,parseAbi:items=>items},
 };
 const provider=async(_url,init)=>{
  const request={key:init.headers['Idempotency-Key'],body:JSON.parse(init.body)};emailRequests.push(request);
@@ -147,7 +147,7 @@ assert.equal(writeCount,1);assertions++;
 await worker('scripts/shopify-settle.ts');
 assert.equal(writeCount,1);assertions++;
 const report={mode:'OFFLINE WORKER FAULT-INJECTION (SIMULATED EMAIL, POSTGRES AND CHAIN)',
- version:'3.6.2',passed:assertions,
+ version:'3.9.0-stocksmaxxing-candidate',passed:assertions,
  scenarios:['Email accepted, DB mark-SENT fails; link is already valid',
  'Same claim token and provider idempotency key are used after retry',
  'Chain broadcast succeeds, DB tx hash store fails; order remains SETTLING',

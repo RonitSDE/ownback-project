@@ -1,3 +1,11 @@
+# OWNBACK v3.9 — Base Stocks Maxxing Agentic Stock Finance candidate
+
+**Current entry point:** v3.9 release notes and submission in [`HISTORY.md`](HISTORY.md) · Base mainnet launch runbook in [`DEPLOY.md`](DEPLOY.md#base-mainnet-launch).
+
+**What's new:** a real `/allocation` Next.js screen, strict one-stock reward policy, constrained user-preference signatures, optional Bankr research, authenticated merchant cohorts (`/api/retention/cohorts`), bounded read-only retention agent, Base mainnet contracts (`contracts/src/mainnet`, `DeployMainnet.s.sol`) with preflight gates, and tests (`npm run test:allocation`, `npm run test:mainnet`). **Not deployed, not audited, no live B20 payout or multi-stock execution verified.** The rest of this README describes earlier builds; current release docs override them.
+
+---
+
 # OWNBACK v3.6 — Hybrid commerce with Shopify UCP Shopping Concierge
 
 **New:** `/agentic` combines conversational **merchant-grounded product discovery**, Shopify UCP catalog/variant lookup and cart creation, and a safe *buyer-controlled merchant checkout handoff*. Shopify app OAuth, signed order/refund webhooks, customer claim and a separate Base Sepolia reward vault remain in place. OWNBACK's native USDC commerce and Bankr read-only research are unchanged.

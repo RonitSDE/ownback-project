@@ -1,9 +1,10 @@
 import {createPublicClient,createWalletClient,http,parseAbi,type Address,type Hex} from 'viem';
 import {privateKeyToAccount} from 'viem/accounts';
-import {baseSepolia,foundry} from 'viem/chains';
+import {base,baseSepolia,foundry} from 'viem/chains';
 const chainId=Number(process.env.SHOPIFY_REWARD_CHAIN_ID||'84532');
-if(![31337,84532].includes(chainId))throw Error('Shopify reward integration is TESTNET ONLY');
-export const shopifyChain=chainId===31337?foundry:baseSepolia;
+if(![31337,84532,8453].includes(chainId))throw Error('Unsupported Shopify reward network');
+if(chainId===8453&&(process.env.SHOPIFY_LIVE_STOCK_ENABLED!=='true'||process.env.MAINNET_OPERATIONS_APPROVED!=='true'))throw Error('Mainnet Shopify rewards are not operationally approved');
+export const shopifyChain=chainId===31337?foundry:chainId===8453?base:baseSepolia;
 export const shopifyClient=createPublicClient({chain:shopifyChain,transport:http(process.env.SHOPIFY_REWARD_RPC_URL||process.env.COMMERCE_RPC_URL)});
 export const shopifyVaultAbi=parseAbi([
  'function paidOrder(bytes32 hash) view returns(bool)',
@@ -22,7 +23,7 @@ export function shopifyVaultAddress():Address{
 }
 export function executorWallet(){
  const key=process.env.SHOPIFY_REWARD_EXECUTOR_KEY;
- if(!/^0x[0-9a-fA-F]{64}$/.test(key||''))throw Error('Testnet Shopify reward executor key missing');
+ if(!/^0x[0-9a-fA-F]{64}$/.test(key||''))throw Error('Shopify reward executor key missing');
  const account=privateKeyToAccount(key as Hex);
  return createWalletClient({account,chain:shopifyChain,transport:http(process.env.SHOPIFY_REWARD_RPC_URL||process.env.COMMERCE_RPC_URL)});
 }

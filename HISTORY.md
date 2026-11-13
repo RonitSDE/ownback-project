@@ -562,115 +562,69 @@ This is a **testnet pilot**. Does not claim live tokenized equity, approved mark
 
 ## Hackathon submission
 
-_Formerly `SUBMISSION.md`._
+_Formerly `SUBMISSION.md` (v3.9 version)._
 
-## Stocks Maxxing submission kit
+## OWNBACK — canonical Stocks Maxxing submission (v3.9)
 
-Deadline: **Dec 5, 2026 (UTC)**. A submission is (1) a public X post with a video demo tagging
-**@buildonbase**, plus (2) the official submission form with the X link and track.
+**Competition:** Base Stocks Maxxing · **Primary track:** Agentic Stock Finance · **Submit before:** December 5, 2026. Check the official application page for the precise timezone and required submission format.
 
-### Track
+**Current verification:** mainnet pilot source candidate, **not deployed to Base mainnet**. No verified live merchant orders, stock purchases, B20 balances, actual retention uplift or production Bankr research receipts are included in this ZIP.
 
-**Programmable Stock Markets**: a new primitive that turns everyday spending into a tokenized-stock position.
-One project can win in only one track, so enter this one.
+## One sentence
 
-### One-liner
+> OWNBACK turns verified merchant purchases into USDC-funded stock rewards on Base and uses a policy-bounded agent to help customers research those rewards without ignoring risk limits or touching their funds.
 
-> OWNBACK is a checkout on Base that pays customers back in tokenized stock: more on the first order, more
-> again when they come back, and a balance that works as collateral.
+## What is already implemented in source
 
-### Why it wins (the judges' questions, answered)
+- Merchant-funded first/comeback USDC reward accounting, refund-aware settlement architecture, Shopify integration and local-chain/recovery tests carried forward from previous releases.
+- The v3.8 mainnet *candidate* adds an inventory-backed B20 adapter and eligibility-gated Base-USDC vaults; none of it is a verified live deployment.
+- New v3.9 `/allocation` product: user brief, narrow stock universe, explainable one-token proposal, hard refusal when requests exceed immutable vault capabilities, primary docs and optional Bankr research.
+- Server-verified wallet preference signature with replay protection and no delegated spending rights (production Postgres required; feature off by default).
+- Merchant Growth Studio: observed first/repeat purchases and revenue by Shopify store plus a bounded, hypothetical cashback-rate planner. No causal lift claim.
 
-| They'll ask                     | Answer                                                                                                                                                                                                                                               |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Is the stock essential?         | Yes. The reward is collateral-grade on mainnet (Morpho, Aave V4). Points can't be borrowed against.                                                                                                                                                  |
-| Is it real or a mock?           | The full payment, reservation, hold, settlement and refund lifecycle is designed to run on Base Sepolia once deployed. The reward token is a mock that mirrors the live Coinbase `nav_price` and B20 multiplier. That's the honest testnet boundary. |
-| Who do I have to trust?         | Nobody for the order: the USDC payment on Base is the proof, and the reward always goes to the payer. The keeper can't invent orders or redirect rewards.                                                                                            |
-| What stops a merchant reneging? | The reward is reserved from the budget at checkout. Withdrawals can't touch reserved funds.                                                                                                                                                          |
-| Refunds?                        | Before settlement: reward released, and a dependent comeback is voided. After settlement: recorded, not clawed back. The hold protects the merchant.                                                                                                 |
-| Compliance?                     | Testnet mock with no value. Copy never claims shareholder rights. Mainnet delivery must respect the issuer's eligibility rules (eligible non-US persons only).                                                                                       |
-| Why Base?                       | Coinbase tokenized stocks, Morpho and Aave equities markets, USDC and Builder Codes all live on one chain.                                                                                                                                           |
+## Why the stock matters
 
-### What was built during the Quest Period (for the form)
+A merchant's loyalty expenditure can purchase a verified eligible tokenized asset rather than an untracked points liability **only when** an audited, funded, compliant settlement route actually delivers it. Stock exposure brings market risk, concentration and issuer eligibility restrictions. A pending reward is not an owned security.
 
-The Quest Period began Nov 5. Be exact and keep the git history.
+## Track-specific demonstration
 
-- **Pre-existing:** the V2.1 prototype (Shopify-triggered rewards, in-browser simulator, reward rules).
-- **Built during the Quest:**
-  - New `Ownback` contract: native USDC checkout as purchase proof, reward reservation, refund hold,
-    comeback voiding, keeper-or-customer settlement.
-  - Removed the Shopify, Postgres, Redis and claim-link stack from the critical path.
-  - Testnet B20 mirror: price from the live Coinbase Tokenized Stocks API, multiplier model, fail-closed on
-    a stale price.
-  - Customer shop, merchant console, keeper, ERC-8021 Builder Codes.
-  - Mainnet borrowing path and reference parameters.
-  - Foundry test suite with fuzzing, plus a scripted local-chain end-to-end run with the real keeper (must be executed after installation).
+1. A customer writes a brief: 'technology exposure, no excluded stocks, maximum $2 reward, 100% single-asset allowed.' The agent checks the configured one-stock vault and shows the proposed token with clearly labeled source references and no investment claim.
+2. Change the concentration cap to 50%, request robotics, or exclude the configured vault token. The system **refuses** and explains why it cannot silently break restrictions.
+3. If configured, request source-cited Bankr research and verify that its text is labeled untrusted analysis, never a transaction.
+4. If the DB and pilot flag are configured, wallet-sign a five-minute single-use *preference* (EIP-191); show signed policy receipt and demonstrate replay refusal. **No stock bought from this action.**
+5. From existing reward source/real testnet demos, demonstrate paid-order verification, hold and eligible settlement states. Say explicitly whether these are mock-chain transactions or actual confirmed mainnet B20.
+6. Show merchant-authenticated shop-specific repeat-order revenue/cohorts or 'no verified orders yet' with no synthetic customers or fake uplift.
 
-  - v3.2 security pass: per-payer order references (anti-griefing), explicit no-reward opt-in, two-step ownership,
-    Slither static analysis, chain-time quote deadlines, EIP-6963 wallet discovery, security headers.
-  - Real-browser test: an injected test wallet drives the full journey with genuine transactions.
+## Submission and evidence checklist
 
-### Demo video script (about 90 seconds)
+- [ ] Real public URL, video and X post describing only verified capabilities (tag @buildonbase; follow current official requirements).
+- [ ] Code repo plus a dated release note separating previous code from additions after November 5.
+- [ ] Clean `npm ci`, TypeScript, lint, Next production build, Foundry tests and local-chain/browser E2E **passing on CI**.
+- [ ] Source digest and deployment receipt evidence for testnet or mainnet, if claimed.
+- [ ] Real customer/merchant activity proof, if claiming traction; otherwise label demo fixtures and simulated recovery.
+- [ ] Actual Bankr account research link(s), if claiming integration in the filmed flow.
+- [ ] Eligibility, contract safety and token acquisition independently reviewed before enabling any real-money pilot.
+- [ ] Avoid describing the v3.9 consent receipt as multi-asset portfolio execution.
 
-1. **(0:00) Hook.** "Loyalty points are dead money. OWNBACK pays you back in stock you can borrow against."
-2. **(0:08) Merchant.** `/merchant`: a $5,000 campaign at 2% first order, 5% comeback within 7 days. "Every
-   number is read from Base."
-3. **(0:18) Buy.** `/shop` in a customer wallet: pick the $48 shoes. The preview shows $0.96 reserved. Pay.
-   Basescan shows the merchant paid in full in the same transaction.
-4. **(0:35) Settle.** Fast-forward past the hold and click Settle. Stock lands in the wallet. Point at the
-   mirrored price next to the live Coinbase `nav_price`.
-5. **(0:50) Come back.** The banner says "order again within 6d to earn 5%". Buy again, settle, and the
-   position grows.
-6. **(1:05) Make it work.** The position card shows Morpho's 62.5% liquidation LTV and borrow headroom, with
-   the mainnet links.
-7. **(1:15) Trust.** A third order shows "no stock reward" and the Pay button stays locked until the customer
-   ticks "pay without a reward": OWNBACK never quietly downgrades a reward. A refund releases the reservation.
-   "The payment is the proof. Rewards always go to the payer."
-8. **(1:25) Close.** "OWNBACK. Spend. Earn stock. Research its possibilities. Built on Base."
+## Suggested 90-second demo (record from a functioning installation)
 
-Record with the always-on keeper running so settlement happens live.
+0–10s: 'Discounts disappear. OWNBACK lets merchants reward return purchases with ownership potential on Base.'
 
-### X post draft
+10–25s: Show merchant reward rules, budget reservation, and claim states. **Disclose if demo/testnet.**
 
-> Loyalty points are dead money.
->
-> OWNBACK pays you back in tokenized stock: 2% on your first order, 5% when you come back. On Base mainnet
-> that reward is collateral on Morpho and Aave.
->
-> The payment is the proof. No claim links, no trust-me webhooks.
->
-> Live on Base Sepolia 👇 [video] [link]
->
-> @buildonbase #StocksMaxxing
+25–45s: Open `/allocation`, enter a stock exposure brief. Agent proposes only what a configured settlement lane can deliver.
 
-### Build in public (there's an award for it)
+45–60s: Set 50% max concentration or exclude the only available stock. Agent refuses instead of overriding you.
 
-Post progress on X from now to Dec 5, at least twice a week:
+60–75s: Show source references, optional Bankr read-only research, and if configured a non-custodial signed preference receipt. State 'not a trade'.
 
-- Contract design thread: "why the payment is the purchase proof"
-- First Sepolia order with Basescan screenshots
-- Live price mirroring from the Coinbase API
-- Merchant console reveal
-- Final demo
+75–90s: Show the merchant Proof of Retention view and real order evidence if present. End: 'A customer earns. An agent stays within limits. A merchant can see whether people return.'
 
-### Partners: what to do in the Nov 6–13 window
+**Do not publish mainnet claims from a local simulation.**
 
-- **Bankr** (the only partner on every track; already ships tokenized-stock tooling): **built.** The
-  "borrow against your reward" step can run through the customer's Bankr agent (see BANKR.md). Verify the
-  live API with `npm run bankr:check` before demoing, and ask Bankr which further integration they'd reward.
-- **BaseStonk** (Programmable track partner): ask what market-infrastructure integration they want to see.
-- Don't name-drop partners you haven't integrated.
+## Required next development (not done in v3.9)
 
-### Pre-submit checklist
-
-- [ ] `npm run prices:check` prints live `nav_price` values
-- [ ] Contracts deployed and verified on Base Sepolia; `deployments/84532.json` committed
-- [ ] Keeper running; `/api/health` reports `priceFresh: true`
-- [ ] Full journey rehearsed with a fresh wallet (DEPLOY.md, step 4)
-- [ ] Builder Code suffix visible in Basescan input data
-- [ ] CI green (contracts, app, browser tests, chain end-to-end)
-- [ ] Video recorded, X post live tagging @buildonbase, form submitted with the X link and track
-- [ ] Form states clearly what was built during the Quest Period
+Real customer-choice multi-stock settlement, approvals bound to specific real rewards, portfolio trading under explicit mandates, funded production B20 deliveries, external eligibility screening, x402 agent earnings, a properly randomized retention experiment and any regulated service legal setup.
 
 ---
 
@@ -678,25 +632,223 @@ Post progress on X from now to Dec 5, at least twice a week:
 
 _Formerly `STOCKS_MAXXING_SUBMISSION.md`._
 
-## OWNBACK — Stocks Maxxing | Agentic Stock Finance
+## Stocks Maxxing — v3.9 submission pointer
 
-### Short pitch
-OWNBACK converts verified merchant purchases into programmable, stock-linked rewards on Base. Customers earn a higher merchant-funded incentive when they return; a read-only Bankr integration helps them research whether eligible real-world positions could support future collateral-based finance.
+**SINGLE CANONICAL TRACK: Agentic Stock Finance.**
 
-### Why it's differentiated
-Most stock apps compete for traders. OWNBACK distributes ownership through everyday commerce. The merchant funds reward economics; Base receipts make the payment and incentive auditable; an agent can explain the risk and potential utility of actual eligible holdings **without executing a loan**.
+Read [`SUBMISSION.md`](SUBMISSION.md) for the live submission narrative, evidence criteria, truthful 90-second demo outline and remaining implementation gaps. Read [`OWNBACK_V3_9_RELEASE.md`](OWNBACK_V3_9_RELEASE.md) for build instructions and exact features delivered.
 
-### Demonstration
-1. Merchant creates and funds a fixed-cap campaign.
-2. Merchant lists products, tracks stock, and observes actual repeat-purchase metrics through an authenticated PostgreSQL-backed dashboard.
-3. Customer checks out with Base Sepolia test USDC; payment includes unique orderRef, quote expiry and minimum reward, with a receipt.
-4. Customer returns during the incentive window and earns a higher reserved reward.
-5. Keeper delivers mock token after hold; show resulting onchain event.
-6. Bankr read-only research explains limits and market eligibility; explicitly show no real loan is initiated.
-7. Re-run the same orderRef / pause campaign / expire quote / exhaust budget; show refused purchases before USDC moves.
+The earlier Programmable Stock Markets strategy and claims about live collateral/loans are **archived, superseded and not the v3.9 submission**. Do not reuse them for the competition.
 
-### Partner request
-Ask Bankr to validate a safe user-owned wallet/agent model, sponsored read-only research, per-user authorization, verified market data and any eligible execution pathway. Request Base developer infrastructure, mentorship and merchant pilot introductions.
+---
 
-### Status disclosures
-This source is a testnet implementation candidate, not a mainnet or securities launch. Real tokenized stocks, customer-authorized Bankr borrowing, provider credentials, independently verified deployments and security review are pending. No U.S. stock trading is enabled. Do not claim a real stock reward, real collateral or borrowing transaction in the demo.
+## v3.9 release
+
+_Formerly `OWNBACK_V3_9_RELEASE.md`._
+
+## OWNBACK v3.9 — Base Stocks Maxxing · Agentic Stock Finance
+
+**Handoff date:** November 12, 2026  
+**Status:** Updated full-source candidate, **NOT** a deployed, audited or functional live-mainnet service.  
+**Primary track:** Agentic Stock Finance. **This is not a multi-stock investment portfolio product yet.**
+
+## Release changes (actual source, not concept mockups)
+
+1. `/allocation`: interactive customer stock-reward Allocation Studio with theme, exclusions, preferred B20 token, illustrative reward size, concentration ceiling and desired cash reserve.
+2. **Refusal-first policy** (`src/lib/allocation/policy.ts`): narrow allowlist of AAPLc/NVDAc; supports just one configured vault token. Explicitly refuses unavailable themes (robotics/energy), token exclusions, incompatible stocks, cash-reserve instructions and weight caps below 100%. No fake multi-asset execution.
+3. **Explainability:** architecture facts, editorial assumptions, risks, relevant primary Base documentation, explicit NOT_EXECUTED state. No firm stock price, claimed inventory, live trade or eligibility proof is fabricated.
+4. **Bankr research optional** (`/api/allocation/research`): read-only constrained prompt, rate limiting and HMAC-gated job polling. Unverified AI output never drives financial execution. No Bankr key means the research button returns a clearly described unavailable state.
+5. **Wallet-signed preference receipt** (`/api/allocation/approve`): exact policy preferences, wallet address, origin, chain ID, random nonce and five-minute expiry are signed and verified server-side. Recompute policies on server; store the checked wallet signature and one-time intent privately in Postgres with replay guard. The receipt grants **zero authority to trade, transfer, borrow, claim or spend funds**. Feature off until operator enables it.
+6. **Merchant Proof of Retention:** merchant-authenticated `/api/retention/cohorts` shows shop-separated first/repeat purchase revenue, return customers and 7/30-day repeat activity from eligible, non-refunded Shopify records. It does **not** assert incremental lift; recent cohorts are not mature.
+7. **Bounded Retention Agent:** interactive deterministic merchant campaign recommendation based on hypothetical budgets and gross margin. Refuses unfunded scenarios or reduces proposed cashback within specified caps. Merchant must separately approve/execute real contract changes.
+8. **Single submission story:** `SUBMISSION.md` + `STOCKS_MAXXING_SUBMISSION.md` replace the contradictory older Programmable Stock Markets narrative. v3.8 Base mainnet vaults/adapters remain intact, unchanged by this release.
+9. Added new allocation-policy, approval-security, and merchant-retention tests; source manifest covers all new files.
+
+## Start the web app on an internet-connected development machine
+
+```sh
+## From the ZIP root. Node 22.16+, npm 10, full registry access required.
+npm install --package-lock-only --no-audit --no-fund
+npm ci
+cp .env.example .env
+## Configure APP_ORIGIN exactly (e.g. http://localhost:3000)
+## Configure OWNBACK_PILOT_SETTLEMENT_STOCK=AAPLc ONLY when your configured
+## reward vault actually settles AAPLc. This controls proposal matching,
+## NOT whether there is inventory, KYC or executable market liquidity.
+npm run test:allocation
+npm run test:retention
+npm run test:mainnet
+npm run check
+npm run build
+npm run dev
+## Open /allocation and /growth.
+```
+
+**Important:** the inherited npm lockfile is still incomplete (`pg`, `@types/pg`) in this handoff because the npm registry could not be resolved in the execution environment. Regenerate it, commit it, and repeat `npm ci`/build/tests on CI. Do not bypass this gate.
+
+## To test persistent wallet-signed *preference* receipts
+
+```sh
+## Only in staging; requires real Postgres and an exact application origin.
+npm run commerce:migrate
+## Configure in .env:
+## APP_ORIGIN=http://localhost:3000
+## DATABASE_URL=postgresql://...
+## NEXT_PUBLIC_CHAIN_ID=84532
+## OWNBACK_PILOT_SETTLEMENT_STOCK=AAPLc
+## OWNBACK_PREFERENCE_RECEIPTS_ENABLED=true
+npm run dev
+```
+
+Connect a wallet on the correct chain; propose an allowed one-token allocation; check consent; sign EIP-191 message. A receipt ID and SHA-256 digest confirm the **preference entry only**. Replay of the same `(wallet, nonce)` must return HTTP 409. Try changing the preference, chain, origin, wallet, expiry or signature and confirm rejection. The application does not read actual investment suitability, funded rewards or ownership from this receipt.
+
+### Production safety / architecture boundary
+
+- Mainnet token and oracle addresses in the original v3.8 adapter require issuer and security review. A Chainlink total-return price is reference data, not a firm execution quote. Actual rewards require independently screened recipients, merchant escrowed USDC, separately prefunded B20 inventory, refund holds, confirmed onchain balance delta and real receipts.
+- A customer's preferred stock **cannot** redirect an immutable single-stock reward vault. A multi-asset portfolio requires new reviewed contract lanes, real liquidity/settlement, explicit customer authorization and separate tests. In v3.9, an incompatible preference always refuses.
+- Persistent preferences are *not yet connected* to a stock-delivery executor; that connection must not be advertised as built. This source does not implement x402 agent revenue, stock-backed credit or multi-stock rebalancing. Borrowing remains research-only.
+- Live signed Shopify orders are not present in the handoff. A storefront preview may demonstrate UX but is **not** evidence of a customer conversion or retention result.
+- The authentication is a shared merchant admin cookie rather than per-store IAM; migrate to strict shop-level access control before multi-merchant production.
+
+## What to validate on CI, Anvil and Base
+
+1. `npm ci`, `npm run check`, `npm run lint`, `npm run build`, `npm run test:allocation`, `npm test`, `npm run test:mainnet`, `npm run simulate:recovery`.
+2. `cd contracts && forge test`; run `npm run e2e:local` with Anvil + deployed mock contracts; verify browser flows on actual app. Neither Foundry nor dependencies were available in this environment.
+3. Verify secure Postgres approvals: unauthorized origin, invalid chain, expired signature, replayed nonce, wrong signer, modified concentration limit, blocked theme. Verify shop-scoped privacy before any multi-store use.
+4. Test a real staging Shopify checkout/refund/claim and first/comeback cohort; compare SQL aggregates to source orders. Do not call a model projection empirical uplift.
+5. Only after contract audit/legal eligibility and independent production ops sign-off, consider a funded Base-mainnet canary as described in `BASE_MAINNET_LAUNCH.md`.
+
+## Public demonstration sequence (truthful)
+
+**Brief → constrained proposal → impossible constraint refusal → read-only Bankr analysis (if configured) → user preference signature → separate merchant funding/reward finality evidence → merchant observed return rate.**
+
+Publish actual wallet, order and transaction proof only when it exists. Label local-chain and scenario data conspicuously.
+
+---
+
+## v3.9 validation
+
+_Formerly `OWNBACK_V3_9_VALIDATION.md`._
+
+## OWNBACK v3.9 — What actually passed
+
+**Checked:** 2026-11-12  
+**Status:** source-update validation, **not** a verified deployed product.
+
+| Check executed | Result | Evidence / limits |
+|---|---|---|
+| New allocation policy + security + merchant retention tests | **PASS 16/16** | `npm run test:allocation`; deterministic unit and static security checks, not wallet integration |
+| Retention economics + merchant agent tests | **PASS 15/15** | `npm run test:retention` |
+| Base mainnet static guard tests | **PASS 7/7** | `npm run test:mainnet` |
+| Shopify recovery unit tests | **PASS 6/6** | `npm run test:recovery` |
+| Hybrid Shopify security tests | **PASS 11/11** | `npm run test:hybrid` |
+| All JS test modules | **119 pass / 120 reported** | One test module could not import `viem` (`tests/frontend-logic.test.mjs`) because `node_modules` could not be installed; **not a passed full suite** |
+| Shopify fault-injection simulation | **PASS 17 assertions** | `npm run simulate:recovery`; simulated email, database, chain and broadcast reconciliation, NOT actual Base transactions |
+| Legacy offline release preflight | **PASS** | `node scripts/release-preflight.mjs` |
+| Commerce and agentic preflight | **PASS** | `npm run commerce:preflight` and `npm run agentic:preflight`; structural, not full live integrations |
+| Mainnet static preflight | **PASS** | `npm run mainnet:static`, not live RPC |
+| TypeScript/TSX parsing of 9 edited/new application files | **PASS** | Global TypeScript `transpileModule` diagnostics only; does not verify types or imports |
+| Source integrity | **PASS** | SHA-256 source manifest regenerated and verified after all source edits |
+| npm registry install | **BLOCKED** | DNS `EAI_AGAIN`; inherited `package-lock.json` lacks package resolution for `pg` and `@types/pg` |
+| Full TypeScript check, lint, formatting check, Next.js production build, browser tests | **NOT RUN / NOT VERIFIED** | Dependency install unavailable; must run on connected CI machine |
+| Foundry compile/test & full local contract E2E | **NOT RUN / NOT VERIFIED** | `forge`/`anvil` absent |
+| Database migration and signed live-wallet roundtrip | **NOT RUN / NOT VERIFIED** | No Postgres instance, test wallet or app server |
+| Bankr research live API request | **NOT RUN / NOT VERIFIED** | No Bankr key, job receipt or network connection |
+| Mainnet USDC/B20 fulfillment | **NOT RUN / NOT VERIFIED** | No audited deployment, funded real vault, B20 inventory or real transaction receipts |
+
+### Important interpretations
+
+- The `/allocation` route is real TSX and the API handlers are included. The verified tests are unit/static source tests, **not** a successful running Next.js browser session.
+- The policy returns **refused** when `OWNBACK_PILOT_SETTLEMENT_STOCK` is unset; it never silently substitutes a token. Setting that flag is not an inventory, listing or eligibility verification.
+- A saved preference is not a reward claim or trade; its signature is specific to wallet, origin, chain, max illustrative amount, exact constraints, expiry and nonce. Persistent receipt storage is off by default.
+- Existing merchant checkout and vault contracts remain a mainnet **candidate**; v3.9 does not solve stock liquidity, security review, legal eligibility, multi-stock execution or delivery funding.
+- Shopify cohort metrics are descriptive within each merchant. New customers without a complete return window can depress observed rates; a pre-exposure controlled experiment is required before stating impact.
+
+**Production handoff gate:** On a networked machine, refresh lockfile; run clean `npm ci`, full `npm test`, `npm run check`, `npm run lint`, `npm run format:check`, `npm run build`, Foundry tests, Postgres migration, browser/wallet/Shopify/Bankr integration tests, a live-chain read-only preflight, security review and a controlled funded canary. Do not enable mainnet payments until all are independently verified.
+
+---
+
+## Base mainnet run report
+
+_Formerly `BASE_MAINNET_RUN_REPORT.md`._
+
+> **Latest v3.9 update:** See `OWNBACK_V3_9_RELEASE.md` and `OWNBACK_V3_9_VALIDATION.md` for current source changes, unit tests and blockers. This document remains the historical v3.8 run report.
+
+## OWNBACK v3.8 — Execution and limitations report
+
+**Prepared:** 2026-11-12 (Asia/Dubai). **Release label:** Mainnet candidate source, NOT real-money-ready, NOT deployed.
+
+## Results actually executed in this working environment
+
+| Check | Observed result | Evidence or limitation |
+|---|---|---|
+| v3.7 original SHA256 manifest | PASS (207 files before edits) | `npm run verify:manifest` before modifications |
+| **v3.8 source-integrity manifest** | **PASS, 217 included files** | `npm run generate:manifest && npm run verify:manifest` after changes |
+| Original full `npm test` | 96 pass, 1 test module failed to load | `viem` missing from the environment; not a logic assertion failure |
+| **Updated full `npm test`** | **103 pass, 1 module could not load (104 total)** | The same missing `viem` dependency blocks `tests/frontend-logic.test.mjs`; no new assertion failures observed |
+| Original retention tests | PASS 11/11 | `npm run test:retention` |
+| Original protocol tests | PASS 4/4 | `npm run test:protocol` |
+| Original hybrid tests | PASS 11/11 | `npm run test:hybrid` |
+| Recovery tests | PASS 6/6 | `npm run test:recovery` |
+| Fault-injected Shopify recovery simulation | PASS 17 model assertions, including duplicate-send avoidance after DB crash | `npm run simulate:recovery` — offline simulated DB/email/chain, not live transactions; replay harness updated for new viem quote import |
+| Mainnet safety tests | PASS 7/7 | `npm run test:mainnet`, static asserts and deterministic unit math |
+| Mainnet offline preflight | PASS | `npm run mainnet:static` only; no chain calls |
+| Commerce & agentic preflight | PASS | `npm run commerce:preflight` / `npm run agentic:preflight` |
+| Live `npm ci` | BLOCKED | Offline/unreachable registry, missing lockfile `pg` + `@types/pg` |
+| Solidity compilation / Foundry tests | NOT RUN | `forge`/`anvil` are unavailable |
+| Next.js production build / TypeScript full typecheck | NOT RUN | npm dependency installation blocked; **103 TS/TSX files parse with 0 syntax errors** (not equivalent to typecheck) |
+| Full local contract/payment/keeper E2E | NOT RUN | missing Foundry, viem, real local chain |
+| Base 8453 RPC inspection / token metadata | NOT RUN | No validated live RPC session or deployment context supplied; onchain-only preflight included |
+| Deploy, verified contracts, fund real USDC/B20, execute a paid order | NOT RUN | Requires real chain keys/assets, security/legal review, production services |
+
+## Major risks outstanding before go-live
+
+1. Independent contract compile/audit of `OwnbackMainnet`, `ShopifyRewardVaultMainnet` and inventory adapters (including whole-contract invariants and refund/return edge cases).
+2. Legally approved recipient eligibility/KYC/sanctions policy; onchain `eligibleRecipient` is a multisig-controlled allowlist, not an identity verification service.
+3. Verified production inventory custody, token pricing and cost basis. B20 reference feed is **not** the actual DEX executable price. Stale feeds may block weekends and holidays.
+4. Merchant authorization, Shopify credentials/webhooks, secure Postgres, Resend, refund policy, taxes and fulfillment.
+5. Clean lockfile, complete test/build/typecheck/Foundry suite and auditable chain receipts. Source-level guards are not a replacement.
+6. O(N) keeper and single-merchant SQL isolation are acceptable only in a tightly bounded pilot, not mass consumer traffic.
+7. Merchant USDC vault budget **and** separately prefunded dealer B20 inventory must both be solvent to honor reward promises. Owner pause/withdrawal permissions require multisig governance. The stock inventory is not reserved per purchase; fresh solvency checks, low pilot caps and/or contract-level reservation are needed to avoid overstating fulfillment guarantees.
+
+**Never treat this report or its example stock quote as proof of a live transaction.**
+
+---
+
+## Base team submission brief
+
+_Formerly `BASE_TEAM_SUBMISSION_BRIEF.md`._
+
+## OWNBACK v3.9 — Brief for Base Stocks Maxxing
+
+**Track:** Agentic Stock Finance  
+**Stage:** full-source pilot candidate, **not live on Base mainnet**.  
+**Submission deadline:** December 5, 2026 (confirm exact cutoff in the official form).
+
+## Short pitch
+
+OWNBACK is a merchant-funded loyalty system where an eligible purchase reserves a USDC-denominated stock reward on Base. A constrained allocation agent lets customers declare token preferences and risk ceilings, sees whether a reviewed settlement lane can meet them, and refuses to override unmet limits. Merchants can measure observed return purchases and revenue instead of vanity engagement. The loop is *verified order → funded reward → policy check → eligible settlement → observed customer comeback*.
+
+## New since November 5 (check actual commit history for exact attribution)
+
+- `/allocation` interactive brief → policy check → sourced references → optional read-only Bankr research.
+- Explicit refusal for unavailable sectors, excluded assets, concentration caps below 100%, unsupported cash reserves or stock incompatible with the current immutable reward vault.
+- Replay-protected wallet signature recording an **informational preference**, not delegated trading authority. Storage is gated off by default.
+- Merchant-authenticated Shopify first-versus-repeat order cohorts, revenue and 7/30-day descriptive return counts; read-only campaign-budget agent.
+- Unit/security tests and consolidated competition documentation.
+
+## Technical architecture
+
+Base native USDC merchant budgets; refund-aware order lifecycle; separate Base mainnet **candidate** USDC and single-stock B20 inventory contracts (not deployed); Shopify authenticated webhooks and Postgres worker recovery; optional Bankr read-only API. The v3.9 agent does not execute token purchases or route a customer's choice across B20 assets.
+
+## What we want to demonstrate next
+
+A real merchant pilot with verified Shopify order, refund hold, eligible recipient, and actual approved B20 transfer on Base, followed by independently verifiable repeat purchases and chain receipts. This requires security/audit, issuance eligibility, dealer capital and settlement checks. No such production proof is claimed today.
+
+## Constructive asks for Base
+
+1. Guidance on compliant B20 recipient eligibility, issuer transfer constraints and reliable total-return reference pricing versus real execution liquidity.
+2. An introduction to Bankr technical support for source-cited financial research and consent/mandate best practices.
+3. A merchant pilot partner and feedback on judging proof requirements for Agentic Stock Finance.
+
+**Relevant documents:** `OWNBACK_V3_9_RELEASE.md`, `SUBMISSION.md`, `BASE_MAINNET_LAUNCH.md`, `BASE_MAINNET_RUN_REPORT.md`. Repo contains no deployer keys or funded live deployment.

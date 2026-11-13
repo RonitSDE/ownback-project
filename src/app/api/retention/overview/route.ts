@@ -35,7 +35,7 @@ export async function GET(){
   return NextResponse.json({mode:'observed_live',shopify:shopify.rows[0],native:native.rows[0],
    experimentalLift:null,
    experimentalLiftReason:'No pre-exposure assigned holdout pilot is configured. These are observed return rates, not causal lift.',
-   crossChannelDeduplication:false,asset:'Mock stock, Base Sepolia',
+   crossChannelDeduplication:false,asset:process.env.SHOPIFY_REWARD_CHAIN_ID==='8453'?'Verified-recipient B20 on Base mainnet':'Mock stock, Base Sepolia',
    note:'Refunded orders excluded from observed purchases. Shopify and native customer populations are not deduplicated.'},
    {headers:{'Cache-Control':'no-store, private'}});
  }catch(e){console.error('Retention overview unavailable',e);return NextResponse.json({error:'Live analytics unavailable. No synthetic metrics substituted.'},{status:503});}

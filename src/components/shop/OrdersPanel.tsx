@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { adapterAbi, ownbackAbi } from '@/lib/abi';
-import { addresses, mirroredSymbol, txUrl } from '@/lib/config';
+import { addresses, isMainnet, mirroredSymbol, txUrl } from '@/lib/config';
 import { duration, KIND, STATUS, stockUnits, usd } from '@/lib/format';
 import type { Campaign, PurchaseRow } from '@/lib/reads';
 import { explain, publicClient, send } from '@/lib/wallet';
@@ -115,9 +115,7 @@ export function OrdersPanel({ campaign, purchases, stockSymbol, now, onChange }:
       )}
 
       <p className="fine" style={{ marginTop: 14 }}>
-        Testnet build: {stockSymbol} is a mock token mirroring {mirroredSymbol}&apos;s price and multiplier.
-        It has no value. Tokenized stocks give price exposure, not shareholder rights. Coinbase tokenized
-        stocks are available only to eligible persons outside the United States.
+        {isMainnet ? `${stockSymbol ?? mirroredSymbol} rewards involve actual B20 tokens transferred from inventory, subject to eligibility, issuer prospectus and corporate-action multipliers. Delivery is not guaranteed until confirmed.` : `Testnet: ${stockSymbol ?? mirroredSymbol} is a mock token, with no equity rights.`}
       </p>
     </section>
   );
