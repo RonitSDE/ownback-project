@@ -184,6 +184,7 @@ _Formerly `RELEASE_V3_4.md`._
 This is a **Base Sepolia deployment candidate** rather than a certified mainnet protocol. It merges the previously separate single-merchant USDC commerce code with v3.3 reward checkout and replaces the unsafe Bankr shared-wallet loan endpoint with a customer-safe read-only educational research flow.
 
 ### Setup
+
 1. Node >=22, npm, PostgreSQL 16, Foundry/Anvil. Configure `.env` from `.env.example`.
 2. `npm install` (updates lockfile for the new `pg` dependency); commit generated `package-lock.json`, then `npm ci` on a clean checkout.
 3. `docker compose -f docker-compose.commerce.yml up -d`, set `DATABASE_URL` to the local container on port **5433**, then `npm run commerce:migrate`.
@@ -194,10 +195,12 @@ This is a **Base Sepolia deployment candidate** rather than a certified mainnet 
 8. Configure a separate Bankr read-only API key; enable research only after confirming wallet permissions, Agent API credits, `/wallet/me` and a successful no-write prompt.
 
 ### Acceptance test
+
 Paid real product with correct inventory; reload before receipt; retry duplicate tx; 3 confirmations; first and repeat reward contract events; malicious/wrong wallet or orderRef rejected; keeper settles mock stock; pause and refund; merchant fulfillment; Bankr job response appears without claiming a loan.
 
 ### Remaining blockers
-No live contract deployment, independent audit, real stock-issuer permission, customer-specific Bankr authorization, card payments, generalized shipping/tax, bankr credentials or full CI build is supplied. The project is *not* real-tokenized-equity or lending production ready. Some third-party behavior may change.
+
+No live contract deployment, independent audit, real stock-issuer permission, customer-specific Bankr authorization, card payments, generalized shipping/tax, bankr credentials or full CI build is supplied. The project is _not_ real-tokenized-equity or lending production ready. Some third-party behavior may change.
 
 ---
 
@@ -208,16 +211,19 @@ _Formerly `RELEASE_V3_5_HYBRID.md`._
 ## OWNBACK 3.5 — Hybrid Shopify + Base release notes
 
 ### Product decision
+
 Keep OWNBACK's existing USDC-native commerce for crypto customers. Add a **single-store Shopify pilot** for mainstream card/Shop Pay customers. Both channels support the same **2% first purchase, 5% seven-day comeback** loyalty concept, but rely on **different proof and payout contracts**, clearly labeled by provenance. Neither channel enables real securities issuance, securities trading, or autonomous Bankr borrowing.
 
 #### Main customer experience
+
 - `/experience`: brand-new responsive hybrid landing, illustrated reward moments, shopper/merchant selector, Shopify vs Base channel comparison, demo receipt, merchant connection and channel-scoped analytics.
 - `/commerce`: existing USDC-native catalog, cart, inventory reservation, checkout and refund pipeline preserved.
-- `/claim`: one-time emailed Shopify claim; wallet message verification with *no USDC charge or approval*.
+- `/claim`: one-time emailed Shopify claim; wallet message verification with _no USDC charge or approval_.
 - `/shop`: existing wallet/rewards experience, native Base rewards.
 - `/protocol`: existing source-evidence and Bankr research story, with no automated loans.
 
 #### Technical integration
+
 - Shopify app installation via standalone OAuth code grant, state cookie, callback HMAC, encrypted per-shop token. Merchant admin session required to initiate installation.
 - Shopify `ORDERS_PAID`, `REFUNDS_CREATE`, `ORDERS_CANCELLED`, `APP_UNINSTALLED` webhooks; verification on raw HTTP bytes, deduplication by webhook ID and by shop+order, refund-before-order protection, guest email fallback hashed with a secret, USD-only eligibility.
 - PostgreSQL integration schema, separate from native commerce orders; merchant dashboard never fabricates cross-channel deduplicated customers.
@@ -228,6 +234,7 @@ Keep OWNBACK's existing USDC-native commerce for crypto customers. Add a **singl
 - Existing Bankr APIs remain read-only and untouched.
 
 #### Verification carried out in this artifact session
+
 - 54 existing and new independent Node.js tests passed in the selected test suites.
 - 11/11 new Shopify cryptography, pseudonymity, reward-rules and payout-gate tests passed.
 - TypeScript/TSX syntax parsed (91 files) with the locally installed compiler; no syntax errors found.
@@ -235,13 +242,15 @@ Keep OWNBACK's existing USDC-native commerce for crypto customers. Add a **singl
 - Verified ZIP / integrity manifest during packaging.
 
 #### NOT verified
+
 - `npm ci` / Next.js production build / full TypeScript typecheck. npm registry DNS was unavailable; inherited lockfile omits `pg` and `@types/pg`. The first networked developer installation must bootstrap and commit a newly resolved lockfile.
 - Forge contracts did not compile in this container (Foundry unavailable). New bridge contract requires a clean Forge compile and security review.
-- New `/experience` inside Next.js not rendered in Chromium; this environment blocks local browser navigation. A separate *static, non-connected visual preview* is included.
+- New `/experience` inside Next.js not rendered in Chromium; this environment blocks local browser navigation. A separate _static, non-connected visual preview_ is included.
 - No Shopify app credentials, email account, merchant store, database instance, Base Sepolia vault or Bankr key were connected. No real-world purchase or equity transfer is claimed.
 - Price-based real-stock execution, KYC, and permissions for tokenized securities are deliberately disabled.
 
 ### Required launch gates
+
 1. Run `npm run bootstrap:lock`, commit the regenerated lockfile, restore CI to strict `npm ci`, then run `npm run format && npm run format:check && npm run lint && npm run check && npm run build`.
 2. Forge: `./contracts/install-deps.sh && npm run test:contracts`, local Anvil payments plus new ShopifyRewardVault test suite; verify addresses on Base Sepolia.
 3. Configure Shopify OAuth/approved data access, HMAC webhooks, and secure SMTP/Resend key, then test a REAL paid order, one duplicate delivery, a refund-before-paid event and a post-payment refund.
@@ -260,6 +269,7 @@ _Formerly `BUILD_AUDIT_V3_5.md`._
 **2026-11-10** · Hybrid Shopify + Base USDC commerce · Developer release candidate
 
 ### Independently run in this environment
+
 - Source layout and ZIP inputs inspected from uploaded v3.4 artifact.
 - 54/54 targeted Node.js business/security tests passed, including 11/11 new Shopify cryptography, identity, claim-rule and payout-gate tests.
 - 91 TypeScript/TSX files passed **syntax transpilation**, but this is not a full dependency-aware `tsc --noEmit` typecheck.
@@ -268,6 +278,7 @@ _Formerly `BUILD_AUDIT_V3_5.md`._
 - Static UX preview is bundled; browser screenshots/tests could **not** be executed here because the browser blocks local file and localhost access. Preview is illustrative, not the running Next.js app.
 
 ### P0 remaining deployment gates
+
 1. The old v3.4 lockfile omitted `pg` and `@types/pg`. We could not reach npm registry from this container. On a networked machine run `npm run bootstrap:lock`, commit the resolved lockfile, change CI back to `npm ci`, then verify `npm ci && npm run check && npm run build`.
 2. Run `npm run format` and `npm run format:check` and resolve lint warnings before merging; Prettier was not available in this container.
 3. `./contracts/install-deps.sh && npm run test:contracts` has not been run; Foundry unavailable. This includes the new ShopifyRewardVault and ShopifyTestnetAdapter tests.
@@ -277,6 +288,7 @@ _Formerly `BUILD_AUDIT_V3_5.md`._
 7. Mobile Safari + Android Chrome touch, 44px targets, reduced motion, loading performance and accessibility QA on `/experience`, `/claim`, `/commerce`, `/commerce/admin`, `/shop`, `/protocol`.
 
 ### Security / scope caveats
+
 - Shopify customer checkout is processed by Shopify; the Shopify reward vault **does not** charge the buyer. The merchant funds synthetic stock rewards in separate test USDC.
 - All securities, portfolio execution and Bankr borrowing are disabled. Bankr read-only research is retained.
 - Shopify pilot supports one allowlisted store and USD-only orders; no multi-merchant OAuth token rotation or public app marketplace submission is claimed.
@@ -393,12 +405,14 @@ _Formerly `OWNBACK_V3_6_2_RECOVERY_RELEASE.md`._
 ### What changed
 
 **Claim email outbox** (`commerce/shopify.sql`, `src/lib/shopify/claim-outbox.ts`, `scripts/shopify-claims.ts`, admin claim route):
+
 - The reward order's redeemable token digest and an encrypted, durable email intent commit in **one PostgreSQL transaction**, before Resend is contacted. The outbox stores encrypted email and token and reuses a fixed provider idempotency key across retries.
 - Dispatcher uses an atomic lease (2 minutes), rechecks the Shopify paid state/refunds, and sends only afterward. Worker retries use the original token, not a new link.
 - Merchant-triggered claims queue emails; they no longer make external HTTP requests inside the request handler.
 - Refund webhooks cancel unsent intents and invalidate existing claim links. No live securities are delivered.
 
 **Settlement reconciliation** (`scripts/shopify-settle.ts`):
+
 - On restart, reads the vault's `paidOrder` flag and validates `RewardDelivered` receipt/event for **SETTLING**, a refunded in-flight order, and even a previously CLAIMED order before an attempt.
 - An ambiguous submission no longer resets SETTLING to CLAIMED, even when the database lost the transaction hash. A reverted receipt requires manual operator review.
 - Validates the emitted customer hash, recipient wallet, positive amounts, vault address, success receipt and exact order hash before declaring delivery.
@@ -523,15 +537,18 @@ _Formerly `WINNING_PROTOCOL.md`._
 ## OWNBACK 3.4 — Proof-of-Retention + Bankr Research
 
 ### Product story
+
 Verified USDC purchase on Base → bounded merchant-funded comeback incentive → recorded mock stock delivery on Sepolia → opt-in read-only Bankr research about eligible collateral markets. **No real securities or customer loan execution** are claimed.
 
 ### What is actually integrated
+
 - `/commerce` catalog/cart, server-side reserve, USDC payment against order-bound reference, receipt-based confirmation, merchant fulfillment and refunds. Source merged from commerce V4.
 - `Ownback` Solidity checkout with minimum reward, expiry and unique orderRef, mock 8-decimal stock settlement and local-chain suite.
 - `/api/agent/research` submits **read-only educational** Bankr prompt and returns a scoped expiring job receipt. Polling never confuses a completed model response with confirmed debt. API key is operator-scoped and must be **read-only**.
 - `/api/agent/borrow` always returns 403; no public write access to operator Bankr wallet.
 
 ### Main competition proof
+
 1. Merchant creates and funds a campaign (Base Sepolia).
 2. Merchant configures a real product and inventory in `/commerce/admin`.
 3. Customer signs wallet checkout, order reference and purchase tx.
@@ -542,9 +559,11 @@ Verified USDC purchase on Base → bounded merchant-funded comeback incentive �
 8. Demonstrate intentional failures: duplicate order, insufficient budget, refund, paused campaign, stale quote, wrong receipt wallet.
 
 ### Bankr partnership next steps
+
 For real user-authorized lending: Bankr partner provisioning with **customer-specific** accounts/keys or wallet-signed actions; clear jurisdiction eligibility; verified allowed token + lending market; enforce collateral market LTV directly and simulate health/liquidation; transaction receipt + debt-position confirmation; debt/interest UX. No borrowing through shared server API key.
 
 ### Readiness gates
+
 1. `npm install --package-lock-only` to regenerate lockfile for added PostgreSQL dependency; then `npm ci`.
 2. `docker compose -f docker-compose.commerce.yml up -d`, `npm run commerce:migrate`, configure single merchant.
 3. `npm test`, `npm run check`, `npm run build`, `npm run test:contracts`, `npm run verify:local`, `npm run test:commerce`.
@@ -553,9 +572,11 @@ For real user-authorized lending: Bankr partner provisioning with **customer-spe
 6. Sign off shipping/tax/compliance externally before selling physical goods or real securities.
 
 ### Constraints
+
 This is a **testnet pilot**. Does not claim live tokenized equity, approved market collateral, a Bankr lending position, mainnet readiness or Shopify integration. The commerce pilot supports pickup/manual digital fulfillment, not complete taxation or shipping.
 
 ### Proof of Retention dashboard
+
 `/commerce/admin` presents paid-order volume, distinct customer wallets, repeat wallets and **observed** repeat rate from non-refunded paid orders. It is deliberately not called causal uplift. Future merchant pilots should add randomized holdout cohorts and margin-aware reward cost analysis.
 
 ---
@@ -577,7 +598,7 @@ _Formerly `SUBMISSION.md` (v3.9 version)._
 ## What is already implemented in source
 
 - Merchant-funded first/comeback USDC reward accounting, refund-aware settlement architecture, Shopify integration and local-chain/recovery tests carried forward from previous releases.
-- The v3.8 mainnet *candidate* adds an inventory-backed B20 adapter and eligibility-gated Base-USDC vaults; none of it is a verified live deployment.
+- The v3.8 mainnet _candidate_ adds an inventory-backed B20 adapter and eligibility-gated Base-USDC vaults; none of it is a verified live deployment.
 - New v3.9 `/allocation` product: user brief, narrow stock universe, explainable one-token proposal, hard refusal when requests exceed immutable vault capabilities, primary docs and optional Bankr research.
 - Server-verified wallet preference signature with replay protection and no delegated spending rights (production Postgres required; feature off by default).
 - Merchant Growth Studio: observed first/repeat purchases and revenue by Shopify store plus a bounded, hypothetical cashback-rate planner. No causal lift claim.
@@ -591,7 +612,7 @@ A merchant's loyalty expenditure can purchase a verified eligible tokenized asse
 1. A customer writes a brief: 'technology exposure, no excluded stocks, maximum $2 reward, 100% single-asset allowed.' The agent checks the configured one-stock vault and shows the proposed token with clearly labeled source references and no investment claim.
 2. Change the concentration cap to 50%, request robotics, or exclude the configured vault token. The system **refuses** and explains why it cannot silently break restrictions.
 3. If configured, request source-cited Bankr research and verify that its text is labeled untrusted analysis, never a transaction.
-4. If the DB and pilot flag are configured, wallet-sign a five-minute single-use *preference* (EIP-191); show signed policy receipt and demonstrate replay refusal. **No stock bought from this action.**
+4. If the DB and pilot flag are configured, wallet-sign a five-minute single-use _preference_ (EIP-191); show signed policy receipt and demonstrate replay refusal. **No stock bought from this action.**
 5. From existing reward source/real testnet demos, demonstrate paid-order verification, hold and eligible settlement states. Say explicitly whether these are mock-chain transactions or actual confirmed mainnet B20.
 6. Show merchant-authenticated shop-specific repeat-order revenue/cohorts or 'no verified orders yet' with no synthetic customers or fake uplift.
 
@@ -686,7 +707,7 @@ npm run dev
 
 **Important:** the inherited npm lockfile is still incomplete (`pg`, `@types/pg`) in this handoff because the npm registry could not be resolved in the execution environment. Regenerate it, commit it, and repeat `npm ci`/build/tests on CI. Do not bypass this gate.
 
-## To test persistent wallet-signed *preference* receipts
+## To test persistent wallet-signed _preference_ receipts
 
 ```sh
 ## Only in staging; requires real Postgres and an exact application origin.
@@ -706,7 +727,7 @@ Connect a wallet on the correct chain; propose an allowed one-token allocation; 
 
 - Mainnet token and oracle addresses in the original v3.8 adapter require issuer and security review. A Chainlink total-return price is reference data, not a firm execution quote. Actual rewards require independently screened recipients, merchant escrowed USDC, separately prefunded B20 inventory, refund holds, confirmed onchain balance delta and real receipts.
 - A customer's preferred stock **cannot** redirect an immutable single-stock reward vault. A multi-asset portfolio requires new reviewed contract lanes, real liquidity/settlement, explicit customer authorization and separate tests. In v3.9, an incompatible preference always refuses.
-- Persistent preferences are *not yet connected* to a stock-delivery executor; that connection must not be advertised as built. This source does not implement x402 agent revenue, stock-backed credit or multi-stock rebalancing. Borrowing remains research-only.
+- Persistent preferences are _not yet connected_ to a stock-delivery executor; that connection must not be advertised as built. This source does not implement x402 agent revenue, stock-backed credit or multi-stock rebalancing. Borrowing remains research-only.
 - Live signed Shopify orders are not present in the handoff. A storefront preview may demonstrate UX but is **not** evidence of a customer conversion or retention result.
 - The authentication is a shared merchant admin cookie rather than per-store IAM; migrate to strict shop-level access control before multi-merchant production.
 
@@ -735,26 +756,26 @@ _Formerly `OWNBACK_V3_9_VALIDATION.md`._
 **Checked:** 2026-11-12  
 **Status:** source-update validation, **not** a verified deployed product.
 
-| Check executed | Result | Evidence / limits |
-|---|---|---|
-| New allocation policy + security + merchant retention tests | **PASS 16/16** | `npm run test:allocation`; deterministic unit and static security checks, not wallet integration |
-| Retention economics + merchant agent tests | **PASS 15/15** | `npm run test:retention` |
-| Base mainnet static guard tests | **PASS 7/7** | `npm run test:mainnet` |
-| Shopify recovery unit tests | **PASS 6/6** | `npm run test:recovery` |
-| Hybrid Shopify security tests | **PASS 11/11** | `npm run test:hybrid` |
-| All JS test modules | **119 pass / 120 reported** | One test module could not import `viem` (`tests/frontend-logic.test.mjs`) because `node_modules` could not be installed; **not a passed full suite** |
-| Shopify fault-injection simulation | **PASS 17 assertions** | `npm run simulate:recovery`; simulated email, database, chain and broadcast reconciliation, NOT actual Base transactions |
-| Legacy offline release preflight | **PASS** | `node scripts/release-preflight.mjs` |
-| Commerce and agentic preflight | **PASS** | `npm run commerce:preflight` and `npm run agentic:preflight`; structural, not full live integrations |
-| Mainnet static preflight | **PASS** | `npm run mainnet:static`, not live RPC |
-| TypeScript/TSX parsing of 9 edited/new application files | **PASS** | Global TypeScript `transpileModule` diagnostics only; does not verify types or imports |
-| Source integrity | **PASS** | SHA-256 source manifest regenerated and verified after all source edits |
-| npm registry install | **BLOCKED** | DNS `EAI_AGAIN`; inherited `package-lock.json` lacks package resolution for `pg` and `@types/pg` |
-| Full TypeScript check, lint, formatting check, Next.js production build, browser tests | **NOT RUN / NOT VERIFIED** | Dependency install unavailable; must run on connected CI machine |
-| Foundry compile/test & full local contract E2E | **NOT RUN / NOT VERIFIED** | `forge`/`anvil` absent |
-| Database migration and signed live-wallet roundtrip | **NOT RUN / NOT VERIFIED** | No Postgres instance, test wallet or app server |
-| Bankr research live API request | **NOT RUN / NOT VERIFIED** | No Bankr key, job receipt or network connection |
-| Mainnet USDC/B20 fulfillment | **NOT RUN / NOT VERIFIED** | No audited deployment, funded real vault, B20 inventory or real transaction receipts |
+| Check executed                                                                         | Result                      | Evidence / limits                                                                                                                                    |
+| -------------------------------------------------------------------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| New allocation policy + security + merchant retention tests                            | **PASS 16/16**              | `npm run test:allocation`; deterministic unit and static security checks, not wallet integration                                                     |
+| Retention economics + merchant agent tests                                             | **PASS 15/15**              | `npm run test:retention`                                                                                                                             |
+| Base mainnet static guard tests                                                        | **PASS 7/7**                | `npm run test:mainnet`                                                                                                                               |
+| Shopify recovery unit tests                                                            | **PASS 6/6**                | `npm run test:recovery`                                                                                                                              |
+| Hybrid Shopify security tests                                                          | **PASS 11/11**              | `npm run test:hybrid`                                                                                                                                |
+| All JS test modules                                                                    | **119 pass / 120 reported** | One test module could not import `viem` (`tests/frontend-logic.test.mjs`) because `node_modules` could not be installed; **not a passed full suite** |
+| Shopify fault-injection simulation                                                     | **PASS 17 assertions**      | `npm run simulate:recovery`; simulated email, database, chain and broadcast reconciliation, NOT actual Base transactions                             |
+| Legacy offline release preflight                                                       | **PASS**                    | `node scripts/release-preflight.mjs`                                                                                                                 |
+| Commerce and agentic preflight                                                         | **PASS**                    | `npm run commerce:preflight` and `npm run agentic:preflight`; structural, not full live integrations                                                 |
+| Mainnet static preflight                                                               | **PASS**                    | `npm run mainnet:static`, not live RPC                                                                                                               |
+| TypeScript/TSX parsing of 9 edited/new application files                               | **PASS**                    | Global TypeScript `transpileModule` diagnostics only; does not verify types or imports                                                               |
+| Source integrity                                                                       | **PASS**                    | SHA-256 source manifest regenerated and verified after all source edits                                                                              |
+| npm registry install                                                                   | **BLOCKED**                 | DNS `EAI_AGAIN`; inherited `package-lock.json` lacks package resolution for `pg` and `@types/pg`                                                     |
+| Full TypeScript check, lint, formatting check, Next.js production build, browser tests | **NOT RUN / NOT VERIFIED**  | Dependency install unavailable; must run on connected CI machine                                                                                     |
+| Foundry compile/test & full local contract E2E                                         | **NOT RUN / NOT VERIFIED**  | `forge`/`anvil` absent                                                                                                                               |
+| Database migration and signed live-wallet roundtrip                                    | **NOT RUN / NOT VERIFIED**  | No Postgres instance, test wallet or app server                                                                                                      |
+| Bankr research live API request                                                        | **NOT RUN / NOT VERIFIED**  | No Bankr key, job receipt or network connection                                                                                                      |
+| Mainnet USDC/B20 fulfillment                                                           | **NOT RUN / NOT VERIFIED**  | No audited deployment, funded real vault, B20 inventory or real transaction receipts                                                                 |
 
 ### Important interpretations
 
@@ -780,26 +801,26 @@ _Formerly `BASE_MAINNET_RUN_REPORT.md`._
 
 ## Results actually executed in this working environment
 
-| Check | Observed result | Evidence or limitation |
-|---|---|---|
-| v3.7 original SHA256 manifest | PASS (207 files before edits) | `npm run verify:manifest` before modifications |
-| **v3.8 source-integrity manifest** | **PASS, 217 included files** | `npm run generate:manifest && npm run verify:manifest` after changes |
-| Original full `npm test` | 96 pass, 1 test module failed to load | `viem` missing from the environment; not a logic assertion failure |
-| **Updated full `npm test`** | **103 pass, 1 module could not load (104 total)** | The same missing `viem` dependency blocks `tests/frontend-logic.test.mjs`; no new assertion failures observed |
-| Original retention tests | PASS 11/11 | `npm run test:retention` |
-| Original protocol tests | PASS 4/4 | `npm run test:protocol` |
-| Original hybrid tests | PASS 11/11 | `npm run test:hybrid` |
-| Recovery tests | PASS 6/6 | `npm run test:recovery` |
-| Fault-injected Shopify recovery simulation | PASS 17 model assertions, including duplicate-send avoidance after DB crash | `npm run simulate:recovery` — offline simulated DB/email/chain, not live transactions; replay harness updated for new viem quote import |
-| Mainnet safety tests | PASS 7/7 | `npm run test:mainnet`, static asserts and deterministic unit math |
-| Mainnet offline preflight | PASS | `npm run mainnet:static` only; no chain calls |
-| Commerce & agentic preflight | PASS | `npm run commerce:preflight` / `npm run agentic:preflight` |
-| Live `npm ci` | BLOCKED | Offline/unreachable registry, missing lockfile `pg` + `@types/pg` |
-| Solidity compilation / Foundry tests | NOT RUN | `forge`/`anvil` are unavailable |
-| Next.js production build / TypeScript full typecheck | NOT RUN | npm dependency installation blocked; **103 TS/TSX files parse with 0 syntax errors** (not equivalent to typecheck) |
-| Full local contract/payment/keeper E2E | NOT RUN | missing Foundry, viem, real local chain |
-| Base 8453 RPC inspection / token metadata | NOT RUN | No validated live RPC session or deployment context supplied; onchain-only preflight included |
-| Deploy, verified contracts, fund real USDC/B20, execute a paid order | NOT RUN | Requires real chain keys/assets, security/legal review, production services |
+| Check                                                                | Observed result                                                             | Evidence or limitation                                                                                                                  |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| v3.7 original SHA256 manifest                                        | PASS (207 files before edits)                                               | `npm run verify:manifest` before modifications                                                                                          |
+| **v3.8 source-integrity manifest**                                   | **PASS, 217 included files**                                                | `npm run generate:manifest && npm run verify:manifest` after changes                                                                    |
+| Original full `npm test`                                             | 96 pass, 1 test module failed to load                                       | `viem` missing from the environment; not a logic assertion failure                                                                      |
+| **Updated full `npm test`**                                          | **103 pass, 1 module could not load (104 total)**                           | The same missing `viem` dependency blocks `tests/frontend-logic.test.mjs`; no new assertion failures observed                           |
+| Original retention tests                                             | PASS 11/11                                                                  | `npm run test:retention`                                                                                                                |
+| Original protocol tests                                              | PASS 4/4                                                                    | `npm run test:protocol`                                                                                                                 |
+| Original hybrid tests                                                | PASS 11/11                                                                  | `npm run test:hybrid`                                                                                                                   |
+| Recovery tests                                                       | PASS 6/6                                                                    | `npm run test:recovery`                                                                                                                 |
+| Fault-injected Shopify recovery simulation                           | PASS 17 model assertions, including duplicate-send avoidance after DB crash | `npm run simulate:recovery` — offline simulated DB/email/chain, not live transactions; replay harness updated for new viem quote import |
+| Mainnet safety tests                                                 | PASS 7/7                                                                    | `npm run test:mainnet`, static asserts and deterministic unit math                                                                      |
+| Mainnet offline preflight                                            | PASS                                                                        | `npm run mainnet:static` only; no chain calls                                                                                           |
+| Commerce & agentic preflight                                         | PASS                                                                        | `npm run commerce:preflight` / `npm run agentic:preflight`                                                                              |
+| Live `npm ci`                                                        | BLOCKED                                                                     | Offline/unreachable registry, missing lockfile `pg` + `@types/pg`                                                                       |
+| Solidity compilation / Foundry tests                                 | NOT RUN                                                                     | `forge`/`anvil` are unavailable                                                                                                         |
+| Next.js production build / TypeScript full typecheck                 | NOT RUN                                                                     | npm dependency installation blocked; **103 TS/TSX files parse with 0 syntax errors** (not equivalent to typecheck)                      |
+| Full local contract/payment/keeper E2E                               | NOT RUN                                                                     | missing Foundry, viem, real local chain                                                                                                 |
+| Base 8453 RPC inspection / token metadata                            | NOT RUN                                                                     | No validated live RPC session or deployment context supplied; onchain-only preflight included                                           |
+| Deploy, verified contracts, fund real USDC/B20, execute a paid order | NOT RUN                                                                     | Requires real chain keys/assets, security/legal review, production services                                                             |
 
 ## Major risks outstanding before go-live
 
@@ -827,7 +848,7 @@ _Formerly `BASE_TEAM_SUBMISSION_BRIEF.md`._
 
 ## Short pitch
 
-OWNBACK is a merchant-funded loyalty system where an eligible purchase reserves a USDC-denominated stock reward on Base. A constrained allocation agent lets customers declare token preferences and risk ceilings, sees whether a reviewed settlement lane can meet them, and refuses to override unmet limits. Merchants can measure observed return purchases and revenue instead of vanity engagement. The loop is *verified order → funded reward → policy check → eligible settlement → observed customer comeback*.
+OWNBACK is a merchant-funded loyalty system where an eligible purchase reserves a USDC-denominated stock reward on Base. A constrained allocation agent lets customers declare token preferences and risk ceilings, sees whether a reviewed settlement lane can meet them, and refuses to override unmet limits. Merchants can measure observed return purchases and revenue instead of vanity engagement. The loop is _verified order → funded reward → policy check → eligible settlement → observed customer comeback_.
 
 ## New since November 5 (check actual commit history for exact attribution)
 

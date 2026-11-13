@@ -14,7 +14,6 @@ if (chainId === base.id && process.env.NEXT_PUBLIC_LIVE_STOCK_ENABLED !== 'true'
 export const chain: Chain = chainId === foundry.id ? foundry : chainId === base.id ? base : baseSepolia;
 export const isMainnet = chain.id === base.id;
 
-
 export const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || chain.rpcUrls.default.http[0];
 
 function addr(value: string | undefined): Address | undefined {
@@ -28,7 +27,8 @@ export const addresses = {
   adapter: addr(process.env.NEXT_PUBLIC_ADAPTER_ADDRESS),
 };
 
-export const isConfigured = Object.values(addresses).every(Boolean) &&
+export const isConfigured =
+  Object.values(addresses).every(Boolean) &&
   (!isMainnet || addresses.usdc?.toLowerCase() === '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913');
 
 export const campaignId = BigInt(process.env.NEXT_PUBLIC_CAMPAIGN_ID ?? '1');

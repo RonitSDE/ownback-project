@@ -8,7 +8,7 @@
 
 # OWNBACK v3.6 — Hybrid commerce with Shopify UCP Shopping Concierge
 
-**New:** `/agentic` combines conversational **merchant-grounded product discovery**, Shopify UCP catalog/variant lookup and cart creation, and a safe *buyer-controlled merchant checkout handoff*. Shopify app OAuth, signed order/refund webhooks, customer claim and a separate Base Sepolia reward vault remain in place. OWNBACK's native USDC commerce and Bankr read-only research are unchanged.
+**New:** `/agentic` combines conversational **merchant-grounded product discovery**, Shopify UCP catalog/variant lookup and cart creation, and a safe _buyer-controlled merchant checkout handoff_. Shopify app OAuth, signed order/refund webhooks, customer claim and a separate Base Sepolia reward vault remain in place. OWNBACK's native USDC commerce and Bankr read-only research are unchanged.
 
 Start with [`DEPLOY.md`](DEPLOY.md), then follow the existing hybrid and commerce docs. Preview mode works without merchant credentials but uses sample products and **does not process payments or issue rewards**.
 

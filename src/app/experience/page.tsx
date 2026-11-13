@@ -1,61 +1,655 @@
 'use client';
 import { isMainnet } from '@/lib/config';
-import {useEffect,useMemo,useState} from 'react';
-import {parseUnits,formatUnits,type Address} from 'viem';
-import {connectWallet,publicClient,send} from '@/lib/wallet';
-import {usdcAbi} from '@/lib/abi';
-import {addresses} from '@/lib/config';
-import {shopifyVaultPublicAbi} from '@/lib/shopify/public';
-import {ArrowRight,ArrowUpRight,ShoppingBag,Wallet,ShieldCheck,Repeat2,CheckCircle2,LockKeyhole,Store,Globe,ChartNoAxesCombined,Sparkles,Activity,ExternalLink} from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { parseUnits, formatUnits, type Address } from 'viem';
+import { connectWallet, publicClient, send } from '@/lib/wallet';
+import { usdcAbi } from '@/lib/abi';
+import { addresses } from '@/lib/config';
+import { shopifyVaultPublicAbi } from '@/lib/shopify/public';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  ShoppingBag,
+  Wallet,
+  ShieldCheck,
+  Repeat2,
+  CheckCircle2,
+  LockKeyhole,
+  Store,
+  Globe,
+  ChartNoAxesCombined,
+  Sparkles,
+  Activity,
+  ExternalLink,
+} from 'lucide-react';
 import './hybrid.css';
-type ShopifyOrder={shop_domain:string;order_id:string;order_label:string;status:string;price_usdc:string;paid_at:string;reward_kind:string|null;reward_usdc:string|null;tx_hash:string|null;email_status:string|null};
-type NativeMetrics={verified_purchases:number;customers:number;returning_customers:number;gross_paid_usdc:string;observedRepeatRate:number};
-type Overview={shops:{shop_domain:string;active:boolean;webhook_ready:boolean}[];orders:ShopifyOrder[];metrics:{purchases:number;customers:number;returning:number;sales:string;delivered:number}};
-function usdUnits(n:string|number|bigint){return '$'+(Number(BigInt(n))/1_000_000).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
-function customerFacingStatus(order:ShopifyOrder){
- if(order.status==='CLAIM_SENT')return order.email_status==='SENT'?'CLAIM EMAIL SENT':order.email_status==='REVIEW'?'EMAIL REQUIRES REVIEW':'CLAIM EMAIL QUEUED';
- if(order.status==='SETTLING')return 'AWAITING CHAIN CONFIRMATION';
- if(order.status==='FAILED')return 'SETTLEMENT REVIEW REQUIRED';
- return order.status.replaceAll('_',' ');
+type ShopifyOrder = {
+  shop_domain: string;
+  order_id: string;
+  order_label: string;
+  status: string;
+  price_usdc: string;
+  paid_at: string;
+  reward_kind: string | null;
+  reward_usdc: string | null;
+  tx_hash: string | null;
+  email_status: string | null;
+};
+type NativeMetrics = {
+  verified_purchases: number;
+  customers: number;
+  returning_customers: number;
+  gross_paid_usdc: string;
+  observedRepeatRate: number;
+};
+type Overview = {
+  shops: { shop_domain: string; active: boolean; webhook_ready: boolean }[];
+  orders: ShopifyOrder[];
+  metrics: { purchases: number; customers: number; returning: number; sales: string; delivered: number };
+};
+function usdUnits(n: string | number | bigint) {
+  return (
+    '$' +
+    (Number(BigInt(n)) / 1_000_000).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+  );
 }
-const illustration=[{name:'THE DAILY EDIT',desc:'Your next favorite thing',price:48,percent:2},{name:'THE SECOND CHAPTER',desc:'Come back, earn more',price:48,percent:5}];
-export default function Experience(){
- const [tab,setTab]=useState<'consumer'|'merchant'>('consumer'),[channel,setChannel]=useState<'shopify'|'base'>('shopify'),[shop,setShop]=useState(''),[connectState,setConnectState]=useState(''),[overview,setOverview]=useState<Overview|null>(null),[native,setNative]=useState<NativeMetrics|null>(null),[loadError,setLoadError]=useState(''),[loading,setLoading]=useState(false),[sample,setSample]=useState(0),[claiming,setClaiming]=useState(''),[claimResult,setClaimResult]=useState(''),[merchantWallet,setMerchantWallet]=useState<Address>(),[fundAmount,setFundAmount]=useState('100'),[funding,setFunding]=useState(false),[vaultBalance,setVaultBalance]=useState<string|null>(null);
- useEffect(()=>{const query=new URLSearchParams(window.location.search);if(query.get('connection')){setConnectState(query.get('connection')||'');setTab('merchant')}refresh().catch(()=>{})},[]);
- async function refresh(){const [res,nativeRes]=await Promise.all([fetch('/api/shopify/overview',{cache:'no-store'}),fetch('/api/commerce/admin/analytics',{cache:'no-store'})]);if(res.ok){setOverview(await res.json());setLoadError('')}else{setLoadError('Sign in to the merchant console to view connected Shopify activity.')}if(nativeRes.ok){const data=await nativeRes.json();setNative(data.metrics)}}
- async function issue(o:ShopifyOrder){setClaiming(o.order_id);setClaimResult('');try{const r=await fetch('/api/shopify/admin/claims',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({shop:o.shop_domain,orderId:o.order_id})});const data=await r.json();if(!r.ok)throw Error(data.error||'Claim unavailable');setClaimResult(data.demoClaimUrl?`Local demo claim: ${data.demoClaimUrl}`:'Claim queued securely. Email delivery will be confirmed by the private worker.');await refresh()}catch(e){setClaimResult(e instanceof Error?e.message:'Unable to issue claim')}finally{setClaiming('')}}
- async function fundShopifyVault(){
-  setFunding(true);setClaimResult('');
-  try{
-   const raw=process.env.NEXT_PUBLIC_SHOPIFY_VAULT_ADDRESS||'';
-   if(!/^0x[0-9a-fA-F]{40}$/.test(raw)||!addresses.usdc)throw Error('Shopify reward vault not configured');
-   const vault=raw as Address;
-   const who=merchantWallet||await connectWallet();setMerchantWallet(who);
-   const amount=parseUnits(fundAmount,6);
-   if(amount<=0n||amount>100_000n*1_000_000n)throw Error('Enter a valid USDC funding amount');
-   const allowance=await publicClient.readContract({address:addresses.usdc,abi:usdcAbi,functionName:'allowance',args:[who,vault]});
-   if(allowance<amount)await send({account:who,address:addresses.usdc,abi:usdcAbi,functionName:'approve',args:[vault,amount]});
-   await send({account:who,address:vault,abi:shopifyVaultPublicAbi,functionName:'fund',args:[amount]});
-   const balance=await publicClient.readContract({address:vault,abi:shopifyVaultPublicAbi,functionName:'available'});
-   setVaultBalance(formatUnits(balance,6));setClaimResult('Merchant-funded testnet Shopify reward vault topped up on Base.');
-  }catch(e){setClaimResult(e instanceof Error?e.message:'Unable to fund vault')}finally{setFunding(false)}
- }
- const current=illustration[sample];const reward=useMemo(()=>current.price*current.percent/100,[current]);
- return <main className="hb-shell" id="main">
-  <div className="hb-announcement"><span className="hb-live-dot"/> Introducing OWNBACK hybrid commerce · Base Sepolia pilot <span className="hb-announcement-right">Web2 checkout × Web3 rewards</span></div>
-  <header className="hb-top"><a className="hb-logo" href="/"><span>↗</span> OWNBACK<b>.</b></a><nav><a href="/agentic">Shopping concierge</a><a href="/commerce">Native store</a><a href="/growth">Merchant ROI</a><a href="/ownership">My ownership</a><a href="/protocol">Proof protocol</a><a href="/shop">Reward wallet</a></nav><a href="/commerce" className="hb-header-cta">Explore rewards <ArrowUpRight size={16}/></a></header>
-  <div className="hb-wrap">
-   <section className="hb-hero"><div className="hb-hero-content"><div className="hb-eyebrow"><span className="hb-live-dot"/> THE OWNERSHIP COMMERCE NETWORK</div><h1>Shop as usual.<br/><em>Own more.</em></h1><p className="hb-hero-summary">From everyday payments to extraordinary loyalty. Your favorite merchants can reward purchases with ownership-linked benefits on Base—whether you shop with a card or USDC.</p><div className="hb-main-actions"><button className="hb-btn hb-btn-lime" onClick={()=>{setTab('consumer');document.getElementById('hb-experience')?.scrollIntoView({behavior:'smooth'})}}>Explore the experience <ArrowRight size={18}/></button><button className="hb-btn hb-btn-glass" onClick={()=>{setTab('merchant');document.getElementById('hb-experience')?.scrollIntoView({behavior:'smooth'})}}>I'm a merchant <Store size={17}/></button></div><div className="hb-trust"><span><ShieldCheck size={15}/> Merchant funded</span><span><CheckCircle2 size={15}/> Verified purchases</span><span><Wallet size={15}/> Base rewards</span></div></div>
-   <div className="hb-hero-scene"><div className="hb-scene-glow"/><div className="hb-visual-card hb-card-one"><div className="hb-card-label">YOUR FIRST PURCHASE</div><div className="hb-visual-amount">$48.00</div><div className="hb-mini-divider"/><div className="hb-visual-row"><span>Stock-back reserved</span><strong>+$0.96</strong></div><div className="hb-visual-tag"><CheckCircle2 size={12}/> Illustrative</div></div><div className="hb-loop-line"/><div className="hb-visual-card hb-card-two"><div className="hb-icon-float"><Repeat2 size={20}/></div><div className="hb-card-label">THE COMEBACK MOMENT</div><div className="hb-visual-amount">5% <span>stock-back</span></div><div className="hb-mini-divider"/><div className="hb-visual-row"><span>Second $48 purchase</span><strong>+$2.40</strong></div><div className="hb-visual-tag green"><Sparkles size={12}/> More for returning</div></div><div className="hb-scene-caption">Illustrative rewards · Not real equities</div></div>
-   </section>
-   <section className="hb-proofline"><div><span className="hb-lineicon"><Globe size={18}/></span><strong>One rewards protocol</strong><small>Across two checkout channels</small></div><div><span className="hb-lineicon"><ShieldCheck size={18}/></span><strong>Evidence first</strong><small>Real orders, receipts, and status</small></div><div><span className="hb-lineicon"><Repeat2 size={18}/></span><strong>Built for retention</strong><small>Track verified repeat customers</small></div><div><span className="hb-lineicon"><Activity size={18}/></span><strong>Bankr intelligence</strong><small>Research mode; no autonomous loans</small></div></section>
-   <section className="hb-experience" id="hb-experience"><div className="hb-section-intro"><div><span className="hb-eyebrow">TWO WAYS TO SHOP</span><h2>One beautiful <em>ownership experience.</em></h2><p>Keep the convenience you love. Add rewards you'll remember.</p></div><div className="hb-switch"><button className={tab==='consumer'?'active':''} onClick={()=>setTab('consumer')}>For shoppers</button><button className={tab==='merchant'?'active':''} onClick={()=>setTab('merchant')}>For merchants</button></div></div>
-    {tab==='consumer'?<div className="hb-consumer-grid"><div className="hb-channel-panel"><div className="hb-pill-label">CHOOSE YOUR SHOPPING EXPERIENCE</div><div className="hb-channel-tabs"><button className={channel==='shopify'?'selected':''} onClick={()=>setChannel('shopify')}><ShoppingBag size={19}/><span><strong>Shopify store</strong><small>Cards · Shop Pay · Store payments</small></span><span className="hb-choice-dot"/></button><button className={channel==='base'?'selected':''} onClick={()=>setChannel('base')}><Wallet size={19}/><span><strong>OWNBACK native</strong><small>USDC on Base</small></span><span className="hb-choice-dot"/></button></div><div className="hb-choice-content"><span className="hb-mini-eyebrow">{channel==='shopify'?'MAINSTREAM CHECKOUT':'CRYPTO-NATIVE CHECKOUT'}</span><h3>{channel==='shopify'?'Your usual checkout. A new kind of reward.':'Spend USDC. Earn stock-back.'}</h3><p>{channel==='shopify'?'Customers check out in a connected Shopify store. A verified paid order becomes eligible for a separately funded Base reward; a secure claim link connects the buyer to a wallet.':'Explore our OWNBACK storefront. Pay a merchant directly in test USDC; reward entitlement is reserved in the same Base transaction.'}</p><div className="hb-step-line"><span>01</span> {channel==='shopify'?'Merchant verifies order':'Pay in USDC'}<CheckCircle2 size={16}/></div><div className="hb-step-line"><span>02</span> {channel==='shopify'?'Claim via email and wallet':'Reward reserved onchain'}<CheckCircle2 size={16}/></div><div className="hb-step-line"><span>03</span> Eligible testnet reward delivered<CheckCircle2 size={16}/></div>{channel==='shopify'?<div className="hb-inline-info">Shopify pilot claims require a connected merchant and paid order. No live merchant is connected by this page alone.</div>:<a className="hb-btn hb-btn-dark" href="/commerce">Open the USDC storefront <ArrowRight size={17}/></a>}</div></div>
-    <div className="hb-demo-panel"><div className="hb-demo-header"><span><span className="hb-live-dot"/> INTERACTIVE EXAMPLE</span><span>SIMULATED · NO FUNDS</span></div><div className="hb-receipt-art"><div className="hb-receipt-lead">↗</div><div className="hb-receipt-body"><span className="hb-mini-eyebrow">OWNBACK PURCHASE MOMENT</span><div className="hb-receipt-product">{current.name}</div><p>{current.desc}</p><div className="hb-receipt-price">${current.price.toFixed(2)} <span>purchase</span></div><div className="hb-receipt-rule"/><div className="hb-receipt-line"><span>Reward rate</span><b>{current.percent}% stock-back</b></div><div className="hb-receipt-line"><span>Reward value</span><b className="hb-lime-text">+${reward.toFixed(2)}</b></div><div className="hb-receipt-foot"><CheckCircle2 size={16}/> Illustrative receipt</div></div></div><div className="hb-demo-bottom"><div><strong>See why coming back pays more</strong><small>One customer · Two purchases · Seven days</small></div><button onClick={()=>setSample(x=>x===0?1:0)}>{sample===0?'Simulate comeback':'Back to first order'} <ArrowRight size={14}/></button></div></div></div>:
-    <div className="hb-merchant-grid"><div className="hb-merchant-left"><div className="hb-pill-label">CONNECT YOUR BUSINESS</div><h3>Turn customers into <em>return customers.</em></h3><p>Keep Shopify for sales, inventory, tax and fulfillment. Add OWNBACK's merchant-funded loyalty layer and monitor confirmed rewards alongside USDC storefront activity.</p><label htmlFor="hb-shop-domain">Your Shopify store domain</label><div className="hb-connect-field"><Store size={17}/><input id="hb-shop-domain" value={shop} onChange={e=>setShop(e.target.value)} placeholder="your-brand.myshopify.com"/><a href={shop?`/api/shopify/install?shop=${encodeURIComponent(shop)}`:'#'} onClick={e=>{if(!shop)e.preventDefault()}} className="hb-btn hb-btn-dark">Connect <ArrowRight size={16}/></a></div><div className="hb-merchant-caption"><LockKeyhole size={15}/> Merchant sign-in required · Shopify approves read-only order access · No new payment processor</div>{connectState&&<div className="hb-inline-info" role="status">Shopify connection: {connectState.replaceAll('-',' ')}. {connectState==='webhooks-pending'?'Check subscriptions before accepting orders.':''}</div>}<div className="hb-funding-card"><div className="hb-mini-eyebrow">{isMainnet?'MERCHANT-FUNDED B20 INVENTORY REWARDS':'MERCHANT-FUNDED TESTNET REWARDS'}</div><strong>Fund Shopify stock-back</strong><p>Separate from Shopify's checkout. Customers never pay twice.</p><div className="hb-funding-controls"><input type="number" min="1" step="1" value={fundAmount} onChange={e=>setFundAmount(e.target.value)} aria-label="USDC funding amount"/><button disabled={funding} onClick={fundShopifyVault}>{funding?'Confirming…':'Fund USDC vault'} <ArrowRight size={13}/></button></div>{vaultBalance!==null&&<small>Available reward budget: {vaultBalance} {isMainnet?'USDC':'test USDC'}</small>}</div><div className="hb-connect-links"><a href="/agentic">Preview shopping agent <ExternalLink size={14}/></a><a href="/commerce/admin">Open merchant console <ExternalLink size={14}/></a><button onClick={async()=>{setLoading(true);await refresh();setLoading(false)}} disabled={loading}>Refresh connected stores ↻</button></div></div><div className="hb-merchant-data"><div className="hb-data-heading"><div><span className="hb-mini-eyebrow">PROOF OF RETENTION</span><h3>Commerce pulse</h3></div><span className="hb-data-tag">Verified data only</span></div>{overview?<><div className="hb-metrics"><div><span>Shopify purchases</span><strong>{overview.metrics.purchases}</strong></div><div><span>Returning buyers</span><strong>{overview.metrics.returning}</strong></div><div><span>Rewards delivered</span><strong>{overview.metrics.delivered}</strong></div><div><span>Purchase volume</span><strong>{usdUnits(overview.metrics.sales)}</strong></div></div>{native&&<div className="hb-native-summary"><strong><Wallet size={15}/> Native USDC store</strong><div><span>{native.verified_purchases} verified orders</span><span>{usdUnits(native.gross_paid_usdc)} volume</span><span>{native.returning_customers} return customers</span></div><small>Channel-specific counts. We do not assume Shopify identities and Base wallets are the same person.</small></div>}<div className="hb-merchant-orders"><div className="hb-mini-eyebrow">RECENT VERIFIED SHOPIFY ORDERS</div>{overview.orders.length===0?<p>No Shopify orders received yet.</p>:overview.orders.slice(0,6).map(o=><div className="hb-merchant-order" key={o.shop_domain+o.order_id}><div><strong>{o.order_label||o.order_id}</strong><small>{o.status} · {usdUnits(o.price_usdc)}</small></div>{['HOLD','READY'].includes(o.status)?<button disabled={Boolean(claiming)} onClick={()=>issue(o)}>Send claim</button>:<span className="hb-status-chip">{customerFacingStatus(o)}</span>}</div>)}</div>{claimResult&&<div className="hb-inline-info" role="status">{claimResult}</div>}</>:<div className="hb-empty-state"><ChartNoAxesCombined size={31}/><h4>Connect your first store</h4><p>{loadError||'Once a merchant signs in and connects Shopify, purchase and reward data appears here. No invented metrics.'}</p><a href="/commerce/admin">Merchant sign-in <ArrowRight size={14}/></a></div>}</div></div>}
-   </section>
-   <section className="hb-final-cta"><div><span className="hb-eyebrow">BUILT ON BASE · POWERED BY RETENTION</span><h2>Points expire.<br/><em>Ownership stays.</em></h2><p>A stronger relationship between customer and commerce—without asking shoppers to learn Web3 first.</p></div><div><a className="hb-btn hb-btn-lime" href="/commerce">Explore our USDC store <ArrowRight size={17}/></a><a className="hb-btn hb-btn-light" href="/protocol">See the evidence protocol <ArrowUpRight size={16}/></a></div></section>
-   <footer className="hb-footer"><div className="hb-logo"><span>↗</span> OWNBACK<b>.</b></div><p>© OWNBACK · Hybrid commerce and stock-linked rewards on Base</p><p>{isMainnet?'Base mainnet eligible-wallet pilot. No new shares minted; token transfers require inventory and eligibility approval.':'Base Sepolia demo. No real equity, stock issuance, lending or U.S. trading enabled.'}</p></footer>
-  </div>
- </main>;
+function customerFacingStatus(order: ShopifyOrder) {
+  if (order.status === 'CLAIM_SENT')
+    return order.email_status === 'SENT'
+      ? 'CLAIM EMAIL SENT'
+      : order.email_status === 'REVIEW'
+        ? 'EMAIL REQUIRES REVIEW'
+        : 'CLAIM EMAIL QUEUED';
+  if (order.status === 'SETTLING') return 'AWAITING CHAIN CONFIRMATION';
+  if (order.status === 'FAILED') return 'SETTLEMENT REVIEW REQUIRED';
+  return order.status.replaceAll('_', ' ');
+}
+const illustration = [
+  { name: 'THE DAILY EDIT', desc: 'Your next favorite thing', price: 48, percent: 2 },
+  { name: 'THE SECOND CHAPTER', desc: 'Come back, earn more', price: 48, percent: 5 },
+];
+export default function Experience() {
+  const [tab, setTab] = useState<'consumer' | 'merchant'>('consumer'),
+    [channel, setChannel] = useState<'shopify' | 'base'>('shopify'),
+    [shop, setShop] = useState(''),
+    [connectState, setConnectState] = useState(''),
+    [overview, setOverview] = useState<Overview | null>(null),
+    [native, setNative] = useState<NativeMetrics | null>(null),
+    [loadError, setLoadError] = useState(''),
+    [loading, setLoading] = useState(false),
+    [sample, setSample] = useState(0),
+    [claiming, setClaiming] = useState(''),
+    [claimResult, setClaimResult] = useState(''),
+    [merchantWallet, setMerchantWallet] = useState<Address>(),
+    [fundAmount, setFundAmount] = useState('100'),
+    [funding, setFunding] = useState(false),
+    [vaultBalance, setVaultBalance] = useState<string | null>(null);
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if (query.get('connection')) {
+      setConnectState(query.get('connection') || '');
+      setTab('merchant');
+    }
+    refresh().catch(() => {});
+  }, []);
+  async function refresh() {
+    const [res, nativeRes] = await Promise.all([
+      fetch('/api/shopify/overview', { cache: 'no-store' }),
+      fetch('/api/commerce/admin/analytics', { cache: 'no-store' }),
+    ]);
+    if (res.ok) {
+      setOverview(await res.json());
+      setLoadError('');
+    } else {
+      setLoadError('Sign in to the merchant console to view connected Shopify activity.');
+    }
+    if (nativeRes.ok) {
+      const data = await nativeRes.json();
+      setNative(data.metrics);
+    }
+  }
+  async function issue(o: ShopifyOrder) {
+    setClaiming(o.order_id);
+    setClaimResult('');
+    try {
+      const r = await fetch('/api/shopify/admin/claims', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shop: o.shop_domain, orderId: o.order_id }),
+      });
+      const data = await r.json();
+      if (!r.ok) throw Error(data.error || 'Claim unavailable');
+      setClaimResult(
+        data.demoClaimUrl
+          ? `Local demo claim: ${data.demoClaimUrl}`
+          : 'Claim queued securely. Email delivery will be confirmed by the private worker.',
+      );
+      await refresh();
+    } catch (e) {
+      setClaimResult(e instanceof Error ? e.message : 'Unable to issue claim');
+    } finally {
+      setClaiming('');
+    }
+  }
+  async function fundShopifyVault() {
+    setFunding(true);
+    setClaimResult('');
+    try {
+      const raw = process.env.NEXT_PUBLIC_SHOPIFY_VAULT_ADDRESS || '';
+      if (!/^0x[0-9a-fA-F]{40}$/.test(raw) || !addresses.usdc)
+        throw Error('Shopify reward vault not configured');
+      const vault = raw as Address;
+      const who = merchantWallet || (await connectWallet());
+      setMerchantWallet(who);
+      const amount = parseUnits(fundAmount, 6);
+      if (amount <= 0n || amount > 100_000n * 1_000_000n) throw Error('Enter a valid USDC funding amount');
+      const allowance = await publicClient.readContract({
+        address: addresses.usdc,
+        abi: usdcAbi,
+        functionName: 'allowance',
+        args: [who, vault],
+      });
+      if (allowance < amount)
+        await send({
+          account: who,
+          address: addresses.usdc,
+          abi: usdcAbi,
+          functionName: 'approve',
+          args: [vault, amount],
+        });
+      await send({
+        account: who,
+        address: vault,
+        abi: shopifyVaultPublicAbi,
+        functionName: 'fund',
+        args: [amount],
+      });
+      const balance = await publicClient.readContract({
+        address: vault,
+        abi: shopifyVaultPublicAbi,
+        functionName: 'available',
+      });
+      setVaultBalance(formatUnits(balance, 6));
+      setClaimResult('Merchant-funded testnet Shopify reward vault topped up on Base.');
+    } catch (e) {
+      setClaimResult(e instanceof Error ? e.message : 'Unable to fund vault');
+    } finally {
+      setFunding(false);
+    }
+  }
+  const current = illustration[sample];
+  const reward = useMemo(() => (current.price * current.percent) / 100, [current]);
+  return (
+    <main className="hb-shell" id="main">
+      <div className="hb-announcement">
+        <span className="hb-live-dot" /> Introducing OWNBACK hybrid commerce · Base Sepolia pilot{' '}
+        <span className="hb-announcement-right">Web2 checkout × Web3 rewards</span>
+      </div>
+      <header className="hb-top">
+        <a className="hb-logo" href="/">
+          <span>↗</span> OWNBACK<b>.</b>
+        </a>
+        <nav>
+          <a href="/agentic">Shopping concierge</a>
+          <a href="/commerce">Native store</a>
+          <a href="/growth">Merchant ROI</a>
+          <a href="/ownership">My ownership</a>
+          <a href="/protocol">Proof protocol</a>
+          <a href="/shop">Reward wallet</a>
+        </nav>
+        <a href="/commerce" className="hb-header-cta">
+          Explore rewards <ArrowUpRight size={16} />
+        </a>
+      </header>
+      <div className="hb-wrap">
+        <section className="hb-hero">
+          <div className="hb-hero-content">
+            <div className="hb-eyebrow">
+              <span className="hb-live-dot" /> THE OWNERSHIP COMMERCE NETWORK
+            </div>
+            <h1>
+              Shop as usual.
+              <br />
+              <em>Own more.</em>
+            </h1>
+            <p className="hb-hero-summary">
+              From everyday payments to extraordinary loyalty. Your favorite merchants can reward purchases
+              with ownership-linked benefits on Base—whether you shop with a card or USDC.
+            </p>
+            <div className="hb-main-actions">
+              <button
+                className="hb-btn hb-btn-lime"
+                onClick={() => {
+                  setTab('consumer');
+                  document.getElementById('hb-experience')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                Explore the experience <ArrowRight size={18} />
+              </button>
+              <button
+                className="hb-btn hb-btn-glass"
+                onClick={() => {
+                  setTab('merchant');
+                  document.getElementById('hb-experience')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                I'm a merchant <Store size={17} />
+              </button>
+            </div>
+            <div className="hb-trust">
+              <span>
+                <ShieldCheck size={15} /> Merchant funded
+              </span>
+              <span>
+                <CheckCircle2 size={15} /> Verified purchases
+              </span>
+              <span>
+                <Wallet size={15} /> Base rewards
+              </span>
+            </div>
+          </div>
+          <div className="hb-hero-scene">
+            <div className="hb-scene-glow" />
+            <div className="hb-visual-card hb-card-one">
+              <div className="hb-card-label">YOUR FIRST PURCHASE</div>
+              <div className="hb-visual-amount">$48.00</div>
+              <div className="hb-mini-divider" />
+              <div className="hb-visual-row">
+                <span>Stock-back reserved</span>
+                <strong>+$0.96</strong>
+              </div>
+              <div className="hb-visual-tag">
+                <CheckCircle2 size={12} /> Illustrative
+              </div>
+            </div>
+            <div className="hb-loop-line" />
+            <div className="hb-visual-card hb-card-two">
+              <div className="hb-icon-float">
+                <Repeat2 size={20} />
+              </div>
+              <div className="hb-card-label">THE COMEBACK MOMENT</div>
+              <div className="hb-visual-amount">
+                5% <span>stock-back</span>
+              </div>
+              <div className="hb-mini-divider" />
+              <div className="hb-visual-row">
+                <span>Second $48 purchase</span>
+                <strong>+$2.40</strong>
+              </div>
+              <div className="hb-visual-tag green">
+                <Sparkles size={12} /> More for returning
+              </div>
+            </div>
+            <div className="hb-scene-caption">Illustrative rewards · Not real equities</div>
+          </div>
+        </section>
+        <section className="hb-proofline">
+          <div>
+            <span className="hb-lineicon">
+              <Globe size={18} />
+            </span>
+            <strong>One rewards protocol</strong>
+            <small>Across two checkout channels</small>
+          </div>
+          <div>
+            <span className="hb-lineicon">
+              <ShieldCheck size={18} />
+            </span>
+            <strong>Evidence first</strong>
+            <small>Real orders, receipts, and status</small>
+          </div>
+          <div>
+            <span className="hb-lineicon">
+              <Repeat2 size={18} />
+            </span>
+            <strong>Built for retention</strong>
+            <small>Track verified repeat customers</small>
+          </div>
+          <div>
+            <span className="hb-lineicon">
+              <Activity size={18} />
+            </span>
+            <strong>Bankr intelligence</strong>
+            <small>Research mode; no autonomous loans</small>
+          </div>
+        </section>
+        <section className="hb-experience" id="hb-experience">
+          <div className="hb-section-intro">
+            <div>
+              <span className="hb-eyebrow">TWO WAYS TO SHOP</span>
+              <h2>
+                One beautiful <em>ownership experience.</em>
+              </h2>
+              <p>Keep the convenience you love. Add rewards you'll remember.</p>
+            </div>
+            <div className="hb-switch">
+              <button className={tab === 'consumer' ? 'active' : ''} onClick={() => setTab('consumer')}>
+                For shoppers
+              </button>
+              <button className={tab === 'merchant' ? 'active' : ''} onClick={() => setTab('merchant')}>
+                For merchants
+              </button>
+            </div>
+          </div>
+          {tab === 'consumer' ? (
+            <div className="hb-consumer-grid">
+              <div className="hb-channel-panel">
+                <div className="hb-pill-label">CHOOSE YOUR SHOPPING EXPERIENCE</div>
+                <div className="hb-channel-tabs">
+                  <button
+                    className={channel === 'shopify' ? 'selected' : ''}
+                    onClick={() => setChannel('shopify')}
+                  >
+                    <ShoppingBag size={19} />
+                    <span>
+                      <strong>Shopify store</strong>
+                      <small>Cards · Shop Pay · Store payments</small>
+                    </span>
+                    <span className="hb-choice-dot" />
+                  </button>
+                  <button className={channel === 'base' ? 'selected' : ''} onClick={() => setChannel('base')}>
+                    <Wallet size={19} />
+                    <span>
+                      <strong>OWNBACK native</strong>
+                      <small>USDC on Base</small>
+                    </span>
+                    <span className="hb-choice-dot" />
+                  </button>
+                </div>
+                <div className="hb-choice-content">
+                  <span className="hb-mini-eyebrow">
+                    {channel === 'shopify' ? 'MAINSTREAM CHECKOUT' : 'CRYPTO-NATIVE CHECKOUT'}
+                  </span>
+                  <h3>
+                    {channel === 'shopify'
+                      ? 'Your usual checkout. A new kind of reward.'
+                      : 'Spend USDC. Earn stock-back.'}
+                  </h3>
+                  <p>
+                    {channel === 'shopify'
+                      ? 'Customers check out in a connected Shopify store. A verified paid order becomes eligible for a separately funded Base reward; a secure claim link connects the buyer to a wallet.'
+                      : 'Explore our OWNBACK storefront. Pay a merchant directly in test USDC; reward entitlement is reserved in the same Base transaction.'}
+                  </p>
+                  <div className="hb-step-line">
+                    <span>01</span> {channel === 'shopify' ? 'Merchant verifies order' : 'Pay in USDC'}
+                    <CheckCircle2 size={16} />
+                  </div>
+                  <div className="hb-step-line">
+                    <span>02</span>{' '}
+                    {channel === 'shopify' ? 'Claim via email and wallet' : 'Reward reserved onchain'}
+                    <CheckCircle2 size={16} />
+                  </div>
+                  <div className="hb-step-line">
+                    <span>03</span> Eligible testnet reward delivered
+                    <CheckCircle2 size={16} />
+                  </div>
+                  {channel === 'shopify' ? (
+                    <div className="hb-inline-info">
+                      Shopify pilot claims require a connected merchant and paid order. No live merchant is
+                      connected by this page alone.
+                    </div>
+                  ) : (
+                    <a className="hb-btn hb-btn-dark" href="/commerce">
+                      Open the USDC storefront <ArrowRight size={17} />
+                    </a>
+                  )}
+                </div>
+              </div>
+              <div className="hb-demo-panel">
+                <div className="hb-demo-header">
+                  <span>
+                    <span className="hb-live-dot" /> INTERACTIVE EXAMPLE
+                  </span>
+                  <span>SIMULATED · NO FUNDS</span>
+                </div>
+                <div className="hb-receipt-art">
+                  <div className="hb-receipt-lead">↗</div>
+                  <div className="hb-receipt-body">
+                    <span className="hb-mini-eyebrow">OWNBACK PURCHASE MOMENT</span>
+                    <div className="hb-receipt-product">{current.name}</div>
+                    <p>{current.desc}</p>
+                    <div className="hb-receipt-price">
+                      ${current.price.toFixed(2)} <span>purchase</span>
+                    </div>
+                    <div className="hb-receipt-rule" />
+                    <div className="hb-receipt-line">
+                      <span>Reward rate</span>
+                      <b>{current.percent}% stock-back</b>
+                    </div>
+                    <div className="hb-receipt-line">
+                      <span>Reward value</span>
+                      <b className="hb-lime-text">+${reward.toFixed(2)}</b>
+                    </div>
+                    <div className="hb-receipt-foot">
+                      <CheckCircle2 size={16} /> Illustrative receipt
+                    </div>
+                  </div>
+                </div>
+                <div className="hb-demo-bottom">
+                  <div>
+                    <strong>See why coming back pays more</strong>
+                    <small>One customer · Two purchases · Seven days</small>
+                  </div>
+                  <button onClick={() => setSample((x) => (x === 0 ? 1 : 0))}>
+                    {sample === 0 ? 'Simulate comeback' : 'Back to first order'} <ArrowRight size={14} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="hb-merchant-grid">
+              <div className="hb-merchant-left">
+                <div className="hb-pill-label">CONNECT YOUR BUSINESS</div>
+                <h3>
+                  Turn customers into <em>return customers.</em>
+                </h3>
+                <p>
+                  Keep Shopify for sales, inventory, tax and fulfillment. Add OWNBACK's merchant-funded
+                  loyalty layer and monitor confirmed rewards alongside USDC storefront activity.
+                </p>
+                <label htmlFor="hb-shop-domain">Your Shopify store domain</label>
+                <div className="hb-connect-field">
+                  <Store size={17} />
+                  <input
+                    id="hb-shop-domain"
+                    value={shop}
+                    onChange={(e) => setShop(e.target.value)}
+                    placeholder="your-brand.myshopify.com"
+                  />
+                  <a
+                    href={shop ? `/api/shopify/install?shop=${encodeURIComponent(shop)}` : '#'}
+                    onClick={(e) => {
+                      if (!shop) e.preventDefault();
+                    }}
+                    className="hb-btn hb-btn-dark"
+                  >
+                    Connect <ArrowRight size={16} />
+                  </a>
+                </div>
+                <div className="hb-merchant-caption">
+                  <LockKeyhole size={15} /> Merchant sign-in required · Shopify approves read-only order
+                  access · No new payment processor
+                </div>
+                {connectState && (
+                  <div className="hb-inline-info" role="status">
+                    Shopify connection: {connectState.replaceAll('-', ' ')}.{' '}
+                    {connectState === 'webhooks-pending'
+                      ? 'Check subscriptions before accepting orders.'
+                      : ''}
+                  </div>
+                )}
+                <div className="hb-funding-card">
+                  <div className="hb-mini-eyebrow">
+                    {isMainnet ? 'MERCHANT-FUNDED B20 INVENTORY REWARDS' : 'MERCHANT-FUNDED TESTNET REWARDS'}
+                  </div>
+                  <strong>Fund Shopify stock-back</strong>
+                  <p>Separate from Shopify's checkout. Customers never pay twice.</p>
+                  <div className="hb-funding-controls">
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={fundAmount}
+                      onChange={(e) => setFundAmount(e.target.value)}
+                      aria-label="USDC funding amount"
+                    />
+                    <button disabled={funding} onClick={fundShopifyVault}>
+                      {funding ? 'Confirming…' : 'Fund USDC vault'} <ArrowRight size={13} />
+                    </button>
+                  </div>
+                  {vaultBalance !== null && (
+                    <small>
+                      Available reward budget: {vaultBalance} {isMainnet ? 'USDC' : 'test USDC'}
+                    </small>
+                  )}
+                </div>
+                <div className="hb-connect-links">
+                  <a href="/agentic">
+                    Preview shopping agent <ExternalLink size={14} />
+                  </a>
+                  <a href="/commerce/admin">
+                    Open merchant console <ExternalLink size={14} />
+                  </a>
+                  <button
+                    onClick={async () => {
+                      setLoading(true);
+                      await refresh();
+                      setLoading(false);
+                    }}
+                    disabled={loading}
+                  >
+                    Refresh connected stores ↻
+                  </button>
+                </div>
+              </div>
+              <div className="hb-merchant-data">
+                <div className="hb-data-heading">
+                  <div>
+                    <span className="hb-mini-eyebrow">PROOF OF RETENTION</span>
+                    <h3>Commerce pulse</h3>
+                  </div>
+                  <span className="hb-data-tag">Verified data only</span>
+                </div>
+                {overview ? (
+                  <>
+                    <div className="hb-metrics">
+                      <div>
+                        <span>Shopify purchases</span>
+                        <strong>{overview.metrics.purchases}</strong>
+                      </div>
+                      <div>
+                        <span>Returning buyers</span>
+                        <strong>{overview.metrics.returning}</strong>
+                      </div>
+                      <div>
+                        <span>Rewards delivered</span>
+                        <strong>{overview.metrics.delivered}</strong>
+                      </div>
+                      <div>
+                        <span>Purchase volume</span>
+                        <strong>{usdUnits(overview.metrics.sales)}</strong>
+                      </div>
+                    </div>
+                    {native && (
+                      <div className="hb-native-summary">
+                        <strong>
+                          <Wallet size={15} /> Native USDC store
+                        </strong>
+                        <div>
+                          <span>{native.verified_purchases} verified orders</span>
+                          <span>{usdUnits(native.gross_paid_usdc)} volume</span>
+                          <span>{native.returning_customers} return customers</span>
+                        </div>
+                        <small>
+                          Channel-specific counts. We do not assume Shopify identities and Base wallets are
+                          the same person.
+                        </small>
+                      </div>
+                    )}
+                    <div className="hb-merchant-orders">
+                      <div className="hb-mini-eyebrow">RECENT VERIFIED SHOPIFY ORDERS</div>
+                      {overview.orders.length === 0 ? (
+                        <p>No Shopify orders received yet.</p>
+                      ) : (
+                        overview.orders.slice(0, 6).map((o) => (
+                          <div className="hb-merchant-order" key={o.shop_domain + o.order_id}>
+                            <div>
+                              <strong>{o.order_label || o.order_id}</strong>
+                              <small>
+                                {o.status} · {usdUnits(o.price_usdc)}
+                              </small>
+                            </div>
+                            {['HOLD', 'READY'].includes(o.status) ? (
+                              <button disabled={Boolean(claiming)} onClick={() => issue(o)}>
+                                Send claim
+                              </button>
+                            ) : (
+                              <span className="hb-status-chip">{customerFacingStatus(o)}</span>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    {claimResult && (
+                      <div className="hb-inline-info" role="status">
+                        {claimResult}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="hb-empty-state">
+                    <ChartNoAxesCombined size={31} />
+                    <h4>Connect your first store</h4>
+                    <p>
+                      {loadError ||
+                        'Once a merchant signs in and connects Shopify, purchase and reward data appears here. No invented metrics.'}
+                    </p>
+                    <a href="/commerce/admin">
+                      Merchant sign-in <ArrowRight size={14} />
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </section>
+        <section className="hb-final-cta">
+          <div>
+            <span className="hb-eyebrow">BUILT ON BASE · POWERED BY RETENTION</span>
+            <h2>
+              Points expire.
+              <br />
+              <em>Ownership stays.</em>
+            </h2>
+            <p>
+              A stronger relationship between customer and commerce—without asking shoppers to learn Web3
+              first.
+            </p>
+          </div>
+          <div>
+            <a className="hb-btn hb-btn-lime" href="/commerce">
+              Explore our USDC store <ArrowRight size={17} />
+            </a>
+            <a className="hb-btn hb-btn-light" href="/protocol">
+              See the evidence protocol <ArrowUpRight size={16} />
+            </a>
+          </div>
+        </section>
+        <footer className="hb-footer">
+          <div className="hb-logo">
+            <span>↗</span> OWNBACK<b>.</b>
+          </div>
+          <p>© OWNBACK · Hybrid commerce and stock-linked rewards on Base</p>
+          <p>
+            {isMainnet
+              ? 'Base mainnet eligible-wallet pilot. No new shares minted; token transfers require inventory and eligibility approval.'
+              : 'Base Sepolia demo. No real equity, stock issuance, lending or U.S. trading enabled.'}
+          </p>
+        </footer>
+      </div>
+    </main>
+  );
 }

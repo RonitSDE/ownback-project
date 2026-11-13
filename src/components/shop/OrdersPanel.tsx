@@ -115,7 +115,9 @@ export function OrdersPanel({ campaign, purchases, stockSymbol, now, onChange }:
       )}
 
       <p className="fine" style={{ marginTop: 14 }}>
-        {isMainnet ? `${stockSymbol ?? mirroredSymbol} rewards involve actual B20 tokens transferred from inventory, subject to eligibility, issuer prospectus and corporate-action multipliers. Delivery is not guaranteed until confirmed.` : `Testnet: ${stockSymbol ?? mirroredSymbol} is a mock token, with no equity rights.`}
+        {isMainnet
+          ? `${stockSymbol ?? mirroredSymbol} rewards involve actual B20 tokens transferred from inventory, subject to eligibility, issuer prospectus and corporate-action multipliers. Delivery is not guaranteed until confirmed.`
+          : `Testnet: ${stockSymbol ?? mirroredSymbol} is a mock token, with no equity rights.`}
       </p>
     </section>
   );

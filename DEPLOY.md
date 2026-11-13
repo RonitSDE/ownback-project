@@ -128,12 +128,14 @@ _Formerly `HYBRID_V3_5_DEPLOY.md`._
 **Delivery status:** developer deployment candidate. Not yet installed on a real Shopify store, deployed on Base Sepolia, or approved to distribute actual securities. Shopify and Bankr do not authorize securities transfers. No real equity is issued by this repository.
 
 ### Product scope
+
 - **Native OWNBACK store `/commerce`:** existing merchant catalog, inventory, USDC payments to merchant, refund management, Base proof and reward reservations. Inventory data is kept in PostgreSQL.
-- **Shopify `/experience`:** Web2 card/Shop Pay commerce is processed solely by Shopify. OWNBACK requests read-only access to paid orders, records idempotent paid/refund events, waits for the configured refund hold, sends a one-time email link, verifies the claim wallet, and pays a *synthetic* testnet stock reward from a separate merchant-funded vault. It does **not** replace Shopify's checkout or charge the customer USDC again.
+- **Shopify `/experience`:** Web2 card/Shop Pay commerce is processed solely by Shopify. OWNBACK requests read-only access to paid orders, records idempotent paid/refund events, waits for the configured refund hold, sends a one-time email link, verifies the claim wallet, and pays a _synthetic_ testnet stock reward from a separate merchant-funded vault. It does **not** replace Shopify's checkout or charge the customer USDC again.
 - **Bankr:** read-only analysis, never automatic user borrowing. `/protocol` remains evidence-first.
 - One pilot Shopify store and USD-denominated paid orders only. Shopify supports more regions/currencies, but explicit FX and legal eligibility have not been implemented here.
 
 ### Pre-requisites
+
 1. Node 22 and npm 10; PostgreSQL 15+, Foundry (Forge/Anvil), an accessible Shopify development store, and an OWNBACK merchant account with a single pilot configuration.
 2. Register a **standalone Shopify app** (external auth code flow), allowlist the pilot shop, request `read_orders` and configure callback `https://YOUR_HOST/api/shopify/callback`. Merchant installation uses the logged-in `/commerce/admin` cookie; do not open the installation link from another browser.
 3. Shopify app credentials with approved order/customer data access. Access to buyer emails may require Shopify protected customer-data approval. If unavailable, wallet-claim email issuance safely blocks.
@@ -141,15 +143,19 @@ _Formerly `HYBRID_V3_5_DEPLOY.md`._
 5. Confirm app-distribution and token/financial-product policies with Shopify before offering real equity rewards or listing publicly. Mainnet stock transfers remain disabled.
 
 ### Configuration
+
 Copy `.env.example` to `.env.local` and `.env`, do not commit either. Set `DATABASE_URL`, merchant auth, `APP_ORIGIN`, `SHOPIFY_CLIENT_ID`, `SHOPIFY_CLIENT_SECRET`, `SHOPIFY_ALLOWED_SHOP`, random 32-byte `SHOPIFY_TOKEN_ENCRYPTION_KEY`, random `SHOPIFY_CUSTOMER_SECRET`, and `RESEND_API_KEY` plus `SHOPIFY_CLAIM_FROM_EMAIL`. Use HTTPS in staging. For local demos, `SHOPIFY_PILOT_DEMO=true` may return a claim URL **only** on localhost and testnet; never enable it in production.
 
 #### Create fresh secrets
+
 ```
 node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
 ```
+
 Generate separate values for each secret; do not reuse encryption and HMAC secrets.
 
 #### Install and migrate
+
 ```
 npm run bootstrap:lock    # missing pg and @types/pg entries are resolved with network access
 npm ci
@@ -162,6 +168,7 @@ npm run build
 ```
 
 #### Deploy the Base Sepolia demo
+
 ```
 ./contracts/install-deps.sh
 npm run test:contracts
@@ -175,17 +182,19 @@ cd ..
 The deployment JSON contains `shopifyRewardVault`, `shopifyRewardAdapter`, the existing OWNBACK vault, mock USDC, and mock stock. Set `SHOPIFY_REWARD_VAULT_ADDRESS`, `SHOPIFY_REWARD_DEPLOY_BLOCK`, `SHOPIFY_REWARD_EXECUTOR_KEY` (the exact deployed `KEEPER_ADDRESS` key), `SHOPIFY_REWARD_RPC_URL`, `SHOPIFY_MOCK_PRICE_USDC` equal to `INITIAL_PRICE_USDC`, and existing `COMMERCE_*` variables. The Shopify vault is funded by the demo merchant during deploy. Tokens are **synthetic and have no economic value**.
 
 #### Connect Shopify
+
 1. Start `npm run dev` with a tunneled HTTPS callback or deploy staging.
 2. Log in at `/commerce/admin` and navigate to `/experience`, merchant tab.
 3. Enter the allowlisted `your-store.myshopify.com` domain. Shopify authorization requests read-only order scope; token is AES-256-GCM encrypted in PostgreSQL.
 4. The OAuth callback registers `ORDERS_PAID`, `REFUNDS_CREATE`, `ORDERS_CANCELLED`, and `APP_UNINSTALLED` subscriptions. `webhook_ready` must become true; if false, correct Shopify app configuration and verify subscriptions before processing orders.
 5. Complete a real paid USD order with a pilot test account. The signed webhook records a `HOLD` record. Duplicate webhook IDs and duplicate `(shop, order)` records never double-credit. Refunds and cancellations block claims—even if received before the paid event.
 6. After `SHOPIFY_REFUND_HOLD_HOURS` (24 by default, also reflected by vault deployment for Sepolia), a merchant can click **Send claim** or a private worker can run `npm run shopify:claims` with `SHOPIFY_AUTO_EMAIL_CLAIMS=true` to email eligible orders automatically. OWNBACK re-queries Shopify's current paid/refund state and sends a one-time link to the buyer email via the configured email provider.
-7. Buyer visits `/claim`, connects their Base Sepolia wallet, and signs a *message only*. No customer USDC payment or allowance is requested.
+7. Buyer visits `/claim`, connects their Base Sepolia wallet, and signs a _message only_. No customer USDC payment or allowance is requested.
 8. Execute `npm run shopify:settle` from a **single dedicated private worker**, with its own secure executor key. It fetches Shopify's live order again, verifies the hold, checks history and onchain merchant budget, executes the mock reward, and requires a Base transaction receipt + RewardDelivered event before reporting success.
-9. Make a second Shopify purchase within 7 days with the *same customer identity*. The first delivered reward is a prerequisite; a third order is ineligible for a comeback reward. Confirm the repeat bonus, refund and double-webhook cases.
+9. Make a second Shopify purchase within 7 days with the _same customer identity_. The first delivered reward is a prerequisite; a third order is ineligible for a comeback reward. Confirm the repeat bonus, refund and double-webhook cases.
 
 ### Production deployment gaps
+
 - Shopify API OAuth token refresh/rotation and public app distribution review need to be integrated using the official Shopify app framework before supporting multiple outside merchants. Single pilot token storage is implemented; this is not a public-marketplace Shopify app.
 - Customer eligibility for actual securities, KYC/geofencing, approved distribution rails, lending rules, and full refund-after-delivery workflows are not implemented. This package is testnet-only; none of these should be bypassed.
 - The Shopify reward worker is intended for a **single** process; add a durable queue, distributed lock, nonce management and reorg/finality handling before scale.
@@ -194,6 +203,7 @@ The deployment JSON contains `shopifyRewardVault`, `shopifyRewardAdapter`, the e
 - Real provider tests, PostgreSQL migration against a populated DB, Next.js production build, Foundry, local-chain lifecycle, and live Shopify webhooks must pass on the developer machine before production sign-off.
 
 ### Acceptance tests
+
 - Clean `npm ci`, `npm run build`, `npm run check`, 11 hybrid tests, existing tests, Forge suite and a local E2E run all pass.
 - Shopify install callback HMAC and CSRF reject tampering; webhook HMAC rejects modified payloads; duplicate webhooks and refunded-before-paid are safe.
 - No testnet reward is reported delivered without a confirmed vault event; no reward is charged to a Shopify customer. First reward = 2%, comeback = 5% within seven days, per-order cap = $10, duplicate attempts blocked.
@@ -202,6 +212,7 @@ The deployment JSON contains `shopifyRewardVault`, `shopifyRewardAdapter`, the e
 **Source grounding:** Shopify OAuth, webhook topics, and Thank You / Order Status UI extension limitations follow Shopify's published developer docs; review them again at implementation time.
 
 ### Build reproducibility warning
+
 The uploaded 3.4 lockfile omitted `pg` and `@types/pg` even though the app used them. No npm-registry access was available during this packaging run. CI now performs `npm run bootstrap:lock` before `npm ci` to make a clean connected machine runnable, **but deterministic dependency pinning is not fully restored**. Before production handoff, generate/commit the resolved lockfile in a networked environment, change CI back to plain `npm ci`, and run `npm run format && npm run format:check` once. This is an explicit deployment gate; do not describe this source ZIP as independently production-build verified.
 
 Configure `SHOPIFY_REWARD_ACTIVE_FROM` to the Shopify vault deployment timestamp in ISO 8601 form. Orders paid before the campaign launched are excluded, rather than sending unfulfillable claim emails.
@@ -217,11 +228,11 @@ _Formerly `AGENTIC_COMMERCE_V3_6_DEPLOY.md`._
 ### What v3.6 actually adds
 
 - `/agentic`: premium mobile-responsive product discovery with live Shopify UCP Catalog search, real variant selection, Shopify Cart MCP creation, and a user-controlled merchant checkout handoff.
-- `/api/agentic/merchants`: lists *installed and active* Shopify pilot stores only, constrained by optional merchant allowlist.
+- `/api/agentic/merchants`: lists _installed and active_ Shopify pilot stores only, constrained by optional merchant allowlist.
 - `/api/agentic/search`: sends `search_catalog` JSON-RPC to the store's `/api/ucp/mcp`; refuses to invent offers or claim unverified stock rewards.
 - `/api/agentic/cart`: uses `lookup_catalog` to revalidate variant availability before `create_cart`; returns only vetted merchant-origin HTTPS checkout URLs.
 - `public/profiles/ownback-ucp.json`: publicly hosted 2026-08-25 agent profile declaring catalog search/lookup and cart capabilities.
-- A transparent **preview mode** operates without live credentials, displays *sample products only*, and never accepts payment or marks a reward delivered.
+- A transparent **preview mode** operates without live credentials, displays _sample products only_, and never accepts payment or marks a reward delivered.
 - Shopify Connect, normal Shopify checkout, authenticated order/refund webhooks, separate testnet reward vault, customer wallet claim, native USDC commerce, and read-only Bankr research remain unchanged.
 
 **Not built:** autonomous card payment, Global Catalog discovery, AI-provider personalized reasoning, production tokenized-equity issuance, Bankr-managed customer borrowing, or Shopify App Store distribution approval. The conversational interface uses Shopify's natural-language catalog search with grounded templates; it is not a model-generated shopping advisor.
@@ -256,7 +267,7 @@ Go to http://localhost:3000/agentic. Preview mode is functional immediately with
 3. Set `SHOPIFY_AGENT_ALLOWED_SHOPS=your-store.myshopify.com`. Only installed stores appear to customers. For pilot scope, keep the allowlist restricted.
 4. If the store's `cart.continue_url` uses an independently verified custom primary domain, put just that hostname in `SHOPIFY_AGENT_ALLOWED_CHECKOUT_HOSTS`. If Shopify UCP redirects `/api/ucp/mcp` from `myshopify.com` to that primary storefront, also set `SHOPIFY_AGENT_STOREFRONT_HOST` to the same verified host. Arbitrary redirects are rejected. Do not wildcard the setting.
 5. Confirm storefront UCP support via Shopify's `https://{shopDomain}/.well-known/ucp` profile and `https://{shopDomain}/api/ucp/mcp`. The app uses `search_catalog`, `lookup_catalog`, and `create_cart`; it uses **no bearer token and no autonomous Checkout MCP payment**.
-6. Shopify returns live product prices in **minor currency units** (e.g., USD 1899 = $18.99). OWNBACK's reward preview uses 2% first / 5% comeback, capped at $10, but must remain marked *illustrative* until purchase, campaign funding, customer identity, holds, jurisdiction and refund checks are verified.
+6. Shopify returns live product prices in **minor currency units** (e.g., USD 1899 = $18.99). OWNBACK's reward preview uses 2% first / 5% comeback, capped at $10, but must remain marked _illustrative_ until purchase, campaign funding, customer identity, holds, jurisdiction and refund checks are verified.
 7. Keep Shopify checkout as merchant-of-record. Payment cards, tax and shipping information are entered only on Shopify. The original authenticated `orders/paid`/refund webhook processing controls eligibility after checkout.
 
 Reference: https://shopify.dev/docs/agents , https://shopify.dev/docs/agents/catalog/storefront-catalog , https://shopify.dev/docs/agents/carts-and-checkout/cart-mcp
@@ -321,7 +332,7 @@ npm run dev
 - Existing OWNBACK campaign controls: `/merchant`
 - Existing onchain demo: `/shop`
 
-*Important*: `npm ci` needs a freshly generated and committed lockfile after adding `pg` and `@types/pg`: `npm install --package-lock-only && npm ci`. This package retains the previous lockfile as a baseline, but the **new dependencies have not been resolved here**, due to unavailable npm registry DNS. Use `npm install` first; commit its generated lockfile for reproducible deployments.
+_Important_: `npm ci` needs a freshly generated and committed lockfile after adding `pg` and `@types/pg`: `npm install --package-lock-only && npm ci`. This package retains the previous lockfile as a baseline, but the **new dependencies have not been resolved here**, due to unavailable npm registry DNS. Use `npm install` first; commit its generated lockfile for reproducible deployments.
 
 ### Customer purchase workflow
 
@@ -393,9 +404,11 @@ _Formerly `SMOKE_TEST.md`._
 ## Staging test plan (must be executed, not asserted)
 
 ### Tools & setup
+
 Node >=22, PostgreSQL 16, Foundry and a configured Base Sepolia RPC. Configure a merchant wallet and an independent buyer wallet. Set `DATABASE_URL` for the Postgres container (localhost port 5433). Deploy mock contracts, create a campaign with the correct configured merchant; ensure all public and private contract addresses refer to the same deployment.
 
 ### Checkout → inventory → receipt
+
 - Create product with stock 2, price 48 USDC. Two separate customers buy at the same moment; only 2 units can be reserved. A third request must be rejected.
 - Reserve one and leave without paying. Wait for quote expiry; reconciliation must prove no `Purchased` event and return inventory.
 - Pay a reserved order; close browser immediately. Run the indexer; it should verify 3 Base confirmations and mark exactly one `PAID` order, with a matching wallet, orderRef, campaign, vault and amount.
@@ -404,16 +417,19 @@ Node >=22, PostgreSQL 16, Foundry and a configured Base Sepolia RPC. Configure a
 - Merchant marks pickup fulfilled; refund a paid order. Onchain purchase state/merchant refund state must reconcile.
 
 ### Loyalty / stock proof
+
 - Valid first purchase earns 2%, then eligible repeat earns 5% within seven days and cannot repeat the comeback bonus. Test at the 7-day boundary and just after.
 - Keeper restarts halfway through settlement; repeat receipt processing must not duplicate delivery.
 - Stock adapter must emit mock token transfer, not simply mark USDC payment as stock delivery.
 
 ### Bankr
+
 - Configure dedicated **read-only** key and Agent API credits; `GET /wallet/me` responds. Trigger one allowlisted research job, follow signed polling link to terminal state.
 - Invalid symbols, forged/expired research receipt and repeated prompts fail; `/api/agent/borrow` always returns 403 even if legacy `BANKR_BORROW_ENABLED=true`.
 - Verify operator key cannot transfer or borrow. A job `completed` must never show “Loan opened.”
 
 ### Release gates
+
 - `npm install --package-lock-only` on a network-enabled machine to update lock (pg dependency); commit it; `npm ci` on a clean clone.
 - `npm test && npm run test:commerce && npm run check && npm run build && npm run test:contracts && npm run verify:local` all pass.
 - Rehearse the browser checkout on mobile, merchant refund, keeper crash/restart, database backup and recovery.
@@ -497,16 +513,16 @@ _Formerly `BASE_MAINNET_LAUNCH.md`._
 
 ## Verified reference inputs (recheck with issuer before wiring funds)
 
-| Field | Base mainnet input | Source |
-|---|---|---|
-| Chain ID | 8453 | https://docs.base.org |
-| Native USDC (Circle) | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | https://help.circle.com/support/en/usdc-supported-blockchains-minting-redemption-faqs |
-| Coinbase AAPLc B20 | `0xb200000000000000000000C2e324d24d7eEcd1fb` | https://www.base.org/stocks |
-| AAPLc Chainlink total-return feed | `0x787f13dEa48Db0897CbCDD985de77809D837F988` | https://docs.base.org/build-on-base/integrate-defi/list-tokenized-stocks |
-| Coinbase NVDAc B20 (alternative, NOT separate live deployment) | `0xb20000000000000000000078ee7ce2fE4908108C` | https://www.base.org/stocks |
-| NVDAc Chainlink total-return feed | `0x04689a41629776563E6822F76f2e57D148d28513` | https://docs.base.org/build-on-base/integrate-defi/list-tokenized-stocks |
+| Field                                                          | Base mainnet input                           | Source                                                                                |
+| -------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Chain ID                                                       | 8453                                         | https://docs.base.org                                                                 |
+| Native USDC (Circle)                                           | `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | https://help.circle.com/support/en/usdc-supported-blockchains-minting-redemption-faqs |
+| Coinbase AAPLc B20                                             | `0xb200000000000000000000C2e324d24d7eEcd1fb` | https://www.base.org/stocks                                                           |
+| AAPLc Chainlink total-return feed                              | `0x787f13dEa48Db0897CbCDD985de77809D837F988` | https://docs.base.org/build-on-base/integrate-defi/list-tokenized-stocks              |
+| Coinbase NVDAc B20 (alternative, NOT separate live deployment) | `0xb20000000000000000000078ee7ce2fE4908108C` | https://www.base.org/stocks                                                           |
+| NVDAc Chainlink total-return feed                              | `0x04689a41629776563E6822F76f2e57D148d28513` | https://docs.base.org/build-on-base/integrate-defi/list-tokenized-stocks              |
 
-Current Coinbase B20 tokens use 8 base decimals; **underlying share-equivalents change with the onchain multiplier**. Oracle prices are *total-return reference prices*, not firm execution prices. B20 token transfers are subject to issuer policies. The B20 precompile may have no EVM bytecode; verify the official token address, token metadata, registry and transfer restrictions rather than assuming `eth_getCode` is nonempty.
+Current Coinbase B20 tokens use 8 base decimals; **underlying share-equivalents change with the onchain multiplier**. Oracle prices are _total-return reference prices_, not firm execution prices. B20 token transfers are subject to issuer policies. The B20 precompile may have no EVM bytecode; verify the official token address, token metadata, registry and transfer restrictions rather than assuming `eth_getCode` is nonempty.
 
 ## What was added
 
@@ -588,4 +604,3 @@ Run local Anvil and Sepolia E2E (existing `npm run verify:local`) and independen
 - Base B20 token mechanics (multiplier, policy registry, Chainlink total-return feed): https://docs.base.org/build-on-base/integrate-defi/list-tokenized-stocks
 - Coinbase tokenized stock API: https://api.coinbase.com/v1/tokenized-stocks
 - Circle canonical Base USDC: https://help.circle.com/support/en/usdc-supported-blockchains-minting-redemption-faqs
-

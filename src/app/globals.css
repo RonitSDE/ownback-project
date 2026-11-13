@@ -1871,4 +1871,29 @@ ul.rows {
 }
 
 /* v3.7 consistent neutral navigation and Base accent */
-.app-nav{background:#fbfaf8!important;border-bottom:1px solid #e9e8e5}.app-nav .logo-square{background:#182b3b;color:#fff}.app-nav .nav-logo span{color:#235cf0}.app-nav .links a[aria-current="page"]{color:#235cf0}.btn.lime{background:#dceae6;border-color:#dceae6;color:#1f443f}.btn.primary{background:#235cf0;border-color:#235cf0}.pill .led{background:#6caa9a}
+.app-nav {
+  background: #fbfaf8 !important;
+  border-bottom: 1px solid #e9e8e5;
+}
+.app-nav .logo-square {
+  background: #182b3b;
+  color: #fff;
+}
+.app-nav .nav-logo span {
+  color: #235cf0;
+}
+.app-nav .links a[aria-current='page'] {
+  color: #235cf0;
+}
+.btn.lime {
+  background: #dceae6;
+  border-color: #dceae6;
+  color: #1f443f;
+}
+.btn.primary {
+  background: #235cf0;
+  border-color: #235cf0;
+}
+.pill .led {
+  background: #6caa9a;
+}

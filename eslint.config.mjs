@@ -5,7 +5,16 @@ import { FlatCompat } from '@eslint/eslintrc';
 const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta.url)) });
 
 const config = [
-  { ignores: ['ownback 2/**', 'node_modules/**', '.next/**', 'contracts/**', 'src/lib/abi/**', 'next-env.d.ts'] },
+  {
+    ignores: [
+      'ownback 2/**',
+      'node_modules/**',
+      '.next/**',
+      'contracts/**',
+      'src/lib/abi/**',
+      'next-env.d.ts',
+    ],
+  },
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
     rules: {

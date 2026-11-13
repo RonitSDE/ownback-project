@@ -12,13 +12,13 @@ services:
     healthCheckPath: /api/live
     envVars:
       - key: NODE_VERSION
-        value: "22"
+        value: '22'
       - key: NEXT_PUBLIC_CHAIN_ID
-        value: "84532"
+        value: '84532'
       - key: NEXT_PUBLIC_RPC_URL
         value: https://sepolia.base.org
       - key: NEXT_PUBLIC_CAMPAIGN_ID
-        value: "1"
+        value: '1'
       - key: NEXT_PUBLIC_STOCK_SYMBOL
         value: AAPLc
       - key: NEXT_PUBLIC_OWNBACK_ADDRESS
@@ -42,9 +42,9 @@ services:
     startCommand: npx tsx scripts/keeper.ts
     envVars:
       - key: NODE_VERSION
-        value: "22"
+        value: '22'
       - key: CHAIN_ID
-        value: "84532"
+        value: '84532'
       - key: RPC_URL
         value: https://sepolia.base.org
       - key: PRICE_SOURCE
@@ -52,13 +52,13 @@ services:
       - key: STOCK_SYMBOL
         value: AAPLc
       - key: MAX_SOURCE_AGE_SECONDS
-        value: "172800"
+        value: '172800'
       - key: KEEPER_INTERVAL_MS
-        value: "60000"
+        value: '60000'
       - key: KEEPER_MAX_PURCHASES
-        value: "10000"
+        value: '10000'
       - key: ALLOW_TESTNET_STATIC_PRICE
-        value: "false"
+        value: 'false'
       - key: KEEPER_PRIVATE_KEY
         sync: false
       - key: BUILDER_CODE

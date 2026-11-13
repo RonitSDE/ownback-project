@@ -72,7 +72,8 @@ export function PositionPanel({ balances, price, liveRef, pendingReward, now }: 
       <div className="divider" />
       <div className="metric-label">Put it to work on mainnet</div>
       <p className="sub" style={{ marginTop: 6 }}>
-        This Base Sepolia asset is synthetic and cannot be used as real lending collateral. Bankr can research eligible markets, but no loan is available through this reward.
+        This Base Sepolia asset is synthetic and cannot be used as real lending collateral. Bankr can research
+        eligible markets, but no loan is available through this reward.
       </p>
       {lltv && <KV label="Morpho liquidation LTV">{(lltv * 100).toFixed(1)}%</KV>}
       <KV label="Testnet collateral eligibility">Not eligible</KV>
@@ -86,7 +87,8 @@ export function PositionPanel({ balances, price, liveRef, pendingReward, now }: 
         disabled={tokens <= 0}
       />
       <p className="fine" style={{ marginTop: 12 }}>
-        Illustrative LTV figures are not an offer, quotation or loan limit. Actual lending would require verified collateral and an authorized user transaction.
+        Illustrative LTV figures are not an offer, quotation or loan limit. Actual lending would require
+        verified collateral and an authorized user transaction.
       </p>
     </section>
   );
