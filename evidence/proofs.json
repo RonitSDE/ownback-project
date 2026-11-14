@@ -6,12 +6,12 @@
     {
       "id": "campaign_funding",
       "name": "Merchant campaign funding",
-      "environment": "UNVERIFIED",
-      "transactionHash": null,
-      "url": null,
-      "evidenceFile": null,
-      "status": "MISSING",
-      "contractAddress": null
+      "environment": "BASE_SEPOLIA",
+      "transactionHash": "0x81398f181e9ce5c892c2c2cdbb83346175132acd2151c57d2ed07e6b8f755503",
+      "url": "https://sepolia.basescan.org/tx/0x81398f181e9ce5c892c2c2cdbb83346175132acd2151c57d2ed07e6b8f755503",
+      "evidenceFile": "evidence/receipts/campaign_funding-81398f18.json",
+      "status": "VERIFIED",
+      "contractAddress": "0xB65c65E2FC79dc8146fd22fe379F8B58D8476b13"
     },
     {
       "id": "order_payment",

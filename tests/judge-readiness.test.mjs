@@ -16,10 +16,24 @@ test('homepage contains only the main judge path, not Bankr or stock-backed lend
 test('candidate judge page discloses absent real proof and has no fake hashes', () => {
   const proof = JSON.parse(load('evidence/proofs.json'));
   assert.equal(proof.proofs.length, 4);
+  const explorer = {
+    BASE_SEPOLIA: 'https://sepolia.basescan.org/tx/',
+    BASE_MAINNET: 'https://basescan.org/tx/',
+  };
   for (const row of proof.proofs) {
-    assert.equal(row.status, 'MISSING');
-    assert.equal(row.url, null);
-    assert.equal(row.transactionHash, null);
+    if (row.status === 'MISSING') {
+      // Nothing may be attached to a missing proof.
+      assert.equal(row.url, null);
+      assert.equal(row.transactionHash, null);
+      continue;
+    }
+    // A captured proof must point at a saved evidence file; strict on-chain checks run in verify:proofs.
+    assert.equal(row.status, 'VERIFIED', `${row.id}: unexpected status`);
+    assert.match(row.evidenceFile || '', /^evidence\/(receipts|logs)\//, `${row.id}: evidence file`);
+    if (row.id === 'preference_replay') continue;
+    assert.match(row.transactionHash || '', /^0x[0-9a-fA-F]{64}$/, `${row.id}: transaction hash`);
+    if (explorer[row.environment])
+      assert.equal(row.url?.toLowerCase(), (explorer[row.environment] + row.transactionHash).toLowerCase());
   }
   assert.match(load('src/app/judge/page.tsx'), /Proofs remain missing/);
 });

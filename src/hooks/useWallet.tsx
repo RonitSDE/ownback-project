@@ -85,11 +85,17 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     setConnecting(true);
     try {
       const acct = await requestAccount(wallet.provider);
-      await ensureChain(wallet.provider);
       setActive(wallet);
       setAccount(acct);
-      setChainId(await readChainId(wallet.provider));
       localStorage.setItem(LAST_WALLET_KEY, wallet.info.rdns);
+      // Stay connected on the wrong network: the wallet button then offers "Switch network"
+      // instead of discarding the connection when the user declines the switch prompt.
+      try {
+        await ensureChain(wallet.provider);
+      } catch {
+        /* handled by wrongNetwork in the UI */
+      }
+      setChainId(await readChainId(wallet.provider));
     } finally {
       setConnecting(false);
     }
@@ -102,11 +108,16 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   }, [active]);
 
   const disconnect = useCallback(() => {
+    // Also revoke the site's permission in the wallet (EIP-2255) so the next connect prompts
+    // again. Wallets without this method ignore it; the site still forgets the wallet locally.
+    active?.provider
+      .request({ method: 'wallet_revokePermissions', params: [{ eth_accounts: {} }] } as never)
+      .catch(() => {});
     setActive(undefined);
     setAccount(undefined);
     setChainId(undefined);
     localStorage.removeItem(LAST_WALLET_KEY);
-  }, []);
+  }, [active]);
 
   const value = useMemo<WalletState>(
     () => ({

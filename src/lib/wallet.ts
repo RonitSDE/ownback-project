@@ -126,6 +126,13 @@ export async function ensureChain(provider: EIP1193Provider) {
 }
 
 export async function requestAccount(provider: EIP1193Provider): Promise<Address> {
+  // Ask for permissions explicitly so the wallet shows its account picker even when the
+  // site is still authorised. Fall back for wallets that don't support EIP-2255.
+  try {
+    await provider.request({ method: 'wallet_requestPermissions', params: [{ eth_accounts: {} }] } as never);
+  } catch (err) {
+    if ((err as { code?: number })?.code === 4001) throw err; // user rejected: stop here
+  }
   const [account] = await provider.request({ method: 'eth_requestAccounts' });
   if (!account) throw new Error('Your wallet did not share an account.');
   return getAddress(account);
