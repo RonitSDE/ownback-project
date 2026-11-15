@@ -189,6 +189,10 @@ export async function send(params: {
     throw new Error('The account in your wallet changed. Reconnect and try again.');
   }
 
+  // Wallets often report an unfunded account as "user rejected"; say what is really wrong.
+  if ((await publicClient.getBalance({ address: account })) === 0n)
+    throw new Error(`This wallet has no ${chain.nativeCurrency.symbol} for gas on ${chain.name}. Fund it, then try again.`);
+
   const { request } = await publicClient.simulateContract({
     account,
     address: params.address,
