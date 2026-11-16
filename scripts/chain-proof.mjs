@@ -35,7 +35,10 @@ export async function verifyChainReceipt(row, rpc) {
  if(!eq(receipt.transactionHash,row.transactionHash)) throw new Error('Receipt transaction hash mismatch');
  if(receipt.status!=='0x1') throw new Error('Transaction did not succeed; reverts do not establish stock settlement');
  if(!isHash(receipt.blockHash)||!receipt.blockNumber) throw new Error('Receipt has no confirmed block');
- if(!eq(receipt.to,row.contractAddress)) throw new Error('Transaction destination does not match OWNBACK contract');
+ // Smart-account wallets (ERC-4337 / EIP-7702) reach OWNBACK through an entry point, so the
+ // receipt's `to` may be a relay. The proof is the event log below: logs carry the emitting
+ // contract's address and cannot be produced by any other contract.
+ if(!isAddr(receipt.to)) throw new Error('Receipt has no destination address');
  const block=await rpc('eth_getBlockByHash',[receipt.blockHash,false]);
  if(!block||!eq(block.hash,receipt.blockHash)||BigInt(block.number)!==BigInt(receipt.blockNumber)) throw new Error('Canonical block confirmation mismatch');
  const match=(receipt.logs||[]).find(log=>eq(log.address,row.contractAddress)&&eq(log.topics?.[0],EVENTS[row.id]));
@@ -51,7 +54,7 @@ export async function verifyChainReceipt(row, rpc) {
  const campaignId=BigInt(match.topics[row.id==='campaign_funding'?1:2]).toString();
  const purchaseId=row.id==='campaign_funding'?null:BigInt(match.topics[1]).toString();
  const customer=row.id==='campaign_funding'?null:'0x'+match.topics[3].slice(-40).toLowerCase();
- return {chainId:Number(BigInt(chainId)),transactionHash:receipt.transactionHash,blockHash:receipt.blockHash,blockNumber:Number(BigInt(receipt.blockNumber)),eventTopic:EVENTS[row.id],campaignId,purchaseId,customer};
+ return {chainId:Number(BigInt(chainId)),via:eq(receipt.to,row.contractAddress)?'direct':receipt.to.toLowerCase(),transactionHash:receipt.transactionHash,blockHash:receipt.blockHash,blockNumber:Number(BigInt(receipt.blockNumber)),eventTopic:EVENTS[row.id],campaignId,purchaseId,customer};
 }
 
 /** Reject a collage of unrelated but individually successful transactions. */

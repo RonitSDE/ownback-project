@@ -115,3 +115,10 @@ test('fund, payment and settlement must be same campaign, purchase and customer,
     /block order/,
   );
 });
+
+test('a smart-account relay is accepted only when OWNBACK itself emitted the event', async () => {
+  const { readFileSync } = await import('node:fs');
+  const src = readFileSync(new URL('../scripts/chain-proof.mjs', import.meta.url), 'utf8');
+  assert.match(src, /eq\(log\.address,row\.contractAddress\)&&eq\(log\.topics\?\.\[0\],EVENTS\[row\.id\]\)/);
+  assert.doesNotMatch(src, /Transaction destination does not match/);
+});
