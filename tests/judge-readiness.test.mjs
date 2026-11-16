@@ -35,7 +35,7 @@ test('candidate judge page discloses absent real proof and has no fake hashes', 
     if (explorer[row.environment])
       assert.equal(row.url?.toLowerCase(), (explorer[row.environment] + row.transactionHash).toLowerCase());
   }
-  assert.match(load('src/app/judge/page.tsx'), /Proofs remain missing/);
+  assert.match(load('src/app/judge/page.tsx'), /A proof counts only when recorded/);
 });
 test('merchant home is observed-only with proof above planner', () => {
   const growth = load('src/app/growth/page.tsx');

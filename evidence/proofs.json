@@ -1,6 +1,6 @@
 {
   "release": "v3.10.2",
-  "basis": "NO RECEIPTS ATTACHED; capture actual chain and HTTP evidence only",
+  "basis": "Three Base Sepolia contract receipts (fund, pay, settle) for campaign 1 / purchase #1 and one live HTTP 200 \u2192 409 replay log; re-verify with npm run verify:proofs:strict",
   "recordingDisclosure": "TESTNET / MOCK STOCK; mainnet candidate is NOT DEPLOYED",
   "proofs": [
     {

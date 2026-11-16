@@ -1,4 +1,4 @@
-# OWNBACK v3.10.2 — Base Stocks Maxxing judge candidate
+# OWNBACK v3.10.4 — Base Stocks Maxxing judge candidate
 
 **Track:** Agentic Stock Finance · **Demonstration environment:** Base Sepolia / offline mock · **Base mainnet:** **NOT DEPLOYED**.
 
@@ -171,6 +171,7 @@ anvil --silent                              # terminal A
 
 ```bash
 cd contracts                                # terminal B
+# Anvil's public default dev key #0 (local chain only, never fund it)
 DEPLOYER_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 \
 KEEPER_ADDRESS=0x70997970C51812dc3A010C7d01b50e0d17dc79C8 \
 forge script script/DeployTestnet.s.sol:DeployTestnet --rpc-url http://127.0.0.1:8545 --broadcast
