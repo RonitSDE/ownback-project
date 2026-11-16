@@ -51,9 +51,9 @@ export const builderDataSuffix: Hex | undefined = (() => {
   }
 })();
 
-export function txUrl(hash: string) {
+export function txUrl(hash: string | undefined) {
   const base = chain.blockExplorers?.default.url;
-  return base ? `${base}/tx/${hash}` : undefined;
+  return base && hash ? `${base}/tx/${hash}` : undefined;
 }
 
 export function addressUrl(address: string) {

@@ -86,7 +86,7 @@ export function OrdersPanel({ campaign, purchases, stockSymbol, now, onChange }:
                         → {stockUnits(p.delivered)} {stockSymbol}
                       </span>
                     )}
-                    <ExternalLink href={txUrl(p.payTx)}>payment ↗</ExternalLink>
+                    {p.payTx && <ExternalLink href={txUrl(p.payTx)}>payment ↗</ExternalLink>}
                     {p.settleTx && <ExternalLink href={txUrl(p.settleTx)}>delivery ↗</ExternalLink>}
                   </div>
                 </div>

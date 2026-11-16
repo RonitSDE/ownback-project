@@ -90,7 +90,7 @@ export function OrdersTable({
                     </Tag>
                   </td>
                   <td>
-                    <ExternalLink href={txUrl(p.payTx)}>pay ↗</ExternalLink>
+                    {p.payTx && <ExternalLink href={txUrl(p.payTx)}>pay ↗</ExternalLink>}
                     {p.settleTx && (
                       <>
                         {' · '}

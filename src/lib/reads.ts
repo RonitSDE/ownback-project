@@ -31,7 +31,7 @@ export type PurchaseRow = {
   paidAt: number;
   kind: number;
   status: number;
-  payTx: Hash;
+  payTx?: Hash;
   orderRef: Hash;
   settleTx?: Hash;
   delivered?: bigint;
@@ -140,53 +140,72 @@ async function chunkedLogs<T>(fetchRange: (from: bigint, to: bigint) => Promise<
   return out;
 }
 
-/** All purchases in the campaign, optionally for one customer, newest first. */
+const MAX_PURCHASES_READ = 500n;
+
+/**
+ * All purchases in the campaign, optionally for one customer, newest first.
+ * Orders come from contract state (getPurchase), so they show even when the RPC refuses
+ * historical log queries. Transaction links are added from logs on a best-effort basis.
+ */
 export async function readPurchases(customer?: Address): Promise<PurchaseRow[]> {
   const ownback = must(addresses.ownback, 'NEXT_PUBLIC_OWNBACK_ADDRESS');
-  const args = customer ? { campaignId, customer } : { campaignId };
-
-  const [paid, delivered] = await Promise.all([
-    chunkedLogs((fromBlock, toBlock) =>
-      publicClient.getLogs({ address: ownback, event: purchasedEvent, args, fromBlock, toBlock }),
-    ),
-    chunkedLogs((fromBlock, toBlock) =>
-      publicClient.getLogs({ address: ownback, event: deliveredEvent, args, fromBlock, toBlock }),
-    ),
-  ]);
-
-  const settleByPurchase = new Map<bigint, { tx: Hash; delivered: bigint }>();
-  for (const log of delivered) {
-    settleByPurchase.set(log.args.purchaseId!, {
-      tx: log.transactionHash,
-      delivered: log.args.stockDelivered!,
-    });
-  }
-
-  const rows = await Promise.all(
-    paid.map(async (log) => {
-      const id = log.args.purchaseId!;
-      // Current state (refunds and voided comebacks change it after the Purchased event).
-      const p = await publicClient.readContract({
+  const next = await publicClient.readContract({
+    address: ownback,
+    abi: ownbackAbi,
+    functionName: 'nextPurchaseId',
+  });
+  const first = next > MAX_PURCHASES_READ ? next - MAX_PURCHASES_READ : 1n;
+  const ids: bigint[] = [];
+  for (let id = first; id < next; id++) ids.push(id);
+  const purchases = await Promise.all(
+    ids.map(async (id) => ({
+      id,
+      p: await publicClient.readContract({
         address: ownback,
         abi: ownbackAbi,
         functionName: 'getPurchase',
         args: [id],
-      });
-      const settle = settleByPurchase.get(id);
-      return {
-        id,
-        customer: p.customer,
-        amount: p.amount,
-        reward: p.reward,
-        paidAt: Number(p.paidAt),
-        kind: Number(p.kind),
-        status: Number(p.status),
-        payTx: log.transactionHash,
-        orderRef: log.args.orderRef!,
-        settleTx: settle?.tx,
-        delivered: settle?.delivered,
-      } satisfies PurchaseRow;
-    }),
+      }),
+    })),
   );
+  const mine = purchases.filter(
+    ({ p }) =>
+      p.campaignId === campaignId && (!customer || p.customer.toLowerCase() === customer.toLowerCase()),
+  );
+  if (mine.length === 0) return [];
+
+  const args = customer ? { campaignId, customer } : { campaignId };
+  const [paid, delivered] = await Promise.all([
+    chunkedLogs((fromBlock, toBlock) =>
+      publicClient.getLogs({ address: ownback, event: purchasedEvent, args, fromBlock, toBlock }),
+    ).catch(() => []),
+    chunkedLogs((fromBlock, toBlock) =>
+      publicClient.getLogs({ address: ownback, event: deliveredEvent, args, fromBlock, toBlock }),
+    ).catch(() => []),
+  ]);
+  const payTxById = new Map(paid.map((log) => [log.args.purchaseId!, log.transactionHash]));
+  const settleById = new Map(
+    delivered.map((log) => [
+      log.args.purchaseId!,
+      { tx: log.transactionHash, delivered: log.args.stockDelivered! },
+    ]),
+  );
+
+  const rows = mine.map(({ id, p }) => {
+    const settle = settleById.get(id);
+    return {
+      id,
+      customer: p.customer,
+      amount: p.amount,
+      reward: p.reward,
+      paidAt: Number(p.paidAt),
+      kind: Number(p.kind),
+      status: Number(p.status),
+      payTx: payTxById.get(id),
+      orderRef: p.orderRef,
+      settleTx: settle?.tx,
+      delivered: settle?.delivered,
+    } satisfies PurchaseRow;
+  });
   return rows.sort((a, b) => Number(b.id - a.id));
 }
