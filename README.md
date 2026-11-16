@@ -8,7 +8,7 @@ OWNBACK is a merchant-funded stock-linked rewards protocol. One immutable stock 
 
 - [`HISTORY.md`](HISTORY.md#v310-release) — v3.10 changes, installation, testing and limitations, plus the v3.10.1 evidence gate and v3.10.2 proof execution notes.
 - [`HISTORY.md`](HISTORY.md#hackathon-submission) — the canonical 90-second judge script and Base submission claims.
-- [`evidence/proofs.json`](evidence/proofs.json) — mandatory proof register; all four are currently `MISSING`.
+- [`evidence/proofs.json`](evidence/proofs.json) — mandatory proof register; status is tracked in [Proof status](#proof-status) below.
 
 ## Primary navigation
 
@@ -32,12 +32,50 @@ npm run verify:manifest
 npm run verify:proofs
 ```
 
-## Execution state and submission blockers
+## Live deployment (Base Sepolia, chain 84532)
 
-- P0 proof remains missing: merchant funding, verified customer payment orderRef, onchain settlement/refusal event, wallet preference signature + replay HTTP 409.
-- No funded mainnet inventory, real customer B20 balance, legal/issuer approval, production deployment or independently audited mainnet settlement is evidenced.
-- CI `.github/workflows/submission-gate.yml` runs `npm ci`, type checking, agent/retention tests, Next build and **strict proof validation** on tags `v3.10.*`. It should fail until those requirements are satisfied.
-- For local Anvil evidence, label it **ANVIL ONLY** and attach real transaction/log files. No public explorer URL exists for a local-only Anvil chain.
+- **App:** https://ownback-project.onrender.com — customer store at `/shop`, judge page at `/judge`.
+- Assets are **mock/testnet** (mock USDC, mAAPLc). Base mainnet is **NOT DEPLOYED**.
+
+| Contract             | Address                                                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| OWNBACK              | [`0xB65c65E2FC79dc8146fd22fe379F8B58D8476b13`](https://sepolia.basescan.org/address/0xB65c65E2FC79dc8146fd22fe379F8B58D8476b13) |
+| Mock USDC            | [`0x421e74034DA94a9e4f044F7134B523ffBD75DdE9`](https://sepolia.basescan.org/address/0x421e74034DA94a9e4f044F7134B523ffBD75DdE9) |
+| Mock stock (mAAPLc)  | [`0xc0d725AF34a183d484bAe06A771D62d8e2e1BB6a`](https://sepolia.basescan.org/address/0xc0d725AF34a183d484bAe06A771D62d8e2e1BB6a) |
+| Settlement adapter   | [`0x36d0c193AA2bCAD589dBf0490853d2c2b1092b13`](https://sepolia.basescan.org/address/0x36d0c193AA2bCAD589dBf0490853d2c2b1092b13) |
+| Shopify reward vault | [`0xce9FD4eDE042324f3C1F72783d87922bFE485039`](https://sepolia.basescan.org/address/0xce9FD4eDE042324f3C1F72783d87922bFE485039) |
+| Keeper / merchant    | [`0xc2a5d5C6cb6dF500BBa4214DD5CDA40f66970379`](https://sepolia.basescan.org/address/0xc2a5d5C6cb6dF500BBa4214DD5CDA40f66970379) |
+
+Campaign **1**: funded with 5,000 mock USDC, 2% first-purchase and 5% comeback reward, $5 minimum order, 10-minute refund hold. Full addresses and deploy block: [`contracts/deployments/84532.json`](contracts/deployments/84532.json).
+
+## Proof status
+
+Each proof is a real Base Sepolia transaction. Its receipt is saved under [`evidence/receipts/`](evidence/receipts/) and registered in [`evidence/proofs.json`](evidence/proofs.json). Anyone can re-check them against the chain with `npm run verify:proofs`.
+
+| #   | Proof                                                                                                      | Status      | Evidence                                                                                                               |
+| --- | ---------------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------- |
+| 1   | Merchant funds campaign 1 (`CampaignFunded`)                                                               | ✅ Verified | [tx `0x81398f18…`](https://sepolia.basescan.org/tx/0x81398f181e9ce5c892c2c2cdbb83346175132acd2151c57d2ed07e6b8f755503) |
+| 2   | Customer pays order, purchase #1, 48 USDC, 0.96 USDC reward reserved (`Purchased`, orderRef `0x9115ad7a…`) | ✅ Verified | [tx `0x67a480a2…`](https://sepolia.basescan.org/tx/0x67a480a270a2fea55531882d1d586c88c413948a02cf370ea124f7d813d3928e) |
+| 3   | Reward settled after the refund hold (`RewardDelivered`)                                                   | ⏳ Pending  | —                                                                                                                      |
+| 4   | Wallet preference signature accepted (HTTP 200), replay rejected (HTTP 409)                                | ⏳ Pending  | —                                                                                                                      |
+
+Proof 2 was paid from a MetaMask smart account, so the transaction is routed through a relay. The verifier accepts it because the `Purchased` event is emitted by the OWNBACK contract address itself, and no other contract can emit an event from that address.
+
+## Remaining before submission
+
+- [ ] Proof 3: settle purchase #1 from **My orders** on `/shop` (customer or keeper), then capture it with `scripts/capture-chain-proof.mjs --id=settlement_refusal`.
+- [ ] Proof 4: set `OWNBACK_PILOT_SETTLEMENT_STOCK` and `OWNBACK_PREFERENCE_RECEIPTS_ENABLED=true` on the host, then run `scripts/create-signed-preference.mjs` and `scripts/capture-preference-replay.mjs`.
+- [ ] Add the `BASE_SEPOLIA_RPC_URL` GitHub secret, run `npm run verify:proofs:strict`, tag `v3.10.3` and confirm `.github/workflows/submission-gate.yml` passes on that tag.
+
+## Remaining before production (Base mainnet)
+
+- No funded mainnet inventory, real customer stock balance, legal/issuer approval or independently audited mainnet settlement exists yet.
+- Mainnet deploy with real USDC and a real (non-mock) stock settlement provider.
+- Paid RPC provider, scheduled keeper and monitoring.
+- Install on the production Shopify store and configure the compliance webhooks (`/api/shopify/compliance`).
+- Base mini app for the customer side (`/shop`) only; merchant pages stay on the website.
+
+For local Anvil evidence, label it **ANVIL ONLY** and attach real transaction/log files. No public explorer URL exists for a local-only Anvil chain.
 
 ---
 
