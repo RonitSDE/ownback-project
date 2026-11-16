@@ -19,7 +19,9 @@ test('research job links expire and reject forged signatures', () => {
     token = makeJobToken(id, expiry, secret);
   assert.equal(verifyJobToken(id, expiry, token, secret), true);
   assert.equal(verifyJobToken('job_wrong', expiry, token, secret), false);
-  assert.equal(verifyJobToken(id, expiry, token.slice(0, -1) + '0', secret), false);
+  // Always change the last character; replacing it with a fixed '0' is a no-op 1 time in 16.
+  const forged = token.slice(0, -1) + (token.endsWith('0') ? '1' : '0');
+  assert.equal(verifyJobToken(id, expiry, forged, secret), false);
   assert.equal(verifyJobToken(id, Math.floor(Date.now() / 1000) - 1, token, secret), false);
 });
 test('completed Bankr AI job is NOT a verified customer loan', () => {

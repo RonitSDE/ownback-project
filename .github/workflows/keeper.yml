@@ -14,14 +14,23 @@ jobs:
   keeper:
     runs-on: ubuntu-latest
     timeout-minutes: 4
+    env:
+      HAS_KEEPER_KEY: ${{ secrets.KEEPER_PRIVATE_KEY != '' }}
     steps:
+      - name: Skip when the keeper key is not configured
+        if: env.HAS_KEEPER_KEY != 'true'
+        run: echo "KEEPER_PRIVATE_KEY secret not set; keeper pass skipped."
       - uses: actions/checkout@v4
+        if: env.HAS_KEEPER_KEY == 'true'
       - uses: actions/setup-node@v4
+        if: env.HAS_KEEPER_KEY == 'true'
         with: { node-version: 22, cache: npm }
       - run: npm ci
+        if: env.HAS_KEEPER_KEY == 'true'
       - run: npm run keeper:once
+        if: env.HAS_KEEPER_KEY == 'true'
         env:
-          RPC_URL: https://sepolia.base.org
+          RPC_URL: https://base-sepolia-rpc.publicnode.com
           KEEPER_PRIVATE_KEY: ${{ secrets.KEEPER_PRIVATE_KEY }}
           BUILDER_CODE: ${{ secrets.BUILDER_CODE }}
           DEPLOYMENT_FILE: contracts/deployments/84532.json
