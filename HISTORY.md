@@ -589,7 +589,7 @@ _Formerly `SUBMISSION.md` (v3.10.2 version)._
 
 **Competition:** Base Stocks Maxxing · **Track:** Agentic Stock Finance · **Deadline:** December 5, 2026 (verify official application timezone).
 
-**Current disclosure (first 10 seconds):** **BASE SEPOLIA / MOCK STOCK; MAINNET CANDIDATE — NOT DEPLOYED.** The one-click agent preview is offline/deterministic; real campaign/payment transaction evidence is **not attached to this release**. We do not claim stock ownership, issued equity, trading or live merchant traction.
+**Current disclosure (first 10 seconds):** **BASE SEPOLIA / MOCK STOCK; MAINNET CANDIDATE — NOT DEPLOYED.** The one-click agent preview is offline/deterministic; real Base Sepolia fund → pay → settle receipts and a live 200 → 409 preference replay are attached and pass `npm run verify:proofs:strict` (see the README proof table). We do not claim stock ownership, issued equity, trading or live merchant traction.
 
 ## Pitch
 
@@ -637,7 +637,7 @@ _Formerly `STOCKS_MAXXING_SUBMISSION.md`._
 
 ## Stocks Maxxing — canonical v3.10 submission pointer
 
-**Single track: Agentic Stock Finance.** Use [`SUBMISSION.md`](SUBMISSION.md) exclusively for the narrative, demo steps, launch status, proof register and missing blockers. Previous loan, multi-stock and agent revenue language is historical and excluded from the v3.10 submission. No mainnet deployment, proven retention lift or live security ownership is claimed.
+**Single track: Agentic Stock Finance.** Use the [canonical submission section](#hackathon-submission) exclusively for the narrative, demo steps, launch status, proof register and missing blockers. Previous loan, multi-stock and agent revenue language is historical and excluded from the v3.10 submission. No mainnet deployment, proven retention lift or live security ownership is claimed.
 
 ---
 
