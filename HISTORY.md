@@ -589,7 +589,7 @@ _Formerly `SUBMISSION.md` (v3.10.2 version)._
 
 **Competition:** Base Stocks Maxxing · **Track:** Agentic Stock Finance · **Deadline:** December 5, 2026 (verify official application timezone).
 
-**Current disclosure (first 10 seconds):** **BASE SEPOLIA / MOCK STOCK; MAINNET CANDIDATE — NOT DEPLOYED.** The one-click agent preview is offline/deterministic; real Base Sepolia fund → pay → settle receipts and a live 200 → 409 preference replay are attached and pass `npm run verify:proofs:strict` (see the README proof table). We do not claim stock ownership, issued equity, trading or live merchant traction.
+**Current disclosure (first 10 seconds):** **BASE SEPOLIA / MOCK STOCK; MAINNET CANDIDATE — NOT DEPLOYED.** The one-click agent preview is offline/deterministic; real campaign/payment transaction evidence is **not attached to this release**. We do not claim stock ownership, issued equity, trading or live merchant traction.
 
 ## Pitch
 
@@ -637,7 +637,7 @@ _Formerly `STOCKS_MAXXING_SUBMISSION.md`._
 
 ## Stocks Maxxing — canonical v3.10 submission pointer
 
-**Single track: Agentic Stock Finance.** Use the [canonical submission section](#hackathon-submission) exclusively for the narrative, demo steps, launch status, proof register and missing blockers. Previous loan, multi-stock and agent revenue language is historical and excluded from the v3.10 submission. No mainnet deployment, proven retention lift or live security ownership is claimed.
+**Single track: Agentic Stock Finance.** Use [`SUBMISSION.md`](SUBMISSION.md) exclusively for the narrative, demo steps, launch status, proof register and missing blockers. Previous loan, multi-stock and agent revenue language is historical and excluded from the v3.10 submission. No mainnet deployment, proven retention lift or live security ownership is claimed.
 
 ---
 
@@ -1130,3 +1130,127 @@ The GitHub workflow runs the gate on the tagged SHA, with `BASE_SEPOLIA_RPC_URL`
 - `NOT_EXECUTED` next to preference signing. Preference cannot trade or claim.
 - Retention is **observed, not causal uplift**. Counts of returners are not established without real deployment and user data.
 - Do not claim B20 ownership from minting mock stock, and do not imply live use from a local test.
+
+---
+
+## OWNBACK v3.10.7 — Attribution patch status
+
+**Release remains a candidate.** v3.10.7 modifies ERC-8021 handling only. Historical Base Sepolia receipts and preference logs are unchanged; they do not prove attributed activity. See `BUILDER_CODE_DEPLOY.md` for deployment verification. Full tagged CI and real calldata verification still required. Mainnet remains NO-GO.
+
+---
+
+## OWNBACK v3.10.6 — Release status and no-go checks
+
+This is a **security-hardening patch**, not a new deployed app. It is based on `OWNBACK-v3.10.5-Release-Hardening-Full-Source.zip`. The underlying receipts, source contracts and merchant UX flows are unchanged. v3.10.6 adds an HTTP proxy-identity hardening patch and seven Foundry adversarial regressions (not run in the original patch environment; subsequently reported passing by a separate tester, without attached raw logs or tested SHA). No Git history is included in the ZIP.
+
+### Evidence in source
+
+- Captured Base Sepolia campaign funding, one first purchase, and a mock-stock settlement are registered in `evidence/proofs.json` with associated receipt JSON files.
+- A saved API log shows the claimed wallet preference first-response 200 and replay-response 409. The signature is a **preference only** and cannot trade.
+- There is **no second/comeback purchase receipt** in this source, and no established experiment measuring retention lift.
+- Source file labels `VERIFIED` are **internal capture states**. The static `/judge` page deliberately shows `CAPTURED · RPC PENDING`. Only strict live-RPC verification on tagged CI can establish current chain confirmation.
+- Testnet stock is a **mock** instrument; do not claim a real Base mainnet B20 balance.
+
+### Exact acceptance checklist (on the tagged Git SHA)
+
+```bash
+npm ci
+npm run release:tag-assert
+npm run check:lock
+npm run check
+npm run test:allocation
+npm run test:retention
+npm run test:judge
+npm run test:proofs
+npm run test:release-proof
+npm run test:mainnet
+npm test
+./contracts/install-deps.sh
+npm run test:contracts
+npm run build
+npm run verify:manifest
+BASE_SEPOLIA_RPC_URL=https://<your-actual-endpoint> npm run verify:proofs:strict
+```
+
+`npm run judge:gate` runs the combined mandatory checks after install and Foundry setup. The GitHub submission workflow also creates an `release-sha.txt` artifact to identify the tested commit. Do not create a release tag until all code and evidence are committed; the guard rejects dirty working trees and mismatched tags.
+
+### Unblocked only by genuine execution
+
+- Successful networked `npm ci`, full JS/TS/Next.js and Solidity checks.
+- Live Base Sepolia RPC matches canonical block hashes, emitted events, orderRef and campaign/purchase linkage.
+- Real second purchase by the same customer with a comeback reward and linked settlement (recommended as the highest-value remaining business proof).
+- Final 90-second video filmed from **that exact validated tag**; show the mock/testnet label immediately.
+
+**Current release decision: NO-GO for claiming independently verified final submission.** No deployment or new chain transaction was performed in this patch process.
+
+### Historical checks observed for v3.10.5 (not current v3.10.6 results)
+
+| Gate                                           | Result                                                                                 |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Allocation policies                            | 16/16 pass                                                                             |
+| Retention tests                                | 15/15 pass                                                                             |
+| Judge tests (including exact release identity) | 12/12 pass                                                                             |
+| Chain-proof verifier unit tests                | 10/10 pass                                                                             |
+| Proof path unit tests                          | 4/4 pass                                                                               |
+| Mainnet static safety unit tests               | 7/7 pass                                                                               |
+| Full JS suite                                  | 148/149 pass; one existing `viem` module import failure without installed dependencies |
+| Lockfile graph                                 | Pass; npm dependency installation still required                                       |
+| Source manifest                                | Pass (238 files)                                                                       |
+| `npm ci --offline`                             | Blocked by missing cached `zod` package; networked install not demonstrated            |
+| Strict live-RPC proof check                    | FAIL-CLOSED: RPC unavailable; onchain receipts not independently verified here         |
+| Solidity/Foundry                               | Not executed: `forge` not available                                                    |
+| Tag and hosted CI                              | Not demonstrated; original uploaded ZIP has no Git metadata                            |
+
+The JavaScript test gap and missing tools are environment limitations, **not** evidence that the production build is green.
+
+### Exact-tag guard exercised in an isolated Git repository
+
+The new guard was run against a temporary committed Git fixture (not the project's actual GitHub repository): a wrong `v3.10.4` tag was rejected, a matching `v3.10.5` tag and matching `GITHUB_SHA` were accepted, a wrong `GITHUB_REF` was rejected, and a dirty worktree was rejected. **This does not establish that OWNBACK's real GitHub commit or tag exists.**
+
+### v3.10.6 security patch — 2026-11-16
+
+- Fixed untrusted `X-Forwarded-For` spoofing vulnerability in API rate-limit identity; accepted trusted proxy modes require verified reverse-proxy header ownership.
+- Added five executed adversarial JavaScript tests and seven **unexecuted** Foundry contract regression cases.
+- Full JavaScript suite: **153/154 pass**, one inherited `viem` module import error without installed dependencies.
+- `npm ci --offline` fails because the npm cache lacks `zod-4.6.7.tgz` (not a new code regression).
+- No Foundry compiler, Anvil, running RPC validation or deployed mainnet contract tests were available; the added Solidity cases are not represented as executed.
+- Existing Base Sepolia proof files were preserved verbatim; updating the proof register's release identity does not revalidate them.
+- The exact `v3.10.6` tag, tagged CI, `judge:gate`, strict live-chain proof verification, production build and third-party security audit remain required.
+
+**Decision: security-source patch only; mainnet NO-GO and judge submission gate unverified.**
+
+### Independent follow-up tester report — November 16, 2026 (source: user-provided report)
+
+A separate tester reported clean `npm ci`, TypeScript/ESLint checks, **164 passing JavaScript tests**, **70 passing Solidity tests** (including all **20** mainnet suite tests and the seven new adversarial cases), a successful Next.js production build (**49 routes / 39 pages**) and **241 source-manifest entries**. This represents a meaningful increase in engineering confidence _if reproduced on the final release SHA_.
+
+**Provenance limit:** The uploaded report is narrative, not an attached Foundry log, npm CI transcript or signed GitHub Actions artifact. The results above are **externally reported, not re-executed or certified by this packaging environment**. Here, five proxy tests, twelve judge tests and the original archive's 241-entry manifest were directly rerun/passed. No EVM binaries are installed here.
+
+The release still requires proof verification against live Base Sepolia RPC, a verified second/comeback purchase if claimed, a genuine green `judge:gate` on the exact final Git tag and SHA, an ingress/WAF configuration test, and independent review before any real-value mainnet launch. No real B20 stock delivery has been established by these tests. See `SECURITY_SIMULATION_v3.10.6.md` for the traceable execution-status matrix.
+
+**Metadata-only repack note:** The security simulation and this release-status document were revised after the separate tester report. Application and Solidity source remain unchanged from the input v3.10.6 ZIP. The manifest was regenerated to cover the revised documents; the ZIP does not establish a Git tag or SHA.
+
+---
+
+## OWNBACK — v3.10.5 release-hardening notes
+
+**Source basis:** `OWNBACK-FINAL-v3.10.4.zip`. No product/settlement contracts or saved transaction receipts were altered.
+
+### Changes from FINAL v3.10.4
+
+1. Package version, root lockfile metadata and proof register now agree on `v3.10.5`.
+2. The tagged-SHA guard requires the **exact** version-matched Git tag, not any `v3.10.x` tag. Structural proof verification also refuses a release/version mismatch.
+3. The `/judge` proof register calls receipts **CAPTURED · RPC RECHECK REQUIRED** until live chain verification is run in CI; static UI does not certify an external explorer receipt.
+4. Submission CI installs Foundry dependencies and exercises Solidity, mainnet gates and the full JavaScript suite in addition to the existing targeted tests and strict chain proof gate.
+5. The README now concentrates on the current judging flow, documents the first-purchase-only evidence, and points to `HISTORY.md` for older product descriptions.
+
+### Locally rechecked for this source revision
+
+See the v3.10.7 release status section above for the recorded command results. Focused checks and manifest pass without app dependencies. A clean `npm ci`, Next.js production build, Foundry suite and live-RPC strict proof check still require a networked runner with tools installed. **Do not claim tagged CI green from this ZIP; it contains no `.git` repository or verified GitHub Actions run.**
+
+### Previous developer-reported results
+
+The supplied FINAL v3.10.4 notes reported a successful install, 155 JS tests, 63 Solidity tests and production build. These are **upstream self-reported results**, not reproduced or certified by this patch process.
+
+### Submission line
+
+**Base Sepolia / mock stock; one first purchase evidenced by source artifacts; no verified comeback purchase; allocation preference NOT_EXECUTED; observed retention is not causal lift; Base mainnet B20 is not deployed.**

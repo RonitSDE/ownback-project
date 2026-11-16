@@ -1,4 +1,5 @@
 import 'server-only';
+export { clientIp } from './client-ip';
 
 /**
  * Minimal in-process fixed-window rate limiter. Good enough to stop a single abusive client from
@@ -20,13 +21,6 @@ export function rateLimit(key: string, limit: number, windowMs: number): { ok: b
   }
   existing.count += 1;
   return { ok: true, retryAfter: 0 };
-}
-
-/** Best-effort client IP from standard proxy headers; falls back to a constant so limits still apply. */
-export function clientIp(req: Request): string {
-  const fwd = req.headers.get('x-forwarded-for');
-  if (fwd) return fwd.split(',')[0]!.trim();
-  return req.headers.get('x-real-ip') ?? 'unknown';
 }
 
 /** Occasionally drop expired buckets so the map can't grow without bound. */

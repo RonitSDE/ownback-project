@@ -1,3 +1,4 @@
+import { clientIp } from '@/lib/server/client-ip';
 import { NextRequest, NextResponse } from 'next/server';
 import { isAddress, isHex, type Address, type Hex } from 'viem';
 import { pool } from '@/lib/commerce/db';
@@ -9,7 +10,7 @@ export const runtime = 'nodejs';
 export async function POST(req: NextRequest) {
   if (!sameOrigin(req)) return NextResponse.json({ error: 'Invalid origin' }, { status: 403 });
   try {
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const ip = clientIp(req);
     await enforceLimit('shopify-claim', ip, 8, 15);
     const { token, wallet, signature } = await req.json();
     if (typeof token !== 'string' || !/^[a-f0-9]{64}$/.test(token) || !isAddress(wallet) || !isHex(signature))

@@ -39,9 +39,14 @@ if (!pk) throw new Error('KEEPER_PRIVATE_KEY is required');
 const account = privateKeyToAccount(pk);
 const publicClient = createPublicClient({ chain, transport: http(rpc) });
 const wallet = createWalletClient({ chain, transport: http(rpc), account });
-const dataSuffix = process.env.BUILDER_CODE
-  ? Attribution.toDataSuffix({ codes: [process.env.BUILDER_CODE] })
-  : undefined;
+const code = process.env.BUILDER_CODE?.trim();
+if ((mainnet || process.env.OWNBACK_REQUIRE_BUILDER_CODE === 'true') && !code) {
+  throw new Error('BUILDER_CODE is required for attributed keeper transactions');
+}
+if (code && (!/^[\x21-\x7e]{1,128}$/.test(code) || code.includes(','))) {
+  throw new Error('Invalid BUILDER_CODE; refusing un-attributed keeper transactions');
+}
+const dataSuffix = code ? Attribution.toDataSuffix({ codes: [code] }) : undefined;
 const PRICE_SOURCE = process.env.PRICE_SOURCE ?? 'coinbase';
 const SYMBOL = process.env.STOCK_SYMBOL ?? 'AAPLc';
 const DRIFT_BPS = 25n;

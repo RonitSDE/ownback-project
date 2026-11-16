@@ -2,10 +2,13 @@
 import {readFileSync,existsSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {CHAIN_IDS,EVENTS,rpcCall,verifyChainReceipt,verifyProofLifecycle} from './chain-proof.mjs';
+import {assertReleaseIdentity} from './release-identity.mjs';
 const strict=process.argv.includes('--strict');
 const doc=JSON.parse(readFileSync('evidence/proofs.json','utf8'));
 const required=Object.keys(EVENTS).concat('preference_replay');
 const problems=[];const verified=[];const seen=new Set();const onchainDetails=[];
+try {assertReleaseIdentity(JSON.parse(readFileSync('package.json','utf8')).version,doc.release)}
+catch(error){problems.push(`Release identity: ${error.message}`)}
 const formatHash=/^0x[a-fA-F0-9]{64}$/;
 function evidencePath(path){return typeof path==='string'&&/^evidence\/(receipts|logs)\/[\w./-]+$/.test(path)&&!path.includes('..')&&existsSync(resolve(path));}
 function chainRpc(env){return env==='BASE_SEPOLIA'?process.env.BASE_SEPOLIA_RPC_URL:env==='BASE_MAINNET'?process.env.BASE_MAINNET_RPC_URL:process.env.ANVIL_RPC_URL||process.env.RPC_URL;}

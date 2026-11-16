@@ -89,7 +89,7 @@ NEXT_PUBLIC_DEPLOY_BLOCK=...
 NEXT_PUBLIC_STOCK_SYMBOL=AAPLc
 ```
 
-Optional `NEXT_PUBLIC_BUILDER_CODE` is your ERC-8021 Base Builder Code. Build with `npm run build` and deploy with a provider supporting the Next.js App Router; set the above variables **at build time**.
+Set `NEXT_PUBLIC_BUILDER_CODE` and `BUILDER_CODE` to the same registered OWNBACK ERC-8021 Builder Code, with both `*_REQUIRE_BUILDER_CODE` flags set to `true` for the submission release. See `BUILDER_CODE_DEPLOY.md`. Build with `npm run build` and deploy with a provider supporting the Next.js App Router; set the above variables **at build time**.
 
 ```bash
 SMOKE_URL=https://your-preview-domain.example npm run smoke
@@ -605,3 +605,32 @@ Run local Anvil and Sepolia E2E (existing `npm run verify:local`) and independen
 - Base B20 token mechanics (multiplier, policy registry, Chainlink total-return feed): https://docs.base.org/build-on-base/integrate-defi/list-tokenized-stocks
 - Coinbase tokenized stock API: https://api.coinbase.com/v1/tokenized-stocks
 - Circle canonical Base USDC: https://help.circle.com/support/en/usdc-supported-blockchains-minting-redemption-faqs
+
+<a id="builder-codes"></a>
+
+## Builder Codes (ERC-8021), v3.10.7
+
+**Scope:** ERC-8021 attribution only. No contract or Shopify business-logic change. Historical proof receipts are unchanged and **do not show that attribution is working**. Testnet/mock stock remains the only evidenced environment. Mainnet is **NO-GO** pending separate security, B20, eligibility, treasury and operational approvals.
+
+### 6 steps for the deploying developer
+
+1. **Register or reuse OWNBACK's Builder Code** at https://dashboard.base.org → Project Settings → Builder Code. Do not mint a second project code if one exists.
+2. **Configure the same code everywhere:** set `NEXT_PUBLIC_BUILDER_CODE=<OWNBACK_CODE>` (Next.js **build time**) and `BUILDER_CODE=<OWNBACK_CODE>` (keeper and Shopify worker runtime). Set `NEXT_PUBLIC_REQUIRE_BUILDER_CODE=true` and `OWNBACK_REQUIRE_BUILDER_CODE=true` for the competition staging release. GitHub Actions repo variable `OWNBACK_BUILDER_CODE=<OWNBACK_CODE>` powers the tagged CI gate. The Builder Code is public; keep private keys and RPC credentials separate.
+3. **Install + test on Node 22.16+:** `npm ci && npm run verify:builder:config && npm run test:builder && npm run check && npm run test:judge && npm run build`. Run full `npm run judge:gate` after tagging and provisioning Base Sepolia RPC and Foundry; a green focused test is not a green release.
+4. **Deploy Sepolia (84532) first:** rebuild/redeploy the frontend with the public code, and restart the existing keeper and **single dedicated Shopify worker** with their runtime `BUILDER_CODE`. No Solidity redeploy is needed just to add this suffix.
+5. **Generate fresh testnet transactions:** merchant funds campaign, customer pays, keeper settles, and (for Shopify lane) worker delivers an eligible reward. For each path, inspect transaction calldata with `BUILDER_CODE=<code> BASE_SEPOLIA_RPC_URL=<rpc> npm run verify:builder:tx -- 0x<hash>`. If a smart-wallet relay bundles UserOperations, this _top-level_ checker may fail even when an inner operation has a suffix—use Base's official Builder Code validation tool to examine the UserOperation; never claim attribution from a hash without checking.
+6. **Tag only when evidence is real:** add actual transaction hashes (in a new attribution evidence file, not by overwriting original Sepolia receipts), run `npm run verify:proofs:strict`, then commit and tag **`v3.10.7`** and ensure the exact-tag `judge:gate` passes. Keep `TESTNET / MOCK STOCK` prominent in demo and video.
+
+### Signing paths and limitations
+
+| Transaction                                                 | OWNBACK v3.10.7                                                                    | How to verify                                          |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Browser merchant funding, USDC approvals, customer payments | Existing `src/lib/wallet.ts` `dataSuffix`, now strict config                       | Wallet-/AA-aware transaction inspection                |
+| Keeper price updates / native reward settlement             | `scripts/keeper.ts` `dataSuffix`, strict mainnet/flag guard                        | Inspect keeper tx input                                |
+| Shopify reward worker delivery                              | **NEW** `scripts/shopify-settle.ts` `dataSuffix`, `src/lib/shopify/chain.ts` guard | Inspect dedicated worker tx input                      |
+| Wallet-signed allocation preference                         | Offchain message; not a transaction                                                | Not applicable                                         |
+| Bankr-initiated trades                                      | Not operated by OWNBACK's signer                                                   | Ask Bankr for explicit co-attribution; not implemented |
+
+**Do not assume Builder Code suffixes automatically survive third-party wallet relays or prove prize credit.** Confirm the actual signed calldata/UserOperation and Base's indexer attribution. There is no retroactive attribution for old receipts.
+
+Documentation: https://docs.base.org/specifications/builder-codes/overview

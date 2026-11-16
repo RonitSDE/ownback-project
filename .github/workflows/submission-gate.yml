@@ -7,21 +7,29 @@ on:
 jobs:
   judge-ready:
     runs-on: ubuntu-latest
+    env:
+      BUILDER_CODE: ${{ vars.OWNBACK_BUILDER_CODE }}
+      NEXT_PUBLIC_BUILDER_CODE: ${{ vars.OWNBACK_BUILDER_CODE }}
+      NEXT_PUBLIC_REQUIRE_BUILDER_CODE: 'true'
+      OWNBACK_REQUIRE_BUILDER_CODE: 'true'
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
       - name: Enforce exact tagged SHA
         run: npm run release:tag-assert
       - name: Tagged revision
         run: |
           git rev-parse HEAD
           echo "Tag: $GITHUB_REF"
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22.16.0
-          cache: npm
+      - uses: foundry-rs/foundry-toolchain@v1
       - run: npm run check:lock
+      - run: npm run verify:builder:config
+      - run: npm run test:builder
       - run: npm ci
       - run: npm run check
       - run: npm run test:allocation
@@ -29,6 +37,10 @@ jobs:
       - run: npm run test:judge
       - run: npm run test:proofs
       - run: npm run test:release-proof
+      - run: npm run test:mainnet
+      - run: npm test
+      - run: ./contracts/install-deps.sh
+      - run: npm run test:contracts
       - run: npm run build
       - run: npm run verify:manifest
       - name: Verify real onchain receipts and signed preference replay
@@ -41,6 +53,9 @@ jobs:
           BASE_SEPOLIA_RPC_URL: ${{ secrets.BASE_SEPOLIA_RPC_URL }}
           BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
         run: npm run judge:gate
+      - name: Record exact SHA in artifact
+        if: always()
+        run: git rev-parse HEAD > release-sha.txt
       - name: Upload exact SHA and results
         if: always()
         uses: actions/upload-artifact@v4
@@ -49,3 +64,4 @@ jobs:
           path: |
             evidence/
             SOURCE_MANIFEST.sha256
+            release-sha.txt

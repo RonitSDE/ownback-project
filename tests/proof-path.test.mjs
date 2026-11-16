@@ -23,7 +23,8 @@ test('tag assertion fails closed outside a git tag', () => {
   assert.match(script, /--points-at/);
   assert.match(script, /GITHUB_SHA/);
   assert.match(script, /Dirty worktree/);
-  assert.match(script, /tag ref, not a branch/);
+  assert.match(script, /exact tag refs\/tags/);
+  assert.match(script, /assertReleaseIdentity/);
 });
 test('proof manifest has exactly four release slots, each fail-closed until captured', () => {
   const doc = JSON.parse(read('evidence/proofs.json'));

@@ -9,7 +9,7 @@ import {pool} from '../src/lib/commerce/db';
 import {getLiveOrder,isLiveOrderPaid} from '../src/lib/shopify/admin';
 import {classify,qualifiesForShopifyPayout,rewardAmount} from '../src/lib/shopify/rules';
 import {orderHash,usdToBaseUnits} from '../src/lib/shopify/security';
-import {shopifyClient,shopifyVaultAddress,shopifyVaultAbi,executorWallet} from '../src/lib/shopify/chain';
+import {shopifyClient,shopifyVaultAddress,shopifyVaultAbi,executorWallet,shopifyBuilderDataSuffix} from '../src/lib/shopify/chain';
 
 const mainnet=process.env.SHOPIFY_REWARD_CHAIN_ID==='8453';
 if(!['31337','84532','8453'].includes(process.env.SHOPIFY_REWARD_CHAIN_ID||'84532'))throw Error('Unsupported network');
@@ -21,6 +21,7 @@ if(mainnet&&(!/^0x[a-fA-F0-9]{40}$/.test(mainnetStock||'')||!/^0x[a-fA-F0-9]{40}
 const priceAbi=parseAbi(['function quote(address stock,uint256 usdcIn) view returns(uint256)']);
 const vault=shopifyVaultAddress();
 const wallet=executorWallet();
+const dataSuffix=shopifyBuilderDataSuffix();
 const deployedBlock=BigInt(process.env.SHOPIFY_REWARD_DEPLOY_BLOCK||'0');
 const mockPrice=BigInt(process.env.SHOPIFY_MOCK_PRICE_USDC||'100000000');
 if(!mainnet&&mockPrice<=0n)throw Error('Invalid mock price');
@@ -117,7 +118,7 @@ async function settle(order:Order){
  WHERE shop_domain=$1 AND order_id=$2 AND status='CLAIMED' RETURNING order_id`,[order.shop_domain,order.order_id,kind]);
  if(!lock.rowCount)return;
  try{
-  const tx=await wallet.writeContract({address:vault,abi:shopifyVaultAbi,functionName:'deliver',args:[orderHash(order.shop_domain,order.order_id),order.customer_hash as Hex,order.wallet as `0x${string}`,BigInt(order.price_usdc),BigInt(Math.floor(new Date(order.paid_at).getTime()/1000)),kind==='COMEBACK',minOut]});
+  const tx=await wallet.writeContract({address:vault,abi:shopifyVaultAbi,functionName:'deliver',args:[orderHash(order.shop_domain,order.order_id),order.customer_hash as Hex,order.wallet as `0x${string}`,BigInt(order.price_usdc),BigInt(Math.floor(new Date(order.paid_at).getTime()/1000)),kind==='COMEBACK',minOut],dataSuffix});
   await pool.query('UPDATE shopify_reward_orders SET tx_hash=$3 WHERE shop_domain=$1 AND order_id=$2 AND status=$4',[order.shop_domain,order.order_id,tx.toLowerCase(),'SETTLING']);
   await shopifyClient.waitForTransactionReceipt({hash:tx,confirmations:2});
   await confirm({...order,status:'SETTLING',tx_hash:tx});

@@ -41,14 +41,17 @@ export const mirroredSymbol = process.env.NEXT_PUBLIC_STOCK_SYMBOL ?? 'AAPLc';
 
 /** ERC-8021 Builder Code suffix appended to every transaction for Base attribution. */
 export const builderDataSuffix: Hex | undefined = (() => {
-  const code = process.env.NEXT_PUBLIC_BUILDER_CODE;
-  if (!code) return undefined;
-  try {
-    return Attribution.toDataSuffix({ codes: [code] });
-  } catch {
-    console.warn('Invalid NEXT_PUBLIC_BUILDER_CODE; transactions will not be attributed.');
-    return undefined;
+  const code = process.env.NEXT_PUBLIC_BUILDER_CODE?.trim();
+  if (!code) {
+    if (isMainnet || process.env.NEXT_PUBLIC_REQUIRE_BUILDER_CODE === 'true') {
+      throw new Error('NEXT_PUBLIC_BUILDER_CODE required for attributed OWNBACK transactions');
+    }
+    return undefined; // permitted for offline/local dev only; never claim attribution
   }
+  if (!/^[\x21-\x7e]{1,128}$/.test(code) || code.includes(',')) {
+    throw new Error('Invalid NEXT_PUBLIC_BUILDER_CODE; refusing unattributed transactions');
+  }
+  return Attribution.toDataSuffix({ codes: [code] });
 })();
 
 export function txUrl(hash: string | undefined) {

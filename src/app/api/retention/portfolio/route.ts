@@ -1,3 +1,4 @@
+import { clientIp } from '@/lib/server/client-ip';
 /** Private shopper history, requested via time-limited wallet signature.
  * A public wallet address alone never reveals pseudonymous Shopify order history.
  */
@@ -10,7 +11,7 @@ export const runtime='nodejs';
 export async function POST(req:NextRequest){
  if(!sameOrigin(req))return NextResponse.json({error:'Invalid request origin'},{status:403});
  try{
-  const ip=req.headers.get('x-forwarded-for')?.split(',')[0]||'unknown';
+  const ip=clientIp(req);
   await enforceLimit('portfolio-read',ip,12,15);
   const {wallet,expiresAt,signature}=await req.json() as {wallet:string;expiresAt:number;signature:string};
   if(!isAddress(wallet)||!isHex(signature)||!Number.isSafeInteger(expiresAt))return NextResponse.json({error:'Invalid access proof'},{status:400});
