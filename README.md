@@ -52,19 +52,19 @@ Campaign **1**: funded with 5,000 mock USDC, 2% first-purchase and 5% comeback r
 
 Each proof is a real Base Sepolia transaction. Its receipt is saved under [`evidence/receipts/`](evidence/receipts/) and registered in [`evidence/proofs.json`](evidence/proofs.json). Anyone can re-check them against the chain with `npm run verify:proofs`.
 
-| #   | Proof                                                                                                      | Status      | Evidence                                                                                                               |
-| --- | ---------------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------- |
-| 1   | Merchant funds campaign 1 (`CampaignFunded`)                                                               | ✅ Verified | [tx `0x81398f18…`](https://sepolia.basescan.org/tx/0x81398f181e9ce5c892c2c2cdbb83346175132acd2151c57d2ed07e6b8f755503) |
-| 2   | Customer pays order, purchase #1, 48 USDC, 0.96 USDC reward reserved (`Purchased`, orderRef `0x9115ad7a…`) | ✅ Verified | [tx `0x67a480a2…`](https://sepolia.basescan.org/tx/0x67a480a270a2fea55531882d1d586c88c413948a02cf370ea124f7d813d3928e) |
-| 3   | Reward settled after the refund hold, 0.0096 mAAPLc delivered to the customer (`RewardDelivered`)          | ✅ Verified | [tx `0x9186e9f0…`](https://sepolia.basescan.org/tx/0x9186e9f0b2d5c7d5c1178d60074288306f41396c5d635d6b8dbe205204b1f0a6) |
-| 4   | Wallet preference signature accepted (HTTP 200), replay rejected (HTTP 409)                                | ⏳ Pending  | —                                                                                                                      |
+| #   | Proof                                                                                                                         | Status      | Evidence                                                                                                               |
+| --- | ----------------------------------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------- |
+| 1   | Merchant funds campaign 1 (`CampaignFunded`)                                                                                  | ✅ Verified | [tx `0x81398f18…`](https://sepolia.basescan.org/tx/0x81398f181e9ce5c892c2c2cdbb83346175132acd2151c57d2ed07e6b8f755503) |
+| 2   | Customer pays order, purchase #1, 48 USDC, 0.96 USDC reward reserved (`Purchased`, orderRef `0x9115ad7a…`)                    | ✅ Verified | [tx `0x67a480a2…`](https://sepolia.basescan.org/tx/0x67a480a270a2fea55531882d1d586c88c413948a02cf370ea124f7d813d3928e) |
+| 3   | Reward settled after the refund hold, 0.0096 mAAPLc delivered to the customer (`RewardDelivered`)                             | ✅ Verified | [tx `0x9186e9f0…`](https://sepolia.basescan.org/tx/0x9186e9f0b2d5c7d5c1178d60074288306f41396c5d635d6b8dbe205204b1f0a6) |
+| 4   | Wallet-signed preference recorded on the live app (HTTP 200); the identical replay rejected (HTTP 409). No trade or transfer. | ✅ Verified | [`evidence/logs/preference-replay.json`](evidence/logs/preference-replay.json)                                         |
 
-Proofs 1–3 pass `npm run verify:proofs:strict` and belong to the same campaign (1), purchase (#1) and customer. Proofs 2 and 3 were sent from a MetaMask smart account, so the transactions are routed through a relay. The verifier accepts them because the events are emitted by the OWNBACK contract address itself, and no other contract can emit an event from that address.
+All four proofs pass `npm run verify:proofs:strict`. Proofs 1–3 belong to the same campaign (1), purchase (#1) and customer. Proofs 2 and 3 were sent from a MetaMask smart account, so the transactions are routed through a relay. The verifier accepts them because the events are emitted by the OWNBACK contract address itself, and no other contract can emit an event from that address.
 
 ## Remaining before submission
 
 - [x] Proof 3: purchase #1 settled from **My orders** on `/shop`.
-- [ ] Proof 4: set `OWNBACK_PILOT_SETTLEMENT_STOCK` and `OWNBACK_PREFERENCE_RECEIPTS_ENABLED=true` on the host, then run `scripts/create-signed-preference.mjs` and `scripts/capture-preference-replay.mjs`.
+- [x] Proof 4: preference replay captured against the live app.
 - [ ] Add the `BASE_SEPOLIA_RPC_URL` GitHub secret, run `npm run verify:proofs:strict`, tag `v3.10.3` and confirm `.github/workflows/submission-gate.yml` passes on that tag.
 
 ## Remaining before production (Base mainnet)

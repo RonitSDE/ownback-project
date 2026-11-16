@@ -37,11 +37,11 @@
     {
       "id": "preference_replay",
       "name": "Signed preference and replay HTTP 409",
-      "environment": "UNVERIFIED",
+      "environment": "BASE_SEPOLIA",
       "transactionHash": null,
       "url": null,
-      "evidenceFile": null,
-      "status": "MISSING"
+      "evidenceFile": "evidence/logs/preference-replay.json",
+      "status": "VERIFIED"
     }
   ]
 }

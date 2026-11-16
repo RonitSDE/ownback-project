@@ -1,0 +1,20 @@
+{
+  "kind": "preference_replay",
+  "environment": "BASE_SEPOLIA",
+  "capturedAt": "2026-11-16T03:37:43.004Z",
+  "url": "https://ownback-project.onrender.com/api/allocation/approve",
+  "payloadDigest": "0xc470040837e84174327e805c0711c65a94b18b90dd03c20d10d27a5bbdb066b2",
+  "requestBodyHash": "0x44e3ae0164a98f507c7dff2bb27b1db0e97fd7a75f3017f8966a47d2739e21e1",
+  "sameSignedPayload": true,
+  "first": {
+    "requestId": "9c982316-5963-4ba2-9e64-284e2109bf26",
+    "status": 200,
+    "responseStatus": "RECORDED_NOT_EXECUTED"
+  },
+  "replay": {
+    "requestId": "e4104b3c-bfbd-4e0f-84a6-710bc39a8a3b",
+    "status": 409,
+    "responseError": "This one-time preference was already recorded."
+  },
+  "disclosure": "API RESPONSE PROOF ONLY — preference cannot trade, claim, or authorize custody"
+}

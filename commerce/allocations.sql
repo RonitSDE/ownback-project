@@ -9,10 +9,16 @@ CREATE TABLE IF NOT EXISTS allocation_preferences (
   stock TEXT NOT NULL CHECK(stock IN ('AAPLc','NVDAc')),
   reward_cents INTEGER NOT NULL CHECK(reward_cents BETWEEN 1 AND 1000),
   payload_digest TEXT NOT NULL CHECK(payload_digest ~ '^[0-9a-f]{64}$'),
-  verified_signature TEXT NOT NULL CHECK(verified_signature ~ '^0x[0-9a-f]{2,2048}$'),
+  -- PostgreSQL regex repetition counts are capped at 255, so bound the length separately.
+  verified_signature TEXT NOT NULL CHECK(verified_signature ~ '^0x([0-9a-f]{2})+$' AND length(verified_signature) <= 2050),
   status TEXT NOT NULL DEFAULT 'RECORDED_NOT_EXECUTED' CHECK(status='RECORDED_NOT_EXECUTED'),
   expires_at TIMESTAMPTZ NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE(wallet,nonce)
 );
 CREATE INDEX IF NOT EXISTS allocation_preferences_wallet ON allocation_preferences(wallet,created_at DESC);
+
+-- v3.10.3 fix for databases created with the old over-limit signature pattern.
+ALTER TABLE allocation_preferences DROP CONSTRAINT IF EXISTS allocation_preferences_verified_signature_check;
+ALTER TABLE allocation_preferences ADD CONSTRAINT allocation_preferences_verified_signature_check
+  CHECK(verified_signature ~ '^0x([0-9a-f]{2})+$' AND length(verified_signature) <= 2050);
