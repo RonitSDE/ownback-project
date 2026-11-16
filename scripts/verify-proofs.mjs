@@ -41,7 +41,7 @@ for(const row of doc.proofs){
   const saved=JSON.parse(readFileSync(row.evidenceFile,'utf8'));
   if(saved.transactionHash?.toLowerCase()!==row.transactionHash.toLowerCase() ||
      saved.receipt?.transactionHash?.toLowerCase()!==row.transactionHash.toLowerCase() ||
-     saved.receipt?.to?.toLowerCase()!==row.contractAddress.toLowerCase() ||
+     !(saved.receipt?.logs||[]).some(l=>l.address?.toLowerCase()===row.contractAddress.toLowerCase()) || // OWNBACK emitted it (direct or via smart-account relay)
      saved.chainId!==CHAIN_IDS[row.environment] ||
      !/^0x[0-9a-fA-F]{64}$/.test(saved.receipt?.blockHash||'')){
    throw Error('Saved receipt/contract/chain mismatch');

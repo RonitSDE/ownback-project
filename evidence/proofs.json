@@ -27,12 +27,12 @@
     {
       "id": "settlement_refusal",
       "name": "Settle or overspend refusal event",
-      "environment": "UNVERIFIED",
-      "transactionHash": null,
-      "url": null,
-      "evidenceFile": null,
-      "status": "MISSING",
-      "contractAddress": null
+      "environment": "BASE_SEPOLIA",
+      "transactionHash": "0x9186e9f0b2d5c7d5c1178d60074288306f41396c5d635d6b8dbe205204b1f0a6",
+      "url": "https://sepolia.basescan.org/tx/0x9186e9f0b2d5c7d5c1178d60074288306f41396c5d635d6b8dbe205204b1f0a6",
+      "evidenceFile": "evidence/receipts/settlement_refusal-9186e9f0.json",
+      "status": "VERIFIED",
+      "contractAddress": "0xB65c65E2FC79dc8146fd22fe379F8B58D8476b13"
     },
     {
       "id": "preference_replay",
