@@ -2,7 +2,6 @@
 
 import { RefreshCw, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
-import { AppNav } from '@/components/AppNav';
 import { NotConfigured } from '@/components/NotConfigured';
 import { BudgetControls } from '@/components/merchant/BudgetControls';
 import { OrdersTable } from '@/components/merchant/OrdersTable';
@@ -21,8 +20,6 @@ export default function MerchantPage() {
 
   return (
     <main className="container app-main" id="main">
-      <AppNav />
-
       <div className="app-title">
         <div>
           <div className="pill dark">

@@ -1,7 +1,13 @@
 import type { Metadata, Viewport } from 'next';
 import { Providers } from '@/components/Providers';
 import { RealityStrip } from '@/components/RealityStrip';
+import { SiteHeader } from '@/components/site/SiteHeader';
+import { SideNav } from '@/components/site/SideNav';
+import { JetBrains_Mono, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
+
+const sans = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--ob-font-sans', display: 'swap' });
+const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--ob-font-mono', display: 'swap' });
 
 export const metadata: Metadata = {
   title: 'OWNBACK · Merchant-Funded Stock-Linked Rewards on Base',
@@ -19,12 +25,18 @@ export const viewport: Viewport = { themeColor: '#fbfaf8', width: 'device-width'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body>
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        <Providers><RealityStrip />{children}</Providers>
+        <Providers>
+          <SiteHeader badge={<RealityStrip />} />
+          <div className="ob-layout">
+            <SideNav />
+            <div className="ob-content">{children}</div>
+          </div>
+        </Providers>
       </body>
     </html>
   );

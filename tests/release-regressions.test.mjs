@@ -63,7 +63,7 @@ test('UCP null, boolean or whitespace prices cannot become accidental zero-dolla
 test('Shopify claim signs through the connected provider rather than an unrelated global wallet', () => {
   const claim = source('src/app/claim/page.tsx');
   const wallet = source('src/lib/wallet.ts');
-  assert.match(claim, /signWithConnectedWallet\(wallet,msg\)/);
+  assert.match(claim, /signWithConnectedWallet\(wallet,msg,provider\)/);
   assert.doesNotMatch(claim, /custom\(window\.ethereum\)/);
-  assert.match(wallet, /signWithConnectedWallet\([^]*?commerceProvider \?\? window\.ethereum/);
+  assert.match(wallet, /signWithConnectedWallet\([^]*?selected \?\? commerceProvider \?\? window\.ethereum/);
 });

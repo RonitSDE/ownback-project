@@ -184,26 +184,6 @@ export default function Experience() {
   const reward = useMemo(() => (current.price * current.percent) / 100, [current]);
   return (
     <main className="hb-shell" id="main">
-      <div className="hb-announcement">
-        <span className="hb-live-dot" /> Introducing OWNBACK hybrid commerce · Base Sepolia pilot{' '}
-        <span className="hb-announcement-right">Web2 checkout × Web3 rewards</span>
-      </div>
-      <header className="hb-top">
-        <a className="hb-logo" href="/">
-          <span>↗</span> OWNBACK<b>.</b>
-        </a>
-        <nav>
-          <a href="/agentic">Shopping concierge</a>
-          <a href="/commerce">Native store</a>
-          <a href="/growth">Merchant ROI</a>
-          <a href="/ownership">My ownership</a>
-          <a href="/protocol">Proof protocol</a>
-          <a href="/shop">Reward wallet</a>
-        </nav>
-        <a href="/commerce" className="hb-header-cta">
-          Explore rewards <ArrowUpRight size={16} />
-        </a>
-      </header>
       <div className="hb-wrap">
         <section className="hb-hero">
           <div className="hb-hero-content">

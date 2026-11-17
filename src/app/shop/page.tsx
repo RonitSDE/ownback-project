@@ -2,7 +2,7 @@
 
 import { RefreshCw } from 'lucide-react';
 import Link from 'next/link';
-import { AppNav } from '@/components/AppNav';
+import { ConnectWalletCard } from '@/components/wallet/ConnectWalletCard';
 import { NotConfigured } from '@/components/NotConfigured';
 import { CheckoutPanel } from '@/components/shop/CheckoutPanel';
 import { OrdersPanel } from '@/components/shop/OrdersPanel';
@@ -29,7 +29,6 @@ export default function ShopPage() {
   if (isMainnet) {
     return (
       <main className="container app-main" id="main">
-        <AppNav />
         <section className="panel" style={{maxWidth: 740, margin: '50px auto'}}>
           <div className="pill dark">BASE MAINNET · VERIFIED MERCHANTS ONLY</div>
           <h1>Real payments belong in a real store.</h1>
@@ -43,7 +42,6 @@ export default function ShopPage() {
 
   return (
     <main className="container app-main" id="main">
-      <AppNav />
 
       <div className="app-title">
         <div>
@@ -90,13 +88,10 @@ export default function ShopPage() {
       )}
 
       {campaign && !account && (
-        <div className="panel connect-cta">
-          <h2>Connect a wallet to shop</h2>
-          <p className="sub">
-            {isMainnet ? 'Use a separately verified and approved wallet on Base mainnet. Real USDC is required and no test faucet is available.' : 'Coinbase Wallet, MetaMask or Rabby on Base Sepolia. You will get free test USDC for the demonstration checkout.'}
-          </p>
-          <p className="fine">Use the Connect wallet button at the top of the page.</p>
-        </div>
+        <ConnectWalletCard
+          title="Connect a wallet to shop"
+          text={isMainnet ? 'Use a separately verified and approved wallet on Base mainnet. Real USDC is required.' : 'Coinbase Wallet, MetaMask or Rabby on Base Sepolia. You get free test USDC for the demo checkout.'}
+        />
       )}
 
       {campaign && account && (

@@ -10,7 +10,7 @@
   background: var(--v37-bg);
   color: var(--v37-ink);
   min-height: 100vh;
-  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--ob-font);
 }
 .v37-shell * {
   box-sizing: border-box;
@@ -32,7 +32,7 @@
   min-height: 32px;
   background: #182b3d;
   color: #cad5df;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 1.3px;
   font-weight: 750;
   display: flex;
@@ -91,7 +91,7 @@
   gap: 30px;
 }
 .v37-nav nav a {
-  font-size: 12px;
+  font-size: 13.5px;
   color: #596775;
   font-weight: 750;
 }
@@ -107,7 +107,7 @@
   border-radius: 9px;
   padding: 12px 16px;
   font-weight: 800;
-  font-size: 12px;
+  font-size: 13.5px;
   background: #fff;
   white-space: nowrap;
 }
@@ -115,7 +115,7 @@
   border-color: var(--v37-blue);
 }
 .v37-kicker {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: 2px;
   color: #4c6388;
@@ -169,7 +169,7 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  font-size: 12px;
+  font-size: 13.5px;
   font-weight: 850;
   border: 1px solid transparent;
   transition:
@@ -199,7 +199,7 @@
   gap: 20px;
   flex-wrap: wrap;
   color: #8b969e;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 650;
 }
 .v37-trust > span {
@@ -228,7 +228,7 @@
   top: 26px;
   left: 28px;
   right: 28px;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 900;
   letter-spacing: 1.3px;
   color: #5b6b81;
@@ -258,7 +258,7 @@
   backdrop-filter: blur(9px);
 }
 .v37-receipt-eyebrow {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 900;
   letter-spacing: 1px;
   color: #74859a;
@@ -269,7 +269,7 @@
   gap: 12px;
   align-items: center;
   margin-top: 12px;
-  font-size: 12px;
+  font-size: 13.5px;
 }
 .v37-receipt-line > span {
   color: #7b8a96;
@@ -284,7 +284,7 @@
   border-top: 1px solid #e8edf0;
   padding-top: 13px;
   margin-top: 13px;
-  font-size: 10px;
+  font-size: 12px;
   color: #647688;
   display: flex;
   align-items: center;
@@ -294,7 +294,7 @@
   position: absolute;
   bottom: 27px;
   left: 23px;
-  font-size: 9px;
+  font-size: 11px;
   color: #566b7c;
   max-width: 190px;
   line-height: 1.5;
@@ -344,7 +344,7 @@
   color: #4268a8;
 }
 .v37-feature-top > span {
-  font-size: 12px;
+  font-size: 13.5px;
   color: #c2c6ca;
   font-weight: 850;
 }
@@ -354,7 +354,7 @@
   margin: 29px 0 10px;
 }
 .v37-feature p {
-  font-size: 11px;
+  font-size: 12.5px;
   line-height: 1.85;
   color: #81909a;
   margin: 0;
@@ -375,7 +375,7 @@
   justify-content: space-between;
 }
 .v37-story-label {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: 2px;
   color: #5b7468;
@@ -403,7 +403,7 @@
   color: #416b63;
 }
 .v37-loop-visual > div span {
-  font-size: 9px;
+  font-size: 11px;
   color: #6e8178;
 }
 .v37-loop-visual > div strong {
@@ -419,7 +419,7 @@
   gap: 14px;
   justify-content: space-between;
   color: #667c72;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
 }
 .v37-story-bottom span {
@@ -451,7 +451,7 @@
   align-items: center;
   gap: 9px;
   color: #516371;
-  font-size: 12px;
+  font-size: 13.5px;
 }
 .v37-checks svg {
   color: #477b67;
@@ -460,7 +460,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 13.5px;
   color: #245ae6;
   font-weight: 850;
 }
@@ -509,7 +509,7 @@
   padding: 20px;
 }
 .v37-gallery-info span {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 900;
   letter-spacing: 1.6px;
   color: #778591;
@@ -523,7 +523,7 @@
 .v37-gallery-caption {
   margin-top: 13px;
   color: #8d969e;
-  font-size: 10px;
+  font-size: 12px;
 }
 .v37-ownership-promo {
   display: grid;
@@ -547,7 +547,7 @@
   justify-content: space-between;
   align-items: center;
   color: #596d80;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 850;
   letter-spacing: 1px;
   gap: 8px;
@@ -558,7 +558,7 @@
   padding: 8px 10px;
   border-radius: 99px;
   color: #2755b1;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 850;
 }
 .v37-wallet-preview h3 {
@@ -585,17 +585,17 @@
 }
 .v37-wallet-preview-row strong {
   display: block;
-  font-size: 12px;
+  font-size: 13.5px;
 }
 .v37-wallet-preview-row small {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   color: #94a0a8;
   margin-top: 5px;
 }
 .v37-wallet-preview-row > span:last-child {
   font-weight: 900;
-  font-size: 11px;
+  font-size: 12.5px;
   color: #b2bcc2;
 }
 .v37-wallet-warning {
@@ -603,7 +603,7 @@
   padding: 12px 14px;
   background: #f8f5ed;
   border-radius: 9px;
-  font-size: 10px;
+  font-size: 12px;
   color: #8c7d61;
   line-height: 1.5;
 }
@@ -619,7 +619,7 @@
   margin-bottom: 45px;
 }
 .v37-final-cta span {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 2px;
   color: #a6bed2;
   font-weight: 850;
@@ -631,7 +631,7 @@
   margin: 14px 0;
 }
 .v37-final-cta p {
-  font-size: 12px;
+  font-size: 13.5px;
   color: #9fb1c3;
   margin: 0;
 }
@@ -646,7 +646,7 @@
   gap: 8px;
   align-items: center;
   color: #c9d9e9;
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 750;
 }
 .v37-footer {
@@ -668,13 +668,13 @@
 .v37-footer p {
   max-width: 540px;
   color: #99a4ac;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.65;
   margin: 0;
 }
 .v37-footer > span {
   color: #9ca9b0;
-  font-size: 10px;
+  font-size: 12px;
   white-space: nowrap;
 }
 /* Merchant ROI and portfolio */
@@ -708,7 +708,7 @@
   background: #fff;
   border-radius: 9px;
   padding: 12px 16px;
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 800;
   color: #657483;
   cursor: pointer;
@@ -731,7 +731,7 @@
   margin: 0 0 6px;
 }
 .v37-card > p {
-  font-size: 12px;
+  font-size: 13.5px;
   line-height: 1.75;
   color: #8895a0;
 }
@@ -748,7 +748,7 @@
   margin: 22px 0;
 }
 .v37-field label {
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 850;
   color: #4d5c6b;
   display: block;
@@ -774,7 +774,7 @@
   justify-content: space-between;
   gap: 15px;
   margin: 15px 0 6px;
-  font-size: 12px;
+  font-size: 13.5px;
   color: #596b77;
   font-weight: 700;
 }
@@ -791,7 +791,7 @@
   border: 1px solid #eee9df;
   border-radius: 11px;
   padding: 12px 14px;
-  font-size: 11px;
+  font-size: 12.5px;
   line-height: 1.7;
   color: #867c6f;
 }
@@ -811,7 +811,7 @@
 .v37-metric small {
   display: block;
   color: #80909b;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.6;
 }
 .v37-metric strong {
@@ -823,7 +823,7 @@
   overflow-wrap: anywhere;
 }
 .v37-metric b {
-  font-size: 10px;
+  font-size: 12px;
   color: #66837c;
   font-weight: 750;
 }
@@ -861,12 +861,12 @@
   font-size: 13px;
 }
 .v37-bar-wrap small {
-  font-size: 10px;
+  font-size: 12px;
   color: #7d8c95;
   text-align: center;
 }
 .v37-hint {
-  font-size: 11px;
+  font-size: 12.5px;
   line-height: 1.75;
   color: #87939d;
 }
@@ -875,7 +875,7 @@
   border: 1px solid #dce4ed;
   border-radius: 11px;
   padding: 16px;
-  font-size: 12px;
+  font-size: 13.5px;
   line-height: 1.7;
   color: #586b7d;
   margin: 20px 0;
@@ -909,7 +909,7 @@
   pointer-events: none;
 }
 .v37-portfolio-hero small {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 1.5px;
   color: #b6c9d9;
   font-weight: 850;
@@ -920,7 +920,7 @@
   margin: 20px 0 10px;
 }
 .v37-portfolio-hero p {
-  font-size: 12px;
+  font-size: 13.5px;
   line-height: 1.8;
   color: #bdcad6;
   max-width: 470px;
@@ -953,11 +953,11 @@
   min-width: 0;
 }
 .v37-order-row strong {
-  font-size: 12px;
+  font-size: 13.5px;
 }
 .v37-order-row small {
   color: #8795a0;
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 5px;
   display: block;
 }
@@ -965,7 +965,7 @@
   display: inline-block;
   border-radius: 99px;
   padding: 7px 9px;
-  font-size: 9px;
+  font-size: 11px;
   white-space: nowrap;
   font-weight: 800;
   background: #eef2f7;
@@ -990,7 +990,7 @@
   background: #fafbfc;
   border: 1px dashed #dce3e9;
   border-radius: 15px;
-  font-size: 12px;
+  font-size: 13.5px;
   line-height: 1.8;
 }
 .v37-empty svg {
@@ -1005,7 +1005,7 @@
   padding: 17px;
   margin-top: 19px;
   color: #697b89;
-  font-size: 11px;
+  font-size: 12.5px;
   line-height: 1.8;
 }
 .v37-inline-actions {
@@ -1022,7 +1022,7 @@
   border-radius: 10px;
   padding: 12px 14px;
   color: #24374c;
-  font-size: 12px;
+  font-size: 13.5px;
   font-weight: 800;
   display: inline-flex;
   gap: 8px;
@@ -1030,7 +1030,7 @@
   cursor: pointer;
 }
 .v37-saved-msg {
-  font-size: 11px;
+  font-size: 12.5px;
   color: #366b5d;
 }
 @media (max-width: 1050px) {
@@ -1104,7 +1104,7 @@
 }
 @media (max-width: 520px) {
   .v37-topline {
-    font-size: 8px;
+    font-size: 11px;
     gap: 12px;
     letter-spacing: 0.4px;
   }
@@ -1115,7 +1115,7 @@
     width: calc(100% - 28px);
   }
   .v37-nav-cta {
-    font-size: 10px;
+    font-size: 12px;
     padding: 10px 12px;
   }
   .v37-logo {
@@ -1139,10 +1139,10 @@
   .v37-hero-actions > .v37-button {
     flex: 1;
     padding: 12px;
-    font-size: 10px;
+    font-size: 12px;
   }
   .v37-trust {
-    font-size: 9px;
+    font-size: 11px;
     gap: 10px;
   }
   .v37-hero-stage {
@@ -1162,7 +1162,7 @@
     max-width: 100px;
     left: 13px;
     bottom: 16px;
-    font-size: 8px;
+    font-size: 11px;
   }
   .v37-feature-grid {
     gap: 9px;
@@ -1176,7 +1176,7 @@
     margin-top: 20px;
   }
   .v37-feature p {
-    font-size: 10px;
+    font-size: 12px;
   }
   .v37-story-image {
     padding: 20px;
@@ -1189,7 +1189,7 @@
     padding: 12px 8px;
   }
   .v37-loop-visual > div span {
-    font-size: 8px;
+    font-size: 11px;
   }
   .v37-loop-visual > div strong {
     font-size: 16px;
@@ -1198,7 +1198,7 @@
     width: 10px;
   }
   .v37-story-bottom {
-    font-size: 8px;
+    font-size: 11px;
     gap: 5px;
   }
   .v37-gallery-outer {
@@ -1284,7 +1284,7 @@
 .ob40-order-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 13.5px;
   white-space: nowrap;
 }
 .ob40-order-table th,
@@ -1294,7 +1294,7 @@
   border-bottom: 1px solid #e4e8ef;
 }
 .ob40-order-table th {
-  font-size: 10px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.6px;
   color: #687b8d;

@@ -148,8 +148,8 @@ export async function authorisedAccount(provider: EIP1193Provider): Promise<Addr
 
 /** Sign a claim using the same provider and wallet account used by OWNBACK's checkout.
  * Never silently switch to window.ethereum when the user selected another provider. */
-export async function signWithConnectedWallet(account:Address,message:string):Promise<Hex>{
-  const provider=commerceProvider ?? window.ethereum;
+export async function signWithConnectedWallet(account:Address,message:string,selected?:EIP1193Provider):Promise<Hex>{
+  const provider=selected ?? commerceProvider ?? window.ethereum;
   if(!provider)throw new Error('Connect a compatible Base wallet first.');
   await ensureChain(provider);
   const signer=await authorisedAccount(provider);

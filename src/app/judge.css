@@ -18,7 +18,7 @@
   margin: 22px 0;
 }
 .ob40-hero h1 em {
-  font-family: Georgia, serif;
+  font-family: var(--ob-font);
   font-weight: 500;
   color: #2563eb;
 }
@@ -35,7 +35,7 @@
   border-top: 1px solid #e3e7ea;
   padding-top: 17px;
   margin-top: 18px;
-  font-size: 11px !important;
+  font-size: 12.5px !important;
   color: #6b7684 !important;
 }
 .ob40-receipt {
@@ -52,7 +52,7 @@
   color: #b4cbe0;
   letter-spacing: 1px;
   font-weight: 800;
-  font-size: 10px;
+  font-size: 12px;
   padding-bottom: 24px;
   border-bottom: 1px solid #425367;
 }
@@ -76,10 +76,10 @@
   margin: 15px 0;
   color: #d5ebff;
   font-weight: 800;
-  font-size: 12px !important;
+  font-size: 13.5px !important;
 }
 .ob40-receipt p {
-  font-size: 11px;
+  font-size: 12.5px;
   color: #b9c8d6;
   line-height: 1.8;
 }
@@ -112,7 +112,7 @@
   margin: 22px 0 9px;
 }
 .ob40-flow p {
-  font-size: 11px;
+  font-size: 12.5px;
   line-height: 1.75;
   color: #71808b;
   margin: 0;
@@ -134,7 +134,7 @@
   margin: 12px 0;
 }
 .ob40-bottom p {
-  font-size: 12px;
+  font-size: 13.5px;
   line-height: 1.9;
   color: #6c7883;
 }
@@ -146,7 +146,7 @@
   border-top: 1px solid #e1e5e9;
   padding: 28px 0 75px;
   color: #7a8590;
-  font-size: 12px;
+  font-size: 13.5px;
 }
 .ob40-foot > div {
   display: flex;
@@ -161,7 +161,7 @@
 }
 .ob-judge-grid {
   display: grid;
-  grid-template-columns: 1.25fr 0.75fr;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
   gap: 20px;
   padding: 35px 0 60px;
 }
@@ -179,13 +179,13 @@
 .ob-judge-step p,
 .ob-judge-step li {
   line-height: 1.8;
-  font-size: 12px;
+  font-size: 13.5px;
   color: #647484;
 }
 .ob-judge-step .step-num {
   color: #245ed1;
   font-weight: 850;
-  font-size: 12px;
+  font-size: 13.5px;
 }
 .ob-proof-row {
   display: flex;
@@ -196,6 +196,8 @@
 }
 .ob-proof-row > div {
   max-width: 73%;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .ob-proof-row b {
   display: block;
@@ -203,19 +205,19 @@
 }
 .ob-proof-row small {
   color: #667687;
-  font-size: 11px;
+  font-size: 12.5px;
   line-height: 1.6;
 }
 .ob-proof-row > span {
   flex: 0 0 108px;
   text-align: right;
   line-height: 1.5;
-  font-size: 10px;
+  font-size: 12px;
   color: #ad503d;
   font-weight: 850;
 }
 .ob-proof-row a {
-  font-size: 11px;
+  font-size: 12.5px;
   color: #2563eb;
   text-decoration: underline;
 }
@@ -225,8 +227,13 @@
   border-radius: 11px;
   padding: 16px;
   color: #8a4437;
-  font-size: 12px;
+  font-size: 13.5px;
   line-height: 1.7;
+}
+@media (max-width: 1100px) {
+  .ob-judge-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 @media (max-width: 1050px) {
   .ob40-flow {

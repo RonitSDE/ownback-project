@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight, Bot, CheckCircle2, Compass, ExternalLink, LockKeyhole, RefreshCw, ShieldAlert, ShieldCheck, SlidersHorizontal, Sparkles, Wallet } from 'lucide-react';
-import { WalletButton } from '@/components/wallet/WalletButton';
 import { useWallet } from '@/hooks/useWallet';
 import { allocationApprovalMessage, buildAllocationProposal, type AllocationInput, type AllocationProposal, type StockSymbol } from '@/lib/allocation/policy';
 import '../retention.css';
@@ -60,9 +59,7 @@ export default function AllocationStudio(){
  }
  const plan=response?.proposal;
  return <main className="v37-shell ob39" id="main">
-  <div className="v37-topline"><span><span className="v37-signal"/> OWNBACK · AGENTIC STOCK FINANCE</span><span>Base Stocks Maxxing · pilot candidate · not an investment service</span></div>
-  <header className="v37-nav v37-width"><Link href="/" className="v37-logo"><span>↗</span> OWNBACK<b>.</b></Link><nav aria-label="Primary navigation"><Link href="/agentic">Discover</Link><Link href="/allocation" aria-current="page">Allocation agent</Link><Link href="/ownership">My ownership</Link><Link href="/growth">Merchant proof</Link></nav><WalletButton/></header>
-  <div className="v37-width">
+    <div className="v37-width">
    <section className="ob39-head"><div><div className="v37-kicker"><Sparkles size={15}/> CONTROLLED INTELLIGENCE, NOT AUTONOMOUS TRADING</div><h1>Give your reward<br/><em>direction.</em></h1><p>Tell the agent what matters. It checks your constraints against the exact stock token a merchant-funded reward vault can settle, cites its sources, and <strong>refuses an impossible allocation.</strong> Your wallet controls the final preference.</p><div className="ob39-chips"><span><ShieldCheck size={14}/> Explicit limits</span><span><Compass size={14}/> Explainable refusal</span><span><LockKeyhole size={14}/> Zero delegated spending</span></div></div><div className="ob39-head-card"><span>THE OWNBACK LOOP</span><div><b>01</b> Verified purchase</div><div><b>02</b> Reward reserved</div><div className="ob39-selected"><b>03</b> Agent proposes</div><div><b>04</b> Owner reviews</div><div><b>05</b> Separate eligible settlement</div><small>Steps 01, 02 and 05 require actual merchant/backend/onchain proof. This studio never generates it.</small></div></section>
    <div className="v37-card" style={{marginBottom:16}}><div className="v37-kicker">ONE-CLICK 20-SECOND REFUSAL DEMO · OFFLINE FIXTURE</div><p>Both examples are deterministic, local policy evaluations with an explicitly assumed AAPLc vault. No payment, eligibility, signature or settlement is executed.</p><div className="v37-inline-actions"><button onClick={()=>previewFixture('allowed')}>1 · Supported brief → PROPOSED</button><button onClick={()=>previewFixture('refused')}>2 · Robotics / 50% cap / exclude AAPLc → REFUSED</button></div><small>To test your configured backend instead, edit the brief and select Generate policy-checked proposal. A missing real vault configuration must refuse.</small></div>
    <div className="ob39-grid"><section className="v37-card ob39-controls"><div className="v37-kicker"><SlidersHorizontal size={15}/> 01 / YOUR BRIEF</div><h2>Make the rules yours.</h2><p>Prototype a preference for one merchant-funded reward. The amount below is an assumption, not verified wallet funds.</p>

@@ -4,7 +4,8 @@ import { formatUnits,parseUnits,type Address,type Hex } from 'viem';
 import { ShoppingBag,ShoppingCart,ArrowRight,CheckCircle2,Package,ShieldCheck,Wallet,Minus,Plus,RefreshCw } from 'lucide-react';
 import { ownbackAbi,usdcAbi } from '@/lib/abi';
 import { addresses,campaignId,chain,txUrl } from '@/lib/config';
-import { connectWallet,publicClient,send,explain } from '@/lib/wallet';
+import { publicClient,send,explain } from '@/lib/wallet';
+import { useWallet } from '@/hooks/useWallet';
 import './store.css';
 
 type Product={id:string;slug:string;name:string;description:string;category:string;fulfillment_type:string;price_usdc:string;available:number;image_url:string|null};
@@ -14,7 +15,8 @@ const icons=['✦','◈','↗','◇','✳','◉'];
 function usd(x:string|bigint){return '$'+Number(formatUnits(BigInt(x),6)).toFixed(2)}
 export default function Commerce(){
  const [products,setProducts]=useState<Product[]>([]),[cart,setCart]=useState<Record<string,number>>({});
- const [wallet,setWallet]=useState<Address>(),[busy,setBusy]=useState(false),[message,setMessage]=useState('');
+ const {account:wallet,provider}=useWallet();
+ const [busy,setBusy]=useState(false),[message,setMessage]=useState('');
  const [order,setOrder]=useState<OrderIntent|null>(null),[orderData,setOrderData]=useState<OrderView|null>(null);
  const [txHash,setTxHash]=useState<Hex|''>(''),[email,setEmail]=useState(''),[fulfillment,setFulfillment]=useState<'PICKUP'|'DIGITAL'>('PICKUP');
  const [tab,setTab]=useState<'catalog'|'cart'|'order'>('catalog');
@@ -26,7 +28,7 @@ export default function Commerce(){
  function quantity(id:string,n:number){const p=products.find(p=>p.id===id);if(!p)return;setCart(c=>{if(n>0){const current=products.find(x=>(c[x.id]||0)>0);if(current&&current.fulfillment_type!==p.fulfillment_type){setMessage('Pickup and digital products must be ordered separately.');return c}setFulfillment(p.fulfillment_type as 'PICKUP'|'DIGITAL')}return {...c,[id]:Math.max(0,Math.min(p.available,n))}})}
  async function run(fn:()=>Promise<void>){setBusy(true);setMessage('');try{await fn()}catch(e){setMessage(explain(e))}finally{setBusy(false)}}
  async function refreshOrder(intent=order){if(!intent)return;const r=await fetch(`/api/commerce/orders/${intent.id}`,{headers:{'x-order-token':intent.token},cache:'no-store'});const j=await r.json();if(!r.ok)throw Error(j.error);setOrderData(j);return j as OrderView}
- async function connect(){await run(async()=>setWallet(await connectWallet()))}
+ 
  async function reserve(){await run(async()=>{
   if(!wallet)throw Error('Connect your wallet before checkout');if(!count)throw Error('Your cart is empty');
   if(order)throw Error('Resolve the saved checkout before creating another order');
@@ -45,8 +47,8 @@ export default function Commerce(){
   const reward=Array.isArray(quote)?BigInt(quote[1]):0n;
   if(!reward)throw Error('Reward unavailable. Payment was not attempted.');
   const allowance=await publicClient.readContract({address:addresses.usdc,abi:usdcAbi,functionName:'allowance',args:[wallet,addresses.ownback]});
-  if(allowance<BigInt(order.amountUsdc))await send({account:wallet,address:addresses.usdc,abi:usdcAbi,functionName:'approve',args:[addresses.ownback,BigInt(order.amountUsdc)]});
-  const hash=await send({account:wallet,address:addresses.ownback,abi:ownbackAbi,functionName:'pay',args:[campaignId,BigInt(order.amountUsdc),order.orderRef,reward,BigInt(order.quoteDeadline)],onSubmitted:h=>{setTxHash(h);localStorage.setItem('ownback:commerce:tx',h)}});
+  if(allowance<BigInt(order.amountUsdc))await send({provider,account:wallet,address:addresses.usdc,abi:usdcAbi,functionName:'approve',args:[addresses.ownback,BigInt(order.amountUsdc)]});
+  const hash=await send({provider,account:wallet,address:addresses.ownback,abi:ownbackAbi,functionName:'pay',args:[campaignId,BigInt(order.amountUsdc),order.orderRef,reward,BigInt(order.quoteDeadline)],onSubmitted:h=>{setTxHash(h);localStorage.setItem('ownback:commerce:tx',h)}});
   setTxHash(hash);
   await confirm(hash);
  })}
@@ -54,7 +56,7 @@ export default function Commerce(){
  async function recover(){await run(async()=>{if(!order)throw Error('No saved order');const current=await refreshOrder();if(current?.status==='PAID'||current?.status==='FULFILLED'){setMessage('Payment confirmed. Your receipt is ready.');return}const hash=(txHash||localStorage.getItem('ownback:commerce:tx')) as Hex;if(hash){await confirm(hash);return}if(Date.now()/1000>order.quoteDeadline+60){setMessage('No transaction hash saved. The merchant must reconcile or cancel this expired reservation before another checkout.');return}setMessage('Payment is not yet confirmed; do not retry until its status is known.')})}
  async function clearDone(){if(!orderData||!['PAID','FULFILLED','CANCELED','REFUNDED','REFUNDED_AFTER_REWARD'].includes(orderData.status))throw Error('Resolve this order first');localStorage.removeItem('ownback:commerce:pending');localStorage.removeItem('ownback:commerce:tx');setOrder(null);setOrderData(null);setTxHash('');setTab('catalog');}
  return <main className="ob-commerce">
- <div className="ob-c-top"><a href="/" className="ob-wordmark"><span className="ob-logo">↗</span>OWNBACK<span className="ob-mark">.</span></a><div className="ob-toplinks"><a href="/merchant">For merchants</a><a href="/commerce/admin">Manage store</a><span className="ob-network">{chain.id===8453?'● BASE MAINNET':'● BASE SEPOLIA'}</span></div><button className="ob-wallet" onClick={connect} disabled={busy}><Wallet size={15}/>{wallet?wallet.slice(0,6)+'…'+wallet.slice(-4):'Connect Wallet'}</button></div>
+ 
  <div className="ob-c-content"><section className="ob-hero"><div><div className="ob-kicker">THE OWNERSHIP COMMERCE EXPERIENCE</div><h1>Good things come <span>back.</span></h1><p>Discover the store. Shop with USDC. Earn ownership rewards on your first purchase—and a bigger bonus when you return.</p><div className="ob-hero-foot"><span>✦ Curated essentials</span><span>◈ Verified on Base</span><span>↗ Rewards reserved at checkout</span></div></div><div className="ob-hero-art"><div className="ob-orbit"><div className="ob-orbit-inner">↗</div></div><div className="ob-float ob-fl1">✓ PURCHASE VERIFIED <b>{chain.id===8453?'Onchain verified':'Testnet confirmed'}</b></div><div className="ob-float ob-fl2">✦ YOUR STOCK-BACK <b>2% → 5%</b></div></div></section>
  <div className="ob-tabs"><div><button className={tab==='catalog'?'active':''} onClick={()=>setTab('catalog')}>Discover</button><button className={tab==='cart'?'active':''} onClick={()=>setTab('cart')}>Your bag <span className="ob-cartpill">{count}</span></button><button className={tab==='order'?'active':''} onClick={()=>setTab('order')}>Track order</button></div><span>USDC ONLY · PICKUP / DIGITAL GOODS · {chain.id===8453?'ELIGIBLE MAINNET PILOT':'TESTNET'}</span></div>
  {message&&<div className="ob-alert" role="status">{message}</div>}
