@@ -634,3 +634,8 @@ Run local Anvil and Sepolia E2E (existing `npm run verify:local`) and independen
 **Do not assume Builder Code suffixes automatically survive third-party wallet relays or prove prize credit.** Confirm the actual signed calldata/UserOperation and Base's indexer attribution. There is no retroactive attribution for old receipts.
 
 Documentation: https://docs.base.org/specifications/builder-codes/overview
+
+
+## v3.10.10 release limitation
+
+This ZIP is a **Base Sepolia mock-stock** deployment candidate. Do not enable real-money B20 distribution by setting feature flags. The Shopify claim email worker explicitly refuses Base mainnet; the native mainnet checkout does not atomically reserve B20 inventory for USDC reward liabilities. See `MAINNET_NO_GO.md` for the remaining independent audit, inventory, legal and canary requirements.

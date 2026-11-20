@@ -66,6 +66,7 @@ export const AREAS: Record<Role, { label: string; home: string; blurb: string; l
     blurb: 'Verify what happened on-chain.',
     links: [
       { href: '/judge', icon: ListChecks, label: 'Walkthrough', hint: 'The 90-second flow and proofs' },
+      { href: '/verify', icon: ShieldCheck, label: 'Verify receipts', hint: 'Independent evidence and limits' },
       { href: '/protocol', icon: ShieldCheck, label: 'Protocol', hint: 'Contract rules and finality' },
     ],
   },

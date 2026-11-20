@@ -22,7 +22,9 @@ export type AllocationInput = {
   cashReservePercent: number;
 };
 export type AllocationCapabilities = { settlementStock: StockSymbol | null; chainId: 8453 | 84532 | 31337 };
+export type ConstraintCheck = {key: string; label: string; outcome: 'PASS' | 'REFUSE' | 'NOT_TESTED'; detail: string};
 export type AllocationProposal = {
+  constraintChecks: ConstraintCheck[];
   status: 'proposed' | 'refused'; reasons: string[];
   stock: StockSymbol | null; stockWeightPercent: number; reservePercent: number;
   rewardUsd: number; chainId: number; settlementStock: StockSymbol | null;
@@ -68,7 +70,24 @@ export function buildAllocationProposal(input: AllocationInput, capabilities: Al
     reasons.push(`The configured vault settles ${capabilities.settlementStock}, not ${stock}. A new audited and funded settlement lane is required.`);
   if (!stock && capabilities.settlementStock && available.length) reasons.push('No compatible settlement stock could be selected.');
   const chosen = stock && available.includes(stock) ? stock : null;
+  // Deterministic explanations are distinct from live eligibility/market checks.
+  // A PASS here means only that the brief fits the policy, never that a stock delivery is possible.
+  const constraintChecks: ConstraintCheck[] = [
+    {key: 'theme', label: 'Requested theme supported', outcome: themeStock[input.theme].length ? 'PASS' : 'REFUSE',
+      detail: themeStock[input.theme].length ? `${input.theme} has an available pilot classification.` : `No ${input.theme} token is enabled in this single-stock pilot.`},
+    {key: 'exclusions', label: 'Asset exclusions respected', outcome: available.length > 0 && (input.preferredStock === 'AUTO' || available.includes(input.preferredStock)) ? 'PASS' : 'REFUSE',
+      detail: available.length > 0 && (input.preferredStock === 'AUTO' || available.includes(input.preferredStock)) ? 'Requested exclusions can be honored.' : 'The exclusions or stock choice conflict with the requested theme.'},
+    {key: 'weight', label: 'Maximum company weight', outcome: input.maxSingleWeightPercent === 100 ? 'PASS' : 'REFUSE',
+      detail: input.maxSingleWeightPercent === 100 ? 'The pilot supports only 100% single-stock allocation.' : `A ${input.maxSingleWeightPercent}% cap is impossible in the immutable one-stock vault.`},
+    {key: 'cash', label: 'Cash reserve requirement', outcome: input.cashReservePercent === 0 ? 'PASS' : 'REFUSE',
+      detail: input.cashReservePercent === 0 ? 'No separate cash reserve requested.' : 'The one-stock settlement vault cannot hold a customer cash reserve.'},
+    {key: 'vault', label: 'Configured vault token', outcome: capabilities.settlementStock && stock === capabilities.settlementStock ? 'PASS' : 'REFUSE',
+      detail: !capabilities.settlementStock ? 'No vault stock configured.' : stock === capabilities.settlementStock ? `The requested candidate matches the ${capabilities.settlementStock} vault.` : `Vault settles ${capabilities.settlementStock}; the requested candidate does not match.`},
+    {key: 'delivery', label: 'Funding, eligibility, inventory, fresh price', outcome: 'NOT_TESTED',
+      detail: 'Policy proposals do not check a paid order, identity eligibility, B20 inventory, live quote or onchain settlement.'},
+  ];
   return {
+    constraintChecks,
     status: reasons.length ? 'refused' : 'proposed', reasons,
     stock: chosen, stockWeightPercent: reasons.length ? 0 : 100,
     reservePercent: input.cashReservePercent, rewardUsd: input.rewardUsd,

@@ -265,3 +265,14 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Nov 19 merge: distinct merchant-retention positioning without inflated asset claims. */
+.ob49-positioning{margin:0 auto 24px;padding:36px 38px;background:#fff;border:1px solid #e5e9f0;border-radius:17px}
+.ob49-positioning h2{font-size:clamp(24px,3vw,37px);line-height:1.25;letter-spacing:-1px;margin:15px 0}
+.ob49-positioning h2 span,.ob49-judge-thesis h2 span{color:#245ff2}
+.ob49-positioning p,.ob49-judge-thesis p{max-width:900px;font-size:14px;line-height:1.85;color:#52697d}
+.ob49-positioning p.ob49-qualification{display:flex;gap:9px;align-items:flex-start;color:#725944;font-size:12px;margin:16px 0}
+.ob49-qualification svg{flex-shrink:0;margin-top:4px}
+.ob49-judge-thesis{padding:25px 27px;border:1px solid #e5e9f0;border-radius:14px;background:#fff;margin:0 0 24px}
+.ob49-judge-thesis h2{font-size:clamp(22px,2.8vw,29px);line-height:1.35;margin:12px 0}
+@media(max-width:650px){.ob49-positioning{padding:24px 18px}.ob49-judge-thesis{padding:21px 17px}}

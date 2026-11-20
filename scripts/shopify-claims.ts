@@ -12,12 +12,14 @@ import {getLiveOrder,isLiveOrderPaid} from '../src/lib/shopify/admin';
 import {classify} from '../src/lib/shopify/rules';
 import {decryptToken,usdToBaseUnits} from '../src/lib/shopify/security';
 import {queueShopifyClaim} from '../src/lib/shopify/claim-outbox';
+import {assertShopifyClaimMode} from './shopify-claim-mode.mjs';
 
 if(process.env.SHOPIFY_AUTO_EMAIL_CLAIMS!=='true')throw Error('Set SHOPIFY_AUTO_EMAIL_CLAIMS=true');
 if(!process.env.RESEND_API_KEY||!process.env.SHOPIFY_CLAIM_FROM_EMAIL||!process.env.APP_ORIGIN)throw Error('Missing email or origin configuration');
-if(process.env.SHOPIFY_LIVE_STOCK_ENABLED==='true')throw Error('Live equities disabled');
-if(!['31337','84532','8453'].includes(process.env.SHOPIFY_REWARD_CHAIN_ID||'84532'))throw Error('Unsupported reward chain');
-if(process.env.SHOPIFY_REWARD_CHAIN_ID==='8453'&&(process.env.SHOPIFY_LIVE_STOCK_ENABLED!=='true'||process.env.MAINNET_OPERATIONS_APPROVED!=='true'))throw Error('Mainnet claims not approved');
+// This dispatcher is a testnet-only email workflow, not a real-equity claim service.
+// No combination of mainnet flags may activate it until a separately reviewed
+// production issuer/eligibility and messaging workflow is implemented.
+assertShopifyClaimMode(process.env);
 const origin=new URL(process.env.APP_ORIGIN);
 if(!['https:','http:'].includes(origin.protocol)||
  (origin.protocol==='http:'&&!['localhost','127.0.0.1'].includes(origin.hostname)))throw Error('Secure APP_ORIGIN required');

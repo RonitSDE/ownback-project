@@ -13,6 +13,7 @@ const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--ob-font-mono', di
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://ownback-project.onrender.com';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://ownback-project.onrender.com'),
   title: 'OWNBACK · Merchant-Funded Stock-Linked Rewards on Base',
   description:
     'OWNBACK v3.10 is a Base Sepolia mock-stock pilot candidate. A bounded agent refuses unsupported stock preferences; observed merchant rewards do not establish causal lift. Mainnet not deployed.',
@@ -20,7 +21,9 @@ export const metadata: Metadata = {
     title: 'OWNBACK · Agentic Stock Finance Demo Candidate',
     description: 'Merchant-funded stock-linked rewards with explicit agent refusals and observed returners. Base Sepolia mock pilot, not deployed to mainnet.',
     type: 'website',
+    images: [{url:'/ownback-social.png',width:1200,height:630,alt:'OWNBACK — merchant-funded stock-linked loyalty, Base Sepolia mock pilot'}],
   },
+  twitter: { card: 'summary_large_image', images: ['/ownback-social.png'] },
   robots: { index: true, follow: true },
   other: {
     'fc:miniapp': JSON.stringify({

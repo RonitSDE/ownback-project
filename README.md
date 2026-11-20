@@ -1,10 +1,20 @@
+> **Deployment decision (19 Nov 2026):** v3.10.10 is a Base Sepolia / mock-stock candidate, NOT a certified real-B20 mainnet release. Run `npm run preflight:staging` after deployment addresses and Builder Code are configured. See `FINAL_DEPLOY_HANDOFF.md` and `MAINNET_NO_GO.md`.
+
 # OWNBACK v3.10.7 — Base Stocks Maxxing attribution patch
 
 **Track:** Agentic Stock Finance · **Demonstration environment:** Base Sepolia / offline mock · **Base mainnet:** **NOT DEPLOYED**.
 
 OWNBACK is a merchant-funded stock-linked rewards protocol. One immutable stock token can be settled by a configured vault. A policy engine only proposes feasible constraints and refuses impossible stock requests. A preference signature **cannot trade, invest, transfer, or claim**. All retention is **observed, not causal lift**.
 
-**v3.10.7:** ERC-8021 attribution completion for native wallet, keeper and Shopify worker paths. See [`DEPLOY.md` → Builder Codes](DEPLOY.md#builder-codes). Builder Code transactions are **not** verified by the historical Sepolia proof files.
+**v3.10.10 deployment candidate (BASE SEPOLIA ONLY):** Restores proof verification, agent decision checks, original branded share preview, and fixes the recovery harness on the GitHub navigation branch. v3.10.7 introduced ERC-8021 attribution completion for native wallet, keeper and Shopify worker paths. See [`DEPLOY.md` → Builder Codes](DEPLOY.md#builder-codes). Builder Code transactions are **not** verified by the historical Sepolia proof files.
+
+## Why OWNBACK is different
+
+> **Other agents manage investment portfolios. OWNBACK helps merchants turn purchases into measurable stock-linked loyalty.**
+
+Merchants define financial limits and fund campaigns. A bounded agent proposes only what the configured vault can support and refuses unsupported preferences. Customers can receive permitted mock-stock rewards on Base Sepolia after eligible purchase settlement. Merchants can inspect recorded first and repeat purchases and actual reward costs; **no verified comeback receipt, real B20 ownership, or causal retention lift is claimed** in this source.
+
+See `/judge` for the concise flow and `/verify` for receipt-verification instructions. This is **not a deployed production release** until tagged CI, real RPC verification, contract tests and the live deployment smoke test pass.
 
 ## Begin here
 
@@ -71,7 +81,7 @@ The HTTP rate-limit identity no longer trusts arbitrary `X-Forwarded-For` header
 
 - [x] Proof 3: purchase #1 settled from **My orders** on `/shop`.
 - [x] Proof 4: preference replay response log captured against the reported deployed app; independent authentication of the remote service is not established here.
-- [ ] Add the `BASE_SEPOLIA_RPC_URL` GitHub secret, tag `v3.10.7`, and confirm `.github/workflows/submission-gate.yml` passes **on the exact SHA** (including strict chain receipt checks).
+- [ ] Add the `BASE_SEPOLIA_RPC_URL` GitHub secret, tag `v3.10.10`, and confirm `.github/workflows/submission-gate.yml` passes **on the exact SHA** (including strict chain receipt checks).
 - [ ] Complete the actual comeback purchase and settlement, or show the existing first-purchase-only evidence without claiming observed retention.
 - [ ] Record the submission video only from the validated tagged release.
 

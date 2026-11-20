@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import {assertShopifyClaimMode} from './shopify-claim-mode.mjs';
 import { createHash } from 'node:crypto';
 const require = createRequire(import.meta.url);
 let ts;
@@ -198,8 +199,11 @@ const mockChain = {
   },
   waitForTransactionReceipt: async ({ hash }) => mockChain.getTransactionReceipt({ hash }),
 };
+const mockBuilderSuffix = '0x1234';
 const mockWallet = {
-  writeContract: async ({ args }) => {
+  writeContract: async ({ args, dataSuffix }) => {
+    assert.equal(dataSuffix, mockBuilderSuffix, 'Shopify reward must retain ERC-8021 Builder Code');
+    assertions++;
     writeCount++;
     const orderHash = args[0];
     if (delivered.has(orderHash)) throw Error('Duplicate paid order');
@@ -222,6 +226,7 @@ const mockWallet = {
 };
 const modules = {
   'dotenv/config': {},
+  './shopify-claim-mode.mjs': {assertShopifyClaimMode},
   '../src/lib/commerce/db': { pool, withTx },
   '../src/lib/shopify/admin': mockShopifyAdmin,
   '../src/lib/shopify/rules': rules,
@@ -233,6 +238,7 @@ const modules = {
     shopifyVaultAddress: () => vault,
     shopifyVaultAbi: [],
     executorWallet: () => mockWallet,
+    shopifyBuilderDataSuffix: () => mockBuilderSuffix,
   },
   viem: { parseEventLogs: ({ logs }) => logs, parseAbi: (items) => items },
 };
@@ -321,13 +327,14 @@ assert.equal(writeCount, 1);
 assertions++;
 const report = {
   mode: 'OFFLINE WORKER FAULT-INJECTION (SIMULATED EMAIL, POSTGRES AND CHAIN)',
-  version: '3.10.0-judge-candidate',
+  version: '3.10.10-staging-candidate',
   passed: assertions,
   scenarios: [
     'Email accepted, DB mark-SENT fails; link is already valid',
     'Same claim token and provider idempotency key are used after retry',
     'Chain broadcast succeeds, DB tx hash store fails; order remains SETTLING',
     'Next settlement worker reconciles transaction from chain event without resending',
+    'ERC-8021 data suffix is retained for simulated reward delivery',
   ],
   emailRequests: emailRequests.length,
   providerDeduplicatedDeliveries: providerDeliveries.size,

@@ -22,6 +22,8 @@ jobs:
       - run: npm run test:allocation
       - run: npm run test:retention
       - run: npm run test:judge
+      - run: npm run test:deployment-safety
+      - run: npm run simulate:recovery
       - run: npm run format:check
       - run: npm run lint
       - run: npm run release:preflight

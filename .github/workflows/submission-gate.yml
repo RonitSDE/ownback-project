@@ -41,6 +41,20 @@ jobs:
       - run: npm test
       - run: ./contracts/install-deps.sh
       - run: npm run test:contracts
+      - run: npm run test:deployment-safety
+      - run: npm run simulate:recovery
+      - name: Test complete fund/payment/return/refund lifecycle on Anvil
+        env:
+          RPC_URL: http://127.0.0.1:8545
+          DEPLOYER_PRIVATE_KEY: '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+          KEEPER_ADDRESS: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
+        run: |
+          anvil --silent > /tmp/ownback-anvil.log 2>&1 &
+          ANVIL_PID=$!
+          trap 'kill "$ANVIL_PID" || true' EXIT
+          sleep 2
+          (cd contracts && forge script script/DeployTestnet.s.sol:DeployTestnet --rpc-url http://127.0.0.1:8545 --broadcast)
+          npm run e2e:local
       - run: npm run build
       - run: npm run verify:manifest
       - name: Verify real onchain receipts and signed preference replay
