@@ -1,0 +1,81 @@
+name: Base Stocks Maxxing submission gate
+on:
+  push:
+    tags:
+      - 'v3.10.*'
+  workflow_dispatch:
+jobs:
+  judge-ready:
+    runs-on: ubuntu-latest
+    env:
+      BUILDER_CODE: ${{ vars.OWNBACK_BUILDER_CODE }}
+      NEXT_PUBLIC_BUILDER_CODE: ${{ vars.OWNBACK_BUILDER_CODE }}
+      NEXT_PUBLIC_REQUIRE_BUILDER_CODE: 'true'
+      OWNBACK_REQUIRE_BUILDER_CODE: 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.16.0
+          cache: npm
+      - name: Enforce exact tagged SHA
+        run: npm run release:tag-assert
+      - name: Tagged revision
+        run: |
+          git rev-parse HEAD
+          echo "Tag: $GITHUB_REF"
+      - uses: foundry-rs/foundry-toolchain@v1
+      - run: npm run check:lock
+      - run: npm run verify:builder:config
+      - run: npm run test:builder
+      - run: npm ci
+      - run: npm run check
+      - run: npm run test:allocation
+      - run: npm run test:retention
+      - run: npm run test:judge
+      - run: npm run test:proofs
+      - run: npm run test:release-proof
+      - run: npm run test:mainnet
+      - run: npm test
+      - run: ./contracts/install-deps.sh
+      - run: npm run test:contracts
+      - run: npm run test:deployment-safety
+      - run: npm run simulate:recovery
+      - name: Test complete fund/payment/return/refund lifecycle on Anvil
+        env:
+          RPC_URL: http://127.0.0.1:8545
+          DEPLOYER_PRIVATE_KEY: '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+          KEEPER_ADDRESS: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
+        run: |
+          anvil --silent > /tmp/ownback-anvil.log 2>&1 &
+          ANVIL_PID=$!
+          trap 'kill "$ANVIL_PID" || true' EXIT
+          sleep 2
+          (cd contracts && forge script script/DeployTestnet.s.sol:DeployTestnet --rpc-url http://127.0.0.1:8545 --broadcast)
+          npm run e2e:local
+      - run: npm run build
+      - run: npm run verify:manifest
+      - name: Verify real onchain receipts and signed preference replay
+        env:
+          BASE_SEPOLIA_RPC_URL: ${{ secrets.BASE_SEPOLIA_RPC_URL }}
+          BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
+        run: npm run verify:proofs:strict
+      - name: Final judge gate on this tag
+        env:
+          BASE_SEPOLIA_RPC_URL: ${{ secrets.BASE_SEPOLIA_RPC_URL }}
+          BASE_MAINNET_RPC_URL: ${{ secrets.BASE_MAINNET_RPC_URL }}
+        run: npm run judge:gate
+      - name: Record exact SHA in artifact
+        if: always()
+        run: git rev-parse HEAD > release-sha.txt
+      - name: Upload exact SHA and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ownback-submission-evidence
+          path: |
+            evidence/
+            SOURCE_MANIFEST.sha256
+            release-sha.txt

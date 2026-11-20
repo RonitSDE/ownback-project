@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ownback
+      POSTGRES_USER: ownback
+      POSTGRES_PASSWORD: ${COMMERCE_LOCAL_DB_PASSWORD:-change-me-local-only}
+    ports:
+      - '127.0.0.1:5433:5432'
+    volumes:
+      - ownback-commerce-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ownback -d ownback']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  ownback-commerce-db:

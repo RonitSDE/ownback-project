@@ -1,0 +1,13 @@
+{
+  "adapter": "0x36d0c193AA2bCAD589dBf0490853d2c2b1092b13",
+  "campaignId": 1,
+  "chainId": 84532,
+  "deployBlock": 57179372,
+  "keeper": "0xc2a5d5C6cb6dF500BBa4214DD5CDA40f66970379",
+  "merchant": "0xc2a5d5C6cb6dF500BBa4214DD5CDA40f66970379",
+  "ownback": "0xB65c65E2FC79dc8146fd22fe379F8B58D8476b13",
+  "shopifyRewardAdapter": "0xc854679Dd9426a479B2670181652B3A37fd6C5E1",
+  "shopifyRewardVault": "0xce9FD4eDE042324f3C1F72783d87922bFE485039",
+  "stock": "0xc0d725AF34a183d484bAe06A771D62d8e2e1BB6a",
+  "usdc": "0x421e74034DA94a9e4f044F7134B523ffBD75DdE9"
+}
