@@ -1,4 +1,4 @@
-> **Deployment decision (19 Nov 2026):** v3.10.10 is a Base Sepolia / mock-stock candidate, NOT a certified real-B20 mainnet release. Run `npm run preflight:staging` after deployment addresses and Builder Code are configured. See `FINAL_DEPLOY_HANDOFF.md` and `MAINNET_NO_GO.md`.
+> **Deployment decision (19 Nov 2026):** v3.10.10 is a Base Sepolia / mock-stock candidate, not a certified real-B20 mainnet release. Run `npm run preflight:staging` after deployment addresses and Builder Code are configured. The deployment checklist and mainnet blockers are summarized below.
 
 # OWNBACK v3.10.7 — Base Stocks Maxxing attribution patch
 
@@ -45,6 +45,23 @@ npm run verify:proofs
 ```
 
 ## Live deployment (Base Sepolia, chain 84532)
+
+This is a deployment candidate, not proof of a completed deployment or a passing release gate. Deploy to Base Sepolia with mock stock only. Keep live-stock and mainnet approval flags false. Never commit private keys or service secrets.
+
+### Base Sepolia deployment checklist
+
+1. Configure the Base Sepolia RPC, deployed testnet contract addresses, matching `BUILDER_CODE` and `NEXT_PUBLIC_BUILDER_CODE`, server secrets, database/Shopify credentials, and trusted proxy settings in the deployment secret manager. Set both attribution-required flags to `true` and all live-stock/mainnet flags to `false`.
+2. Install dependencies and pass the checks on a clean checkout: `npm ci`, `./contracts/install-deps.sh`, `npm run check`, `npm run test:deployment-safety`, `npm test`, `npm run simulate:recovery`, `npm run test:contracts`, `npm run build`, and `npm run verify:manifest`.
+3. Deploy or confirm the testnet contracts, then run `npm run preflight:staging`. Deploy the app and testnet-only keeper/Shopify workers. Smoke-test `/`, `/judge`, `/verify`, `/allocation`, and `/growth`; retain the Base Sepolia / MOCK STOCK labels. Mini-app assets do not establish that the app is published.
+4. Exercise funding, first purchase, hold and settlement, comeback purchase and settlement, plus duplicate/refund/overspend refusals and preference replay (first request 200, identical replay 409). Save new transaction receipts, order references, event logs, and Builder Code calldata evidence. Test wallets are not pilot customers, and observed repeat purchases do not establish causal retention lift.
+5. Verify new receipts against the real Base Sepolia RPC with `npm run verify:proofs:strict`. Update `evidence/proofs.json` only with independently verified evidence; then regenerate and verify `SOURCE_MANIFEST.sha256`. Tag the exact clean SHA only after checks pass, and run `npm run judge:gate` on that tagged SHA. Record the demo video from that release.
+6. A release handoff should include the site URL, exact commit SHA/tag, green CI link, transaction explorer links, verified Builder Code evidence, and demo video. Do not claim deployment readiness if any required check fails.
+
+### Mainnet status: NO-GO
+
+Do not enable real-money mainnet operations by changing chain IDs or feature flags. Shopify email claims are restricted to testnet; a production claim flow needs independent review, issuer-approved disclosures, eligibility/KYC and jurisdiction checks, refund handling, and end-to-end tests. The native mainnet checkout currently reserves merchant USDC without atomically reserving B20 inventory, which can leave a customer promised stock without timely settlement. Resolve that inventory/liability risk through a security-reviewed design and concurrency tests before accepting mainnet purchases.
+
+Mainnet also requires an independent contract/security audit, real inventory and issuer eligibility, legal sign-off, multisig and adapter authority handoff, source-verified contracts, restricted canary, monitoring, and tested incident/withdrawal/rollback procedures. Testnet or mock-stock balances must never be presented as actual equity ownership.
 
 - **App URL reported in the source:** https://ownback-project.onrender.com — customer store at `/shop`, judge page at `/judge`. Deployment health has not been independently checked in this release.
 - Assets are **mock/testnet** (mock USDC, mAAPLc). Base mainnet is **NOT DEPLOYED**.

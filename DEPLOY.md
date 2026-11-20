@@ -638,4 +638,4 @@ Documentation: https://docs.base.org/specifications/builder-codes/overview
 
 ## v3.10.10 release limitation
 
-This ZIP is a **Base Sepolia mock-stock** deployment candidate. Do not enable real-money B20 distribution by setting feature flags. The Shopify claim email worker explicitly refuses Base mainnet; the native mainnet checkout does not atomically reserve B20 inventory for USDC reward liabilities. See `MAINNET_NO_GO.md` for the remaining independent audit, inventory, legal and canary requirements.
+This ZIP is a **Base Sepolia mock-stock** deployment candidate. Do not enable real-money B20 distribution by setting feature flags. The Shopify claim email worker explicitly refuses Base mainnet; the native mainnet checkout does not atomically reserve B20 inventory for USDC reward liabilities. See the README's “Mainnet status: NO-GO” section for remaining audit, inventory, legal and canary requirements.
